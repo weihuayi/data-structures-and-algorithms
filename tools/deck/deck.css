@@ -227,3 +227,13 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck #slide-2 .qr-window.compact{width:min(100%,245px,calc(100dvh - 430px))}
 .deck #slide-2 .contact-list{margin-top:12px;padding-top:6px}
 .deck #slide-2 .compact-quote{font-size:clamp(18px,1.35vw,24px);margin:8px 0;padding:8px 14px}
+
+/* v0.11: teacher-note layer pilot (D003). Collapsible teaching annotations
+ * embedded as <details class="teacher-note"> inside a slide body. Visually
+ * distinct from body content, collapsed by default; the base print rule
+ * details>*{display:block} must not expand them on paper. */
+.deck details.teacher-note{margin-top:clamp(18px,3vh,36px);border:1px solid #e3cf9f;border-left:6px solid #d9a416;background:#fdf8ec;padding:12px 18px}
+.deck details.teacher-note summary{color:#8a6410;font-weight:650}
+.deck details.teacher-note summary:before{content:'💭 '}
+.deck details.teacher-note p,.deck details.teacher-note li{font-size:clamp(19px,1.4vw,28px);color:#5b4a1e}
+@media print{details.teacher-note>*:not(summary){display:none}}
