@@ -14,7 +14,7 @@ SLIDES = [['顺序表：表示与访问机制',
   'class="small">本次课沿这三个问题，认识第一种存储方式：顺序表示。</p>',
   '回到问题'],
  ['内存是什么？',
-  '<p>回收 D002：内存是一个巨大的字节数组，每个字节有一个编号，叫做<strong>地址</strong>。</p><table><thead><tr><th>地址</th><th>100</th><th>101</th><th>102</th><th>103</th><th>104</th><th>105</th><th>…</th></tr></thead><tbody><tr><td>字节内容</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr></tbody></table><p>给出一个地址，就能直接读出那个字节——不需要从头找起。</p>',
+  '<p>先认识内存：内存是一个巨大的字节数组，每个字节有一个编号，叫做<strong>地址</strong>。</p><table><thead><tr><th>地址</th><th>100</th><th>101</th><th>102</th><th>103</th><th>104</th><th>105</th><th>…</th></tr></thead><tbody><tr><td>字节内容</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr></tbody></table><p>给出一个地址，就能直接读出那个字节——不需要从头找起。</p>',
   '内存模型'],
  ['快递柜为什么不用挨个敲门？',
   '<div class="columns"><div class="panel"><p><strong>挨家敲门</strong></p><p>想知道包裹在哪家，只能一户一户问过去。</p></div><div '
@@ -125,10 +125,13 @@ SLIDES = [['顺序表：表示与访问机制',
   '<ul><li>能写出地址公式，并解释每一项的含义；</li><li>能预测一次插入要搬几个元素，并说清为什么；</li><li>能举出一个不该用顺序表示的场景。</li></ul><div '
   'class="quote">把一次“我以为”变成一次有依据的修正。</div>',
   '学会了吗'],
- ['课后：教材导航与三个练习',
-  '<p><strong>教材导航</strong>：精读 2.1–2.4 节；完成教材第 2 '
-  '章课后习题中与顺序表插入、删除相关的题目。课件中带“教学注记”的页面，课后可以自行点开再看。</p><ol><li>补全 '
-  '<code>code/seqlist.c</code> 的 insert 搬运循环：先把循环注释掉、自己补全，再运行核对搬运次数是否符合预测；</li><li>修改 '
-  '<code>code/addr_demo.c</code>，验证 double、char 等类型各自的 L；</li><li>思考：如果名单经常变动，你会怎样组织？</li></ol><p '
-  'class="small">挑战：设计实验，测量访问第 1 个与第 100 万个元素的时间差。<br>借助同学或 AI 时，记录获得的帮助，独立核对关键判断。</p>',
+ ['课后：教材导航与本周作业',
+  '<p><strong>教材导航</strong>：精读 2.1–2.4 节。课件中带“教学注记”的页面，课后可以自行点开再看。</p><p><strong>本周作业</strong>（作业规范见 '
+  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 2 '
+  '章选择题 (2)(3)(9)(10)、算法设计题 (10)。选择题每题附一句“为什么选它”。</p><p><strong>B. '
+  '扩展作业</strong>：补全 <code>code/seqlist.c</code> 的 insert '
+  '搬运循环：先把循环注释掉、自己补全，再运行核对搬运次数是否符合预测；附预测与实测对照。</p><p '
+  'class="small">自学练习（不提交）：修改 <code>code/addr_demo.c</code>，验证 double、char 等类型各自的 '
+  'L；思考：如果名单经常变动，你会怎样组织？<br>挑战：设计实验，测量访问第 1 个与第 100 '
+  '万个元素的时间差（提示：结果可能出乎意料——想想缓存）。</p>',
   '课后衔接']]
