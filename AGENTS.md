@@ -18,19 +18,20 @@ Deck（`course/decks/dNNN-slug/`）是为真实课堂组织的一条相对完整
 
 - Deck ID（如 D001）表示稳定资产身份，不等同于教学周次、课次或 45 分钟课时；
 - 不按 Week 组织目录，不通过移动或重命名 Deck 表达教学进度；某学期实际推进位置记录在 `course/offerings/<offering>/`；
-- 一个完整 Deck 的标准组成（五件套）：
-  - `README.md`：教学目标、主要问题、案例、维护关系；
+- 一个完整 Deck 的标准组成（四件套）：
+  - `README.md`：设计卡（本质关系与接口方向）、教学目标、主要问题、案例、维护关系与课堂时间预算（分钟分配、断点、可砍页）；
   - `slides.py`：幻灯片主维护源，`SLIDES` 为 `[标题, body_html, 分节标签]` 三元组列表；
   - `index.html`：由构建工具生成的受控派生产物，不作为并列主源手工编辑；
-  - `handout.md`：独立维护的学生连续阅读讲义（Markdown，公式用 `$...$`），不由 slides 自动生成；
   - `code/`：与该 Deck 强绑定的 C 课堂演示代码（C11，`gcc -std=c11 -Wall -Wextra` 可编译运行）。
+
+学生课后材料以 slides（含可点开的教师注记）为主；不再维护独立的 handout 讲义（避免互动答案泄漏与双轨维护漂移）。
 
 ## 三、新 Deck 生产流程
 
 1. 在 `course/decks/` 下新建 `dNNN-slug/` 目录，NNN 接续现有编号，slug 用英文短横线命名；
 2. 编写 `slides.py`（参照既有 Deck 的三元组格式与语义化 CSS class 用法）；
 3. 执行构建生成 `index.html`（见第四节），核对生成页数与源一致；
-4. 补齐 `README.md`、`handout.md`，按需添加 `code/` 演示代码；
+4. 补齐 `README.md`（含课堂时间预算），按需添加 `code/` 演示代码；
 5. 在 `course/decks/README.md` 表格中登记，并更新建议顺序；
 6. 如某一学期已开始使用，在 `course/offerings/<offering>/schedule.md` 记录实际推进。
 

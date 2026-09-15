@@ -24,9 +24,7 @@ SLIDES = [['受限的线性结构：栈与队列',
  ['为什么限制反而有用？',
   '<p>撤销的语义是：“最后发生的，最先撤回。”</p><p>栈用一条限制，把这个语义变成了<strong>保证</strong>：不用检查、不用搜索，pop '
   '弹出的恒是最后发生的那一步。</p><div '
-  'class="quote">操作越受限，行为越可预测；<br>行为可预测，才能对顺序做保证。</div><details '
-  'class="teacher-note"><summary>教学注记</summary><p>限制与自由的辩证法（控制在 2 '
-  '分钟）：好的约束让行为可预期——“戴着镣铐跳舞”，镣铐反而成就了诗的形式。工程与人生同构：纪律不是负担，是能力的前提。点到为止，不展开说教。</p></details>',
+  'class="quote">操作越受限，行为越可预测；<br>行为可预测，才能对顺序做保证。</div>',
   '栈'],
  ['栈的接口有多大？',
   '<p>栈的全部操作：</p><table><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr '
@@ -94,10 +92,9 @@ SLIDES = [['受限的线性结构：栈与队列',
   'class="quote">少用一个格子，还是多记一个数——<br>工程权衡，没有免费午餐。</div>',
   '循环队列'],
  ['手工推演：N = 5 的循环队列',
-  '<p>采用方案一（牺牲一个单元，最多装 4 个），front、rear 从 0 出发：</p><ol><li>enqueue 4 个元素 '
-  'A、B、C、D；</li><li>dequeue 2 个；</li><li>再 enqueue 2 个 E、F。</li></ol><p>先自己算：front、rear '
-  '各落在哪？队列判满了吗？</p><details><summary>核对答案</summary><p>入队 A–D：rear 走到 '
-  '4，(4+1)%5 == 0 == front，<strong>已满</strong>。<br>出队 2 个：front 走到 2（A、B 离开）。<br>再入队 '
+  '<p>采用方案一（牺牲一个单元，最多装 4 个），front、rear 从 0 出发。分两级推演：</p><p><strong>第一级（全班一起）</strong></p><ol><li>enqueue 4 个元素 '
+  'A、B、C、D：rear 走到 4，(4+1)%5 == 0 == front，<strong>已满</strong>；</li><li>dequeue 2 个：A、B 离开，front 走到 '
+  '2。</li></ol><p><strong>第二级（学生独立）</strong>：再 enqueue 2 个 E、F——rear 落在哪？队列判满了吗？</p><details><summary>核对答案</summary><p>再入队 '
   'E、F：rear 从 4 绕回 0、再到 1。<br>最终 front = 2，rear = 1；(1+1)%5 == 2 == '
   'front，<strong>再次判满</strong>——E、F 之后一个也进不来。</p></details>',
   '循环队列'],
@@ -126,7 +123,8 @@ SLIDES = [['受限的线性结构：栈与队列',
   '<p>拿走了“随便存取”的自由，换来了：</p><ul><li><strong>语义</strong>：LIFO 与 '
   'FIFO——顺序本身有了保证；</li><li><strong>简单</strong>：接口只有三四个操作，不容易用错；</li><li><strong>可维护</strong>：接口越窄，不变量越容易维护，正确性越好保证。</li></ul><div '
   'class="quote">限制换语义：约束不是损失，是设计。</div><details '
-  'class="teacher-note"><summary>教学注记</summary><p>“接口越窄、不变量越容易维护”对应软件工程的信息隐藏原理：模块暴露得越少，外部能破坏的东西就越少。可预告一句：以后看到的好的模块设计，都在做“限制”这门功课。</p></details>',
+  'class="teacher-note"><summary>教学注记</summary><p>“接口越窄、不变量越容易维护”对应软件工程的信息隐藏原理：模块暴露得越少，外部能破坏的东西就越少。可预告一句：以后看到的好的模块设计，都在做“限制”这门功课。</p><p>限制与自由的辩证法（控制在 2 '
+  '分钟）：好的约束让行为可预期——“戴着镣铐跳舞”，镣铐反而成就了诗的形式。工程与人生同构：纪律不是负担，是能力的前提。点到为止，不展开说教。</p></details>',
   '本质收口'],
  ['把三个情境放在一起看',
   '<table><thead><tr><th>情境</th><th>数学</th><th>操作</th></tr></thead><tbody><tr><td>餐盘：只从顶上放取</td><td>LIFO '

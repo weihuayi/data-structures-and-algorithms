@@ -24,7 +24,7 @@ SLIDES = [['链表与表示的选择',
   'class="teacher-note"><summary>教学注记</summary><p>对照提问脚本：先让学生自己说“快递柜 vs 寻宝差在哪”——柜号可以直接算出位置，线索只能沿着走；一个能直奔，一个不能。让学生先给出答案，再落到“地址公式失效”这一层。</p></details>',
   '生活类比'],
  ['结点在内存里住成什么样？',
-  '<p>回收 D002：内存是一个巨大的字节数组，指针 = 地址。结点散落各处，指针把它们串成链。</p><table><thead><tr><th>结点</th><th>住址（地址）</th><th>next（下一项住址）</th></tr></thead><tbody><tr><td>3x²</td><td>100</td><td>316</td></tr><tr><td>2x</td><td>316</td><td>208</td></tr><tr><td>1</td><td>208</td><td>空（NULL）</td></tr></tbody></table><div '
+  '<p>回收 D003：内存是一个巨大的字节数组；指针是记录地址的变量。结点散落各处，指针把它们串成链。</p><table><thead><tr><th>结点</th><th>住址（地址）</th><th>next（下一项住址）</th></tr></thead><tbody><tr><td>3x²</td><td>100</td><td>316</td></tr><tr><td>2x</td><td>316</td><td>208</td></tr><tr><td>1</td><td>208</td><td>空（NULL）</td></tr></tbody></table><div '
   'class="record-strip ordered"><span>3x² @100</span><span>→</span><span>2x @316</span><span>→</span><span>1 '
   '@208</span><span>→</span><span>NULL</span></div><p>地址 100、316、208 互不相邻，链却串起了次序。</p><p '
   'class="small">head 只记录第一个结点的地址 100——这是整条链的全部家当。</p>',
@@ -87,7 +87,7 @@ SLIDES = [['链表与表示的选择',
   'NULL。）双向链表插入要改几个链接？（四个：新结点的两个，前驱、后继各一个。）</p></details>',
   '变体'],
  ['两个有序表合并，链表版怎么做？',
-  '<p>回收 D002 双指针扫描：两个指针各盯一条链的当前结点。</p><ol><li>比较两个指针所指的结点；</li><li>把较小的结点接到结果链的尾部；</li><li>对应的指针前进一步，直到一条链走完。</li></ol><div '
+  '<p>承接 D002 双索引扫描的思想：两个指针各盯一条链的当前结点。</p><ol><li>比较两个指针所指的结点；</li><li>把较小的结点接到结果链的尾部；</li><li>对应的指针前进一步，直到一条链走完。</li></ol><div '
   'class="quote">只改链接，不搬数据。</div><p '
   'class="small">数组版合并要逐个元素拷贝；链表版只是把现成的结点重新串联。</p>',
   '应用回收'],
