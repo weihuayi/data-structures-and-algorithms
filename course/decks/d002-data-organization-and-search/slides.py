@@ -163,8 +163,8 @@ SLIDES = [['组织数据，让计算更有效',
   '<table><thead><tr><th>基本逻辑结构</th><th>关系特征</th><th>课程中的联系</th></tr></thead><tbody>\n'
   '<tr><td>集合结构</td><td>只考虑同属一个集合</td><td>先辨认元素与集合</td></tr>\n'
   '<tr><td>线性结构</td><td>元素之间有先后关系</td><td>线性表、栈、队列</td></tr>\n'
-  '<tr><td>树形结构</td><td>分支与层次关系</td><td>树</td></tr>\n'
-  '<tr><td>图状结构</td><td>一般连接关系</td><td>图与搜索</td></tr></tbody></table>\n'
+  '<tr><td>树结构</td><td>分支与层次关系</td><td>树</td></tr>\n'
+  '<tr><td>图结构</td><td>一般连接关系</td><td>图与搜索</td></tr></tbody></table>\n'
   '<p>线性表继续讨论操作与存储；查找与排序继续研究怎样访问、整理数据。</p>\n'
   '<p class="small">分类依据是元素之间的逻辑关系；具体存储和算法需要另行选择。</p>',
   '课程地图'],

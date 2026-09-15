@@ -7,7 +7,7 @@ SLIDES = [['链表与表示的选择',
   'class="small">教材对应：《数据结构（C语言版）（第3版）》第 2 章 线性表，2.5–2.8 节</p>',
   '课程名'],
  ['只给真正存在的项安排住处，次序怎么保？',
-  '<p>回收 D003 留问：x¹⁰⁰⁰⁰ + 2x + 1 不该为 9999 个零系数浪费住处。</p><p>那就只给真正存在的三项安排住处：</p><div '
+  '<p>回收 D003 留问：x¹⁰⁰⁰⁰ + 2x + 1 不该为 9998 个零系数浪费住处。</p><p>那就只给真正存在的三项安排住处：</p><div '
   'class="record-strip"><span>1·x¹⁰⁰⁰⁰</span><span>2·x¹</span><span>1·x⁰</span></div><p>但“下标即次数”丢了：三个项散落各处，谁先谁后？</p><div '
   'class="quote">次序不能靠“住在隔壁”表达了，<br>还能靠什么？</div>',
   '回到问题'],
@@ -36,7 +36,7 @@ SLIDES = [['链表与表示的选择',
   'class="teacher-note"><summary>教学注记</summary><p>指针痛点正面应对：next 就是“下一个住哪”的门牌号，先建立这个直观，再谈语法。free 是责任：malloc 来的住处不归还，内存会一点点漏掉（内存泄漏）——一句话点到，不展开。</p></details>',
   '从数学到 C'],
  ['malloc 出来的 3 个结点，地址相邻吗？',
-  '<p>先预测：连续三次 malloc，拿到的地址会相邻吗？</p><details><summary>说出你的预测与理由</summary><p>不会。结点由系统在空闲处安排，住在哪与谁先出生无关。</p></details><p>运行 '
+  '<p>先预测：连续三次 malloc，拿到的地址会相邻吗？</p><details><summary>说出你的预测与理由</summary><p>不会。即使某次运行看似有规律，也不在语言的保证之内——顺序和间距都不可依赖。</p></details><p>运行 '
   '<code>code/link_demo.c</code>，打印三个结点的真实地址，检查预测。</p><div class="quote '
   'compact-quote">不相邻，但链得起来。</div><p class="small">与 D003 的 addr_demo '
   '恰成对照实验：那里相邻元素地址差恒为 sizeof，这里相邻结点之间隔着空隙，地址差不再是 '
@@ -68,7 +68,7 @@ SLIDES = [['链表与表示的选择',
  ['顺序表 vs 链表，代价为何严格互换？',
   '<table><thead><tr><th></th><th>顺序表</th><th>链表</th></tr></thead><tbody><tr '
   'class="focus-row"><td>按位置访问</td><td>O(1)</td><td>O(n)</td></tr><tr><td>插入 / '
-  '删除</td><td>O(n)</td><td>O(1)</td></tr><tr><td>空间开销</td><td>无额外</td><td>每结点多一个指针</td></tr><tr><td>容量</td><td>定长，需扩容</td><td>按需生长</td></tr></tbody></table><div '
+  '删除</td><td>O(n)</td><td>O(1)（已知位置后）</td></tr><tr><td>空间开销</td><td>无额外</td><td>每结点多一个指针</td></tr><tr><td>容量</td><td>定长，需扩容</td><td>按需生长</td></tr></tbody></table><div '
   'class="quote">强项与边界，仍来自同一个原因：布局选择。</div><p '
   'class="small">换取一样东西的方式，就是放弃另一样东西。</p>',
   '对照收口'],
@@ -94,7 +94,7 @@ SLIDES = [['链表与表示的选择',
  ['回到教材：链式存储结构',
   '<div class="quote compact-quote"><strong>教材定义</strong><br>链式存储结构用一组任意的存储单元存储线性表的数据元素；每个结点除存储数据元素本身的信息外，还要存储指示其直接后继的信息。</div><p>数据域 '
   '+ 指针域 = 结点；n 个结点链接成一个链表。每个结点只含一个指针域的，称为单链表（线性链表）。</p><p>这是线性表 ADT '
-  '的<strong>第二种实现</strong>：操作集合没变，存储方式换了——教材 2.2 节“ADT 不规定怎样存”，在此兑现。</p><p '
+  '的<strong>第二种实现</strong>：操作集合没变，存储方式换了——教材 2.3 节“ADT 不规定怎样存”，在此兑现。</p><p '
   'class="small">见教材 2.5–2.7 节。</p><details '
   'class="teacher-note"><summary>教学注记</summary><p>习题路径：一元多项式相加的完整实现见教材 2.8 '
   '节，作为习题布置——它正是本讲的引入案例，学生已经走完“为什么需要链表”，剩下的实现细节适合独立攻下。</p></details>',
