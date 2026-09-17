@@ -10,5 +10,6 @@ Deck 是为真实课堂组织的一条相对完整的教学叙事。Deck ID 表�
 | D004 | 链表与表示的选择 | [`d004-linked-list/`](d004-linked-list/) |
 | D005 | 受限的线性结构：栈与队列 | [`d005-stack-and-queue/`](d005-stack-and-queue/) |
 | D006 | 栈与递归：程序执行的栈模型 | [`d006-stack-and-recursion/`](d006-stack-and-recursion/) |
+| D007 | 串与模式匹配 | [`d007-string-pattern-matching/`](d007-string-pattern-matching/) |
 
-当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。
+当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。

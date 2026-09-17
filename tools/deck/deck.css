@@ -237,3 +237,27 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck details.teacher-note summary:before{content:'💭 '}
 .deck details.teacher-note p,.deck details.teacher-note li{font-size:clamp(19px,1.4vw,28px);color:#5b4a1e}
 @media print{details.teacher-note>*:not(summary){display:none}}
+
+/* v0.12: data-mem continuous memory strip demos (D003). Tiles reuse the
+ * shared .tiles/.tile look; movement is animated via FLIP transforms scoped
+ * to [data-mem] so the data-pair demo is unaffected. */
+.deck [data-mem] .tile{transition:transform .45s ease}
+.deck [data-mem] .tiles{margin:12px 0}
+.deck .mem-slot{border-style:dashed;background:transparent;opacity:.45}
+.deck .mem-ghost{visibility:hidden}
+.deck .mem-band{margin:14px 0}
+.deck .mem-title{font-size:clamp(18px,1.3vw,25px);color:var(--muted);margin:8px 0}
+.deck .mem-old .tile{opacity:.35}
+.deck .mem-counter{font-size:clamp(19px,1.4vw,27px);font-weight:700;color:var(--blue);min-height:1.5em;margin:8px 0}
+.deck .mem-line{display:flex;gap:12px;flex-wrap:nowrap;width:fit-content;border:2px solid var(--line);border-radius:8px;padding:8px;margin:8px 0}
+.deck .mem-line.mem-cached{border-color:var(--blue);background:#eef5fc}
+.deck .mem-line.mem-miss{border-color:var(--accent);background:#fff1e9}
+.deck .tile.mem-hit{border-color:#087a67;background:#e6f5f1}
+.deck .mem-cache-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(20px,3vw,56px);align-items:start}
+.deck .mem-scat{display:grid;grid-template-rows:repeat(2,auto);grid-auto-flow:column;gap:8px clamp(10px,1.2vw,22px)}
+.deck .mem-scat .mem-line{margin:0}
+.deck [data-mem="cache"] .mem-line{gap:8px;padding:6px}
+.deck [data-mem="cache"] .tile{min-width:clamp(46px,3.4vw,68px);padding:6px 8px;font-size:clamp(20px,1.5vw,28px)}
+.deck [data-mem="cache"] .tile small{font-size:clamp(12px,.8vw,16px)}
+@media(max-width:1100px){.deck .mem-cache-grid{grid-template-columns:1fr}.deck .mem-scat{grid-template-rows:repeat(4,auto)}}
+@media(max-width:760px){.deck .mem-line{gap:6px}}

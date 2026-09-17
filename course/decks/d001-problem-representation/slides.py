@@ -21,7 +21,8 @@ SLIDES = [['数据结构与算法',
   'compact-quote">提问时，请尽量带上问题、代码、运行结果或报错，以及你已经尝试过什么。</div></div><div class="panel extension-card"><p '
   'class="extension-kicker">课外延伸</p><div class="qr-window public-qr small-public"><img class="qr-image '
   'contain" src="../../assets/suanhai-yangfan-qr.png" alt="算海扬帆公众号二维码"></div><p><strong>算海扬帆</strong></p><p '
-  'class="small">计算、科研、软件与学习实践的长期分享。<br>自愿关注 · 非课程通知渠道 · 非必修材料</p></div></div>',
+  'class="small">计算、科研、软件与学习实践的长期分享。<br>自愿关注 · 非课程通知渠道 · 非必修材料</p></div></div><details '
+  'class="teacher-note"><summary>教学注记</summary><p>课堂宣讲：课程仓库协作方案——学生可通过协作项目（课件勘误、案例补充、工具改进）参与仓库建设；招募课程仓库管理员；设有贡献奖励机制。目的是把"使用课程材料"变成"参与建设课程材料"。</p></details>',
   '课程运行'],
  ['一年以后，我们又见面了',
   '<div class="year-timeline"><div class="time-node"><span>2025 秋</span><strong>刚进入大学</strong><small>Python '
@@ -44,14 +45,16 @@ SLIDES = [['数据结构与算法',
   '<div class="big-question top-question">如果只能写一个，你现在大学学习中最大的困惑是什么？</div><div '
   'class="confusion-tags"><span>数学学了很多，但不知道怎样真正使用</span><span>能跟着写程序，但独立做仍然困难</span><span>不知道专业以后能做什么</span><span>AI '
   '很方便，但不知道怎样避免依赖</span><span>学习投入不少，但效果不好</span><span>不知道自己真正擅长什么</span></div><div '
-  'class="submission-note"><strong>这些只是例子，不是选项。</strong><br>可以通过课程群中的匿名表单提交；网络不便时，先写在自己的纸上。</div>',
+  'class="submission-note"><strong>这些只是例子，不是选项。</strong><br>可以通过课程群中的匿名表单提交；网络不便时，先写在自己的纸上。</div><details '
+  'class="teacher-note"><summary>教学注记</summary><p>困惑对话的展开设计：从匿名收集的困惑中归并出若干典型方向，课堂以点名对话邀请学生把自己的困惑说具体；回应时先以教师自己求学阶段的同类困惑入手，再把话题引向本课反复练习的四件事——理解、表达、实践、判断。</p></details>',
   '成长回访'],
  ['大学学习，不只是把一门门课修完',
   '<div class="growth-bridge"><div '
   'class="experience-cloud"><span>数学分析</span><span>高等代数</span><span>Python</span><span>英语</span><span>AI</span><span>比赛与项目</span><span>自己的成功与失败</span></div><div '
   'class="growth-right"><div class="bridge-question">这些经历最后应该留下什么？</div><div '
   'class="ability-grid"><div><strong>理解</strong><p>看清对象、问题和关系。</p></div><div><strong>表达</strong><p>用语言、数学、数据和程序表达理解。</p></div><div><strong>实践</strong><p>让知识在真实任务中工作。</p></div><div><strong>判断</strong><p>知道为什么成立、哪里会错、什么时候不能用。</p></div></div></div></div><p '
-  'class="small">这不是对“学习”的完整定义；这是这门课会反复练习的四件事。</p>',
+  'class="small">这不是对“学习”的完整定义；这是这门课会反复练习的四件事。</p><details '
+  'class="teacher-note"><summary>教学注记</summary><p>理念展开（约 5 分钟）：马斯洛需求层次辩论——层次是固定的吗？伯夷叔齐（价值选择可以高于生存需求）、长征（信念越过生理极限）说明顺序可以倒转。落点：理解不是背下来的知识，而是能在新情境中重新生成的活的关系——理解是活的。</p></details>',
   '重新出发'],
  ['数据结构与算法，是我们的下一次真实学习实践',
   '<div class="course-practice-map"><div '
@@ -76,7 +79,8 @@ SLIDES = [['数据结构与算法',
   'class="maze-buttons"><button data-move="-1,0">上 ↑</button><button data-move="1,0">下 ↓</button><button '
   'data-move="0,-1">左 ←</button><button data-move="0,1">右 →</button><button '
   'data-maze-back>退一步</button><button data-maze-reset>重新开始</button></div><p class="maze-info" '
-  'aria-live="polite"></p></div></div></div>',
+  'aria-live="polite"></p></div></div></div><details '
+  'class="teacher-note"><summary>教学注记</summary><p>企业延伸：AGV 智能工厂中数千台 AGV 的调度，数学结构与这张迷宫相同——格子、邻接、通行状态、起点与终点，差别只在规模与代价。可点一句：今天在迷宫里完成的建模，就是物流自动化工程师每天的工作。</p></details>',
   '迷宫挑战'],
  ['程序怎样区分迷宫里的不同格子？',
   '<div data-map="positions" class="map-bridge"><div class="columns"><div><div class="map-grid" '
@@ -136,7 +140,8 @@ SLIDES = [['数据结构与算法',
   'pair_sum\n'
   './pair_sum</code></pre><p class="small">源码 → 编译/链接 → 可执行程序 → 运行结果</p></div><div '
   'class="panel"><p><strong>运行前</strong>：你预测会输出哪一对？</p><p><strong>运行后</strong>：和预测一致吗？</p><p><strong>修改后</strong>：把 '
-  'target 改成100，会发生什么？</p></div></div><div class="quote compact-quote">修改源码以后，要重新编译，再运行新的程序。</div>',
+  'target 改成100，会发生什么？</p></div></div><div class="quote compact-quote">修改源码以后，要重新编译，再运行新的程序。</div><details '
+  'class="teacher-note"><summary>教学注记</summary><p>现场调查：统计学生实际使用的编译环境（小熊猫 C、VS Code 等），追问编译器与标准版本；让"先预测、再运行、再检查"落到每人自己的工具链上。</p></details>',
   '教师现场演示'],
  ['两个案例，我们刚才其实做了什么？',
   '<table><thead><tr><th></th><th>迷宫</th><th>商品配对</th></tr></thead><tbody><tr><td>识别对象</td><td>格子、位置</td><td>商品</td></tr><tr><td>保留信息</td><td>坐标、通行状态、起终点</td><td>编号、价格、目标金额</td></tr><tr><td>表达关系</td><td>上下左右邻接</td><td>不同商品、配对条件</td></tr><tr><td>设计操作</td><td>选择下一位置</td><td>枚举候选商品对</td></tr><tr><td>检查一致性</td><td>不能越界、不能穿墙</td><td>不重、不漏、满足目标</td></tr></tbody></table><div '
@@ -147,7 +152,10 @@ SLIDES = [['数据结构与算法',
   'class="panel"><p><strong>现在</strong></p><p>一次检查，只能判断当前这一对。</p></div><div '
   'class="panel"><p><strong>接下来</strong></p><p>能否利用某种组织方式，让一次判断排除一批不可能的候选？</p></div></div>',
   '留下问题'],
- ['课后：做一次表达与运行的对应',
-  '<ul><li>运行金额示例，再把目标改成100，核对预测。</li><li>解释 i &lt; j 怎样进入内层循环。</li><li>给小迷宫的位置写出可通行邻居与数组值。</li></ul><div '
-  'class="quote">数据更多时，你会怎样减少需要检查的配对？</div>',
+ ['课后：教材导航与本周作业',
+  '<p><strong>教材导航</strong>：阅读第 1 章，配合思维导图与费曼式复习——能不看课件，讲清"对象与信息 → 计算表示 → 条件 → 程序 → 运行检查"这条链。</p><p><strong>A '
+  '部分 · 书本习题</strong>：第 1 章简述题 1、2、3。每题用自己的话作答，并各举一个例子。</p><p><strong>B '
+  '部分 · 扩展作业</strong>：运行 <code>code/pair_sum.c</code>：先把目标改成 100 之前写下你预测的输出，再运行核对；解释 i '
+  '&lt; j 怎样进入内层循环；给小迷宫的两个位置写出可通行邻居与数组值。凡运行代码，附预测与实测对照。</p><p '
+  'class="small">AI 使用规范与提交格式见作业规范（course/assignments/homework-guide.md）：带着思考参与整个过程，附过程记录。</p>',
   '课后衔接']]
