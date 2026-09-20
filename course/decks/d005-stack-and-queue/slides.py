@@ -32,11 +32,15 @@ SLIDES = [['受限的线性结构：栈与队列',
   'class="quote compact-quote">接口越窄，越不容易用错。</div>',
   '栈'],
  ['括号在哪一步配不上？',
-  '<p>规则：遇到左括号压栈，遇到右括号弹栈核对。</p><p>先口算：<code>({[}]</code> 在哪一步配不上？</p><details><summary>栈轨迹推演</summary><table><thead><tr><th>字符</th><th>动作</th><th>栈（左底右顶）</th></tr></thead><tbody><tr><td>(</td><td>压栈</td><td>(</td></tr><tr><td>{</td><td>压栈</td><td>( '
-  '{</td></tr><tr><td>[</td><td>压栈</td><td>( { [</td></tr><tr><td>}</td><td>弹栈核对</td><td>栈顶是 [，与 } '
-  '配不上</td></tr></tbody></table><p>第 4 个字符处发现不匹配。</p></details><details '
+  '<p>规则：遇到左括号压栈，遇到右括号弹栈核对。先口算：<code>({[}]</code> '
+  '在哪一步配不上？再亲手推演——三种情形各看一遍：</p><div '
+  'data-stack="brackets"><div class="toolbar"><label>输入串 <select aria-label="选择输入串"><option '
+  'value="0">({[}]</option><option value="1">({[]})</option><option '
+  'value="2">(()</option></select></label><button data-prev>上一步</button><button data-next>开始推演</button><button '
+  'data-reset>重置</button></div><div class="mem-counter"></div><div class="stack-zones"></div><div '
+  'class="status" aria-live="polite"></div></div><p class="small">遍历完还要看一眼栈：栈非空，同样有左括号没配上。</p><details '
   'class="teacher-note"><summary>教学注记</summary><p>提问脚本：先让学生口算 <code>({[}]</code> '
-  '的栈轨迹、说出第几步配不上，再展开答案。追问：如果只有左括号、没有右括号呢？——遍历完栈非空即错。</p></details>',
+  '的栈轨迹、说出第几步配不上，再用推演核对。追问“如果只有左括号、没有右括号呢”，对应第三种情形 <code>(()</code>——遍历完栈非空即错。</p></details>',
   '栈'],
  ['顺序栈：数组 + top，回收 D003',
   '<p>回收 D003：数组天然有一端是固定的——下标 0 作栈底，栈顶用一个下标 top 标记。</p><pre>#define MAX '
@@ -72,10 +76,11 @@ SLIDES = [['受限的线性结构：栈与队列',
   'D001 的迷宫案例：同一类工程问题，换一个主角。</p></details>',
   '队列'],
  ['顺序队列的麻烦：rear 一路向后走',
-  '<p>顺序队列：数组 + 队头 front + 队尾 rear。dequeue 只是 front 向后走一格——前部的位置空出来了，rear 却一路向后走。</p><div '
-  'class="record-strip"><span>空</span><span>空</span><span>空</span><span>D</span><span>E</span></div><p '
-  'class="small">N = 5：front 指向 D，rear 已顶到数组末尾。明明空着 3 个位置，新元素却进不来。</p><div '
-  'class="quote">rear 顶到头，前部空着——这就是“假满”。</div>',
+  '<p>顺序队列：数组 + 队头 front + 队尾 rear。dequeue 只是 front 向后走一格——前部的位置空出来了，rear '
+  '却一路向后走。亲手复现一次：</p><div data-queue="plain"><div class="toolbar"><button '
+  'data-prev>上一步</button><button data-next>开始推演</button><button data-reset>重置</button></div><div '
+  'class="mem-counter"></div><div class="queue-zones"></div><div class="status" '
+  'aria-live="polite"></div></div><div class="quote">rear 顶到头，前部空着——这就是“假满”。</div>',
   '队列'],
  ['怎样把数组弯成环？',
   '<p>让下标“到头就绕回”：</p><div class="quote">rear = (rear + 1) % N</div><p>取模的余数永远在 0 '
@@ -92,11 +97,12 @@ SLIDES = [['受限的线性结构：栈与队列',
   'class="quote">少用一个格子，还是多记一个数——<br>工程权衡，没有免费午餐。</div>',
   '循环队列'],
  ['手工推演：N = 5 的循环队列',
-  '<p>采用方案一（牺牲一个单元，最多装 4 个），front、rear 从 0 出发。分两级推演：</p><p><strong>第一级（全班一起）</strong></p><ol><li>enqueue 4 个元素 '
-  'A、B、C、D：rear 走到 4，(4+1)%5 == 0 == front，<strong>已满</strong>；</li><li>dequeue 2 个：A、B 离开，front 走到 '
-  '2。</li></ol><p><strong>第二级（学生独立）</strong>：再 enqueue 2 个 E、F——rear 落在哪？队列判满了吗？</p><details><summary>核对答案</summary><p>再入队 '
-  'E、F：rear 从 4 绕回 0、再到 1。<br>最终 front = 2，rear = 1；(1+1)%5 == 2 == '
-  'front，<strong>再次判满</strong>——E、F 之后一个也进不来。</p></details>',
+  '<p>采用方案一（牺牲一个单元，最多装 4 个），front、rear 从 0 '
+  '出发。全班先一起推演：入队 A、B、C、D，再出队 2 个；然后独立预测：再入队 E、F，rear 落在哪？队列判满了吗？——用推演核对你的预测：</p><div '
+  'data-queue="circ"><div class="toolbar"><button data-prev>上一步</button><button '
+  'data-next>开始推演</button><button data-reset>重置</button></div><div class="mem-counter"></div><div '
+  'class="queue-zones"></div><div class="status" aria-live="polite"></div></div><p '
+  'class="small">关键瞬间：rear 从 4 绕回 0——取模让下标“到头就绕回”，前部空位重新可用。</p>',
   '循环队列'],
  ['先预测，再运行：queue_demo',
   '<p>先预测：普通顺序队列（N = 5）交替入队、出队之后，rear 顶到末尾，还能再入队吗？</p><details><summary>说出你的预测与理由</summary><p>不能——前部空位用不上，假满；换成循环队列后，rear '
@@ -141,12 +147,15 @@ SLIDES = [['受限的线性结构：栈与队列',
   '<ul><li>能解释撤销为什么用栈、不用队列；</li><li>能手写循环队列的判满条件，并说清两种方案的取舍；</li><li>能说清“接口越窄越容易维护”的理由。</li></ul><div '
   'class="quote">把一次“我以为”变成一次有依据的修正。</div>',
   '学会了吗'],
- ['课后：教材导航与三个练习',
-  '<p><strong>教材导航</strong>：精读 3.1–3.3、3.5 节；完成教材第 3 '
-  '章课后习题中与栈和队列相关的题目。课件中带“教学注记”的页面，课后可以自行点开再看。</p><ol><li>用栈实现一个序列的逆序输出：体会“栈是逆序器”；</li><li>补全 '
-  '<code>code/queue_demo.c</code> 的判满条件：牺牲单元与计数器两种方案各试一次，运行核对；</li><li>思考：两个栈能实现一个队列吗？</li></ol><p '
-  'class="small">挑战：写一个完整的括号匹配程序，支持 ()、[]、{} 三种括号。<br>借助同学或 AI '
-  '时，记录获得的帮助，独立核对关键判断。</p>',
+ ['课后：教材导航与本周作业',
+  '<p><strong>教材导航</strong>：精读 3.1–3.3、3.5 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（作业规范见 '
+  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 3 '
+  '章选择题 (1)(3)(8)(12)(14)、算法设计题 (2)(7)。选择题每题附一句“为什么选它”；算法设计题写出思路与关键步骤。</p><p><strong>B. '
+  '扩展作业</strong>：补全 <code>code/queue_demo.c</code> '
+  '的判满条件：牺牲单元与计数器两种方案各试一次，运行核对；附预测与实测对照。</p><p '
+  'class="small">自学练习（不提交）：用栈实现一个序列的逆序输出——体会“栈是逆序器”；思考：两个栈能实现一个队列吗？<br>挑战：写一个完整的括号匹配程序，支持 '
+  '()、[]、{} 三种括号；算法设计题 (4)：后缀表达式求值。<br>探究：阅读教材 3.6 '
+  '节（数制转换、表达式求值、舞伴问题），任选一个案例画出它的栈/队列轨迹。</p>',
   '课后衔接'],
  ['函数调用函数，又调用函数……谁在记住“该回到哪里”？',
   '<p>程序运行时，函数调用函数、又调用函数，层层深入：</p><div class="quote">每一层调用结束，<br>是谁在记住“该回到哪里”？</div><p>下次课：栈与递归——谜底就在今天讲的栈里。</p><details '

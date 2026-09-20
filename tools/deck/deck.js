@@ -94,7 +94,108 @@ function memCacheTrace(n,lineSize){
  steps.push({k:n,done:true,contFetch,contHit,scatFetch:n,msg:`同样的 ${n} 次访问：连续布局取内存 ${contFetch} 次、命中 ${contHit} 次；分散布局取内存 ${n} 次。这就是科学计算偏爱连续布局的深层原因。`});
  return steps;
 }
-if(typeof module!=='undefined')module.exports={pairTrace,MAZE,mazeStep,openNeighbors,memInsertTrace,memDeleteTrace,memAccessTrace,memExpandTrace,memCacheTrace};
+/* data-link: linked list chain traces (pure logic, no DOM). */
+const LINK_VALUES=[101,103,105,107,109,111,113,115];
+const LINK_ADDRS=[100,316,208,452,128,604,388,540];
+function linkBase(){return LINK_VALUES.map((v,k)=>({v,addr:LINK_ADDRS[k],next:k<LINK_VALUES.length-1?LINK_ADDRS[k+1]:null}));}
+function linkAccessTrace(i){
+ const nodes=linkBase(),steps=[];
+ steps.push({nodes,counter:'',msg:`要取第 ${i+1} 项（学号 ${LINK_VALUES[i]}）。地址公式失效——每个结点住在哪，只有它的前驱知道。先预测：从 head 出发要走几步？`});
+ for(let k=1;k<=i;k++){
+  steps.push({nodes,cur:k,count:k,counter:`已走 ${k} 步`,msg:`走第 ${k} 步：当前结点 ${LINK_VALUES[k-1]} 的 next = ${LINK_ADDRS[k]}，沿指针到达第 ${k+1} 个结点 ${LINK_VALUES[k]}。`});
+ }
+ steps.push({nodes,cur:i,count:i,counter:`已走 ${i} 步`,msg:i?`到达第 ${i+1} 项，共走 ${i} 步。顺序表取同一项只要一次地址计算；取第 n 项要走 n − 1 步——链表的访问是 O(n)。`:`第 1 项就是 head 所指，走 0 步。但换成第 n 项，就要走 n − 1 步——访问是 O(n)。`});
+ return steps;
+}
+function linkSmallBase(){
+ return [{v:101,addr:100,next:316},{v:103,addr:316,next:452},{v:104,addr:208,next:null,state:'new'},{v:105,addr:452,next:null}];
+}
+function linkInsertTrace(order){
+ const nodes=linkSmallBase(),steps=[];
+ steps.push({nodes,counter:'',msg:'104 已 malloc 出生（@208），要插到 103 与 105 之间。先预测：要改哪两个链接？先改哪个，才不会出事？'});
+ if(order==='correct'){
+  steps.push({nodes,mod:{2:{next:452}},count:1,counter:'已改 1 个链接',msg:'第 1 步：s->next = p->next——104 先接上后继 105（@452）。此时 103 仍指向 105，链完好无损。'});
+  steps.push({nodes,mod:{2:{next:452},1:{next:208}},count:2,counter:'已改 2 个链接',msg:'第 2 步：p->next = s——103 改指 104（@208）。插入完成。'});
+  steps.push({nodes,mod:{2:{next:452},1:{next:208}},count:2,counter:'已改 2 个链接',msg:'共改 2 个链接，没有一个人搬家。不变量恢复：从 head 沿 next 走，恰好依次经过 101、103、104、105。'});
+ }else{
+  steps.push({nodes,mod:{1:{next:208},3:{state:'lost'}},count:1,counter:'已改 1 个链接',msg:'第 1 步：p->next = s——103 改指 104。危险已经发生：103 原本指向 105 的线索被覆盖，从 head 出发再也到不了 105。'});
+  steps.push({nodes,mod:{1:{next:208},2:{next:208},3:{state:'lost'}},count:2,counter:'已改 2 个链接',msg:'第 2 步：s->next = p->next——但 p->next 现在已是 104 自己：104 指向了自己（自环）。'});
+  steps.push({nodes,mod:{1:{next:208},2:{next:208},3:{state:'lost'}},count:2,counter:'已改 2 个链接',msg:'从 head 走：101 → 103 → 104 → 104 → … 死循环；105 及之后的结点永远丢失。断链是经典陷阱：唯一的线索被覆盖，后面的世界就消失了。正确顺序：先接后继，再改前驱。'});
+ }
+ return steps;
+}
+function linkDeleteTrace(mode){
+ const nodes=[{v:101,addr:100,next:316},{v:103,addr:316,next:208},{v:104,addr:208,next:452},{v:105,addr:452,next:null}],steps=[];
+ steps.push({nodes,counter:'',msg:'要删除 104。先预测：把 103 的 next 直接改过去，就完事了吗？'});
+ if(mode==='complete'){
+  steps.push({nodes,cur:2,counter:'',msg:'第 1 步：q = p->next——先用 q 记住 104 的地址（@208），它是找回这个结点的唯一线索。'});
+  steps.push({nodes,mod:{1:{next:452}},cur:2,counter:'',msg:'第 2 步：p->next = q->next——103 跳过 104，改指 105（@452）。104 已不在链上，但 q 还握着它。'});
+  steps.push({nodes,mod:{1:{next:452},2:{state:'freed'}},counter:'',msg:'第 3 步：free(q)——归还 104 占用的内存。删除完成：101 → 103 → 105，链干净，内存也干净。'});
+ }else{
+  steps.push({nodes,mod:{1:{next:452},2:{state:'orphan'}},counter:'',msg:'直接 p->next = p->next->next：103 跳过 104，改指 105（@452）。看上去完成了？'});
+  steps.push({nodes,mod:{1:{next:452},2:{state:'orphan'}},counter:'',msg:'104 还占着内存，却已没有任何指针能找到它——无家可归的孤儿：内存泄漏。程序长期运行，内存会一点点漏光。正确做法：先用 q 记住，改完链接再 free(q)。'});
+ }
+ return steps;
+}
+/* data-stack / data-queue: restricted linear structure traces (pure logic, no DOM). */
+function stackBracketsTrace(s){
+ const match={')':'(',']':'[','}':'{'};
+ const steps=[];const stack=[];let fail=false;
+ steps.push({input:s,i:-1,stack:[],msg:`规则：遇到左括号压栈，遇到右括号弹栈核对。先预测：扫描 ${s}，能否全部配上？若不能，在第几个字符出事？`});
+ for(let k=0;k<s.length;k++){
+  const ch=s[k];
+  if('([{'.includes(ch)){
+   stack.push(ch);
+   steps.push({input:s,i:k,stack:stack.slice(),count:stack.length,msg:`第 ${k+1} 个字符 '${ch}'：左括号，压栈。栈内 ${stack.length} 个，等待各自的右括号。`});
+  }else if(!stack.length){
+   steps.push({input:s,i:k,stack:[],fail:true,count:0,msg:`第 ${k+1} 个字符 '${ch}'：栈已空，没有左括号可与它配对——不匹配。`});
+   fail=true;break;
+  }else{
+   const top=stack[stack.length-1];
+   if(match[ch]===top){
+    stack.pop();
+    steps.push({input:s,i:k,stack:stack.slice(),count:stack.length,msg:`第 ${k+1} 个字符 '${ch}'：右括号，弹栈核对——栈顶 '${top}' 与 '${ch}' 正好配对。`});
+   }else{
+    steps.push({input:s,i:k,stack:stack.slice(),fail:true,count:stack.length,msg:`第 ${k+1} 个字符 '${ch}'：弹栈核对——栈顶是 '${top}'，与 '${ch}' 配不上！最近未配对者先闭合：'${ch}' 想找的是 '${top}' 的搭档。在第 ${k+1} 个字符处发现不匹配。`});
+    fail=true;break;
+   }
+  }
+ }
+ if(!fail){
+  steps.push(stack.length?{input:s,i:s.length-1,stack:stack.slice(),fail:true,count:stack.length,msg:`扫描完毕，栈内还剩 ${stack.length} 个左括号——它们没等到自己的右括号，不匹配。`}:{input:s,i:s.length-1,stack:[],ok:true,count:0,msg:'扫描完毕，栈空——每一对括号都是最近未配对者先闭合，全部配对成功。'});
+ }
+ return steps;
+}
+function plainQueueTrace(){
+ const steps=[];const cells=Array(5).fill(null);
+ steps.push({cells:cells.slice(),front:0,rear:0,counter:'',msg:'顺序队列：数组 + front + rear（容量 5），front 守队头、rear 指向下一个可住位置。先入队 A 到 E，再出队 2 个，然后再想入队——会发生什么？'});
+ const vs=['A','B','C','D','E'];
+ for(let k=0;k<5;k++){
+  cells[k]=vs[k];
+  steps.push({cells:cells.slice(),front:0,rear:k+1,count:k+1,counter:`队内 ${k+1} 个`,hi:k,msg:`enqueue ${vs[k]}：住进位置 ${k}，rear 走到 ${k+1}。`});
+ }
+ cells[0]=null;steps.push({cells:cells.slice(),front:1,rear:5,count:4,counter:'队内 4 个',msg:'dequeue：A 离开，front 走到 1。位置 0 空出来了。'});
+ cells[1]=null;steps.push({cells:cells.slice(),front:2,rear:5,count:3,counter:'队内 3 个',msg:'dequeue：B 离开，front 走到 2。前部已空出 2 个位置。'});
+ steps.push({cells:cells.slice(),front:2,rear:5,fail:true,count:3,counter:'队内 3 个',msg:'enqueue F：rear = 5 已顶到数组末尾，进不来——前部明明空着 2 个位置，新元素却无处安放。这就是假满。'});
+ return steps;
+}
+function circQueueTrace(){
+ const steps=[];const cells=Array(5).fill(null);
+ steps.push({cells:cells.slice(),front:0,rear:0,counter:'',msg:'循环队列：牺牲一个单元，最多装 4 个；front、rear 从 0 出发，下标"到头就绕回"。先预测：入队 A、B、C、D 之后，(rear+1)%5 == front 成立吗？'});
+ const vs=['A','B','C','D'];
+ for(let k=0;k<4;k++){
+  cells[k]=vs[k];
+  const last=k===3;
+  steps.push({cells:cells.slice(),front:0,rear:k+1,count:k+1,counter:`队内 ${k+1} 个`,hi:k,msg:last?'enqueue D：住进位置 3，rear 走到 4。判满：(4+1)%5 = 0 == front——已满（4 个元素，位置 4 被牺牲）。':`enqueue ${vs[k]}：住进位置 ${k}，rear 走到 ${k+1}。`});
+ }
+ cells[0]=null;steps.push({cells:cells.slice(),front:1,rear:4,count:3,counter:'队内 3 个',msg:'dequeue：A 离开，front 走到 1。'});
+ cells[1]=null;steps.push({cells:cells.slice(),front:2,rear:4,count:2,counter:'队内 2 个',msg:'dequeue：B 离开，front 走到 2。前部空出位置 0、1——这次它们还能用上吗？'});
+ cells[4]='E';steps.push({cells:cells.slice(),front:2,rear:0,count:3,counter:'队内 3 个',hi:4,msg:'enqueue E：住进位置 4，rear = (4+1)%5 = 0——到下标末尾，绕回开头！'});
+ cells[0]='F';steps.push({cells:cells.slice(),front:2,rear:1,count:4,counter:'队内 4 个',hi:0,msg:'enqueue F：住进位置 0（前部空位重新用上了），rear 走到 1。判满：(1+1)%5 = 2 == front——再次判满。'});
+ steps.push({cells:cells.slice(),front:2,rear:1,ok:true,count:4,counter:'队内 4 个',msg:'最终 front = 2、rear = 1，队内 C、D、E、F 共 4 个。取模把数组弯成环，前部空位重新可用——假满消失。'});
+ return steps;
+}
+if(typeof module!=='undefined')module.exports={pairTrace,MAZE,mazeStep,openNeighbors,memInsertTrace,memDeleteTrace,memAccessTrace,memExpandTrace,memCacheTrace,linkAccessTrace,linkInsertTrace,linkDeleteTrace,stackBracketsTrace,plainQueueTrace,circQueueTrace};
 if(typeof document!=='undefined'){
  const slides=[...document.querySelectorAll('.slide')];
  let current=0;
@@ -203,5 +304,88 @@ if(typeof document!=='undefined'){
   root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;draw();}};
   root.querySelector('[data-reset]').onclick=()=>{step=0;draw();};
   build();draw();
+ });
+ document.querySelectorAll('[data-link]').forEach(root=>{
+  const mode=root.dataset.link;
+  const selects=[...root.querySelectorAll('select')];
+  const zones=root.querySelector('.link-zones'),status=root.querySelector('.status'),counter=root.querySelector('.mem-counter');
+  let step=0,steps=[];
+  function build(){
+   if(mode==='access')steps=linkAccessTrace([0,3,7][Number(selects[0].value)]);
+   else if(mode==='insert')steps=linkInsertTrace(['correct','wrong'][Number(selects[0].value)]);
+   else steps=linkDeleteTrace(['complete','leak'][Number(selects[0].value)]);
+  }
+  function render(){
+   const s=steps[step];
+   const nodes=s.nodes.map((n,k)=>Object.assign({},n,(s.mod&&s.mod[k])||{}));
+   const chip=n=>{
+    if(n.next==null)return n.state==='new'?'<span class="link-arrow">→ —</span>':'<span class="link-arrow">→ NULL</span>';
+    if(n.next===n.addr)return '<span class="link-arrow link-broken">↺ 自环</span>';
+    return `<span class="link-arrow">→ @${n.next}</span>`;
+   };
+   zones.innerHTML=`<div class="link-chain"><span class="link-head">head</span><span class="link-arrow">→ @${nodes[0].addr}</span>`+nodes.map((n,k)=>{
+    const cls=['tile',k===s.cur?'pick':'',n.state?`link-${n.state}`:''].join(' ');
+    return `<div class="${cls}">${n.v}<small>地址 @${n.addr}</small></div>${chip(n)}`;
+   }).join('')+'</div>';
+   counter.textContent=s.counter||'';
+   status.textContent=s.msg;
+   root.querySelector('[data-prev]').disabled=step<=0;
+   root.querySelector('[data-next]').disabled=step>=steps.length-1;
+   root.querySelector('[data-next]').textContent=step===0?'开始推演':'下一步';
+  }
+  selects.forEach(sel=>sel.onchange=()=>{build();step=0;render();});
+  root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
+  root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
+  root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
+  build();render();
+ });
+ document.querySelectorAll('[data-stack]').forEach(root=>{
+  const select=root.querySelector('select');
+  const zones=root.querySelector('.stack-zones'),status=root.querySelector('.status'),counter=root.querySelector('.mem-counter');
+  const STRS=['({[}]','({[]})','(()'];
+  let step=0,steps=[];
+  function render(){
+   const s=steps[step];
+   const inHtml=[...s.input].map((ch,k)=>`<div class="tile stack-char ${k===s.i?'pick':''} ${k<s.i?'out':''}">${ch}</div>`).join('');
+   const stackHtml=s.stack.length?s.stack.map(ch=>`<div class="tile">${ch}</div>`).join(''):'<div class="tile mem-slot"><span class="mem-ghost">(</span></div>';
+   zones.innerHTML=`<p class="mem-title">输入串</p><div class="tiles">${inHtml}</div><p class="mem-title">栈（左底右顶）</p><div class="link-chain"><span class="link-head">栈底</span>${stackHtml}<span class="link-arrow">← 栈顶</span></div>`;
+   counter.textContent=s.count==null?'':`栈内 ${s.count} 个`;
+   status.textContent=s.msg;
+   status.classList.toggle('status-fail',!!s.fail);
+   status.classList.toggle('status-ok',!!s.ok);
+   root.querySelector('[data-prev]').disabled=step<=0;
+   root.querySelector('[data-next]').disabled=step>=steps.length-1;
+   root.querySelector('[data-next]').textContent=step===0?'开始推演':'下一步';
+  }
+  select.onchange=()=>{steps=stackBracketsTrace(STRS[Number(select.value)]);step=0;render();};
+  root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
+  root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
+  root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
+  steps=stackBracketsTrace(STRS[0]);render();
+ });
+ document.querySelectorAll('[data-queue]').forEach(root=>{
+  const mode=root.dataset.queue;
+  const zones=root.querySelector('.queue-zones'),status=root.querySelector('.status'),counter=root.querySelector('.mem-counter');
+  const steps=mode==='plain'?plainQueueTrace():circQueueTrace();
+  let step=0;
+  function render(){
+   const s=steps[step];
+   zones.innerHTML='<div class="tiles">'+s.cells.map((c,k)=>{
+    const marks=[k===s.front?'front':'',k===s.rear?'rear':''].filter(Boolean).join(' · ');
+    const small=`位置 ${k}${marks?`<br><span class="queue-mark">▲ ${marks}</span>`:''}`;
+    return c?`<div class="tile ${k===s.hi?'pick':''}">${c}<small>${small}</small></div>`:`<div class="tile mem-slot"><span class="mem-ghost">0</span><small>${small}</small></div>`;
+   }).join('')+'</div>';
+   counter.textContent=s.counter||'';
+   status.textContent=s.msg;
+   status.classList.toggle('status-fail',!!s.fail);
+   status.classList.toggle('status-ok',!!s.ok);
+   root.querySelector('[data-prev]').disabled=step<=0;
+   root.querySelector('[data-next]').disabled=step>=steps.length-1;
+   root.querySelector('[data-next]').textContent=step===0?'开始推演':'下一步';
+  }
+  root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
+  root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
+  root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
+  render();
  });
 }

@@ -261,3 +261,19 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck [data-mem="cache"] .tile small{font-size:clamp(12px,.8vw,16px)}
 @media(max-width:1100px){.deck .mem-cache-grid{grid-template-columns:1fr}.deck .mem-scat{grid-template-rows:repeat(4,auto)}}
 @media(max-width:760px){.deck .mem-line{gap:6px}}
+/* data-link: linked-list chain traces (D004) */
+.deck .link-chain{display:flex;align-items:center;gap:clamp(6px,.8vw,14px);flex-wrap:wrap;margin:16px 0}
+.deck .link-head{padding:8px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:clamp(17px,1.2vw,24px);font-weight:700}
+.deck .link-arrow{color:var(--muted);font-size:clamp(17px,1.3vw,25px);font-weight:700;white-space:nowrap}
+.deck .link-arrow.link-broken{color:#b02505;background:#fdeae4;border-radius:6px;padding:2px 8px}
+.deck .tile.link-new{border-color:var(--blue);background:#e9f2fb}
+.deck .tile.link-lost,.deck .tile.link-orphan{opacity:.42;border-style:dashed}
+.deck .tile.link-lost small:after{content:' · 丢失';color:#9b2f06;font-weight:700}
+.deck .tile.link-orphan small:after{content:' · 泄漏';color:#9b2f06;font-weight:700}
+.deck .tile.link-freed{opacity:.45;border-style:dashed;background:transparent}
+.deck .tile.link-freed small:after{content:' · 已释放';color:var(--muted);font-weight:700}
+/* data-stack / data-queue: restricted linear structure traces (D005) */
+.deck .stack-char{font-size:clamp(22px,1.7vw,32px);min-width:clamp(44px,3vw,64px);padding:6px 10px}
+.deck .queue-mark{color:var(--accent);font-weight:700}
+.deck .status.status-fail{background:#fdeae4;border-left-color:#c02a0c}
+.deck .status.status-ok{background:#e6f5f1;border-left-color:#087a67}

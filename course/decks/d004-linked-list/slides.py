@@ -43,7 +43,12 @@ SLIDES = [['链表与表示的选择',
   'sizeof。同一个验证口径——先预测、再运行、再检查。</p>',
   '先预测再运行'],
  ['取第 i 项，要走几步？',
-  '<p>地址公式失效：结点不住在 base + (i−1)×L，算不出，只能走。</p><div class="quote">从 head 出发，沿 next 走 i−1 '
+  '<p>地址公式失效：结点不住在 base + (i−1)×L，算不出，只能走。亲手沿指针走一走：</p><div '
+  'data-link="access"><div class="toolbar"><label>取哪一项 <select aria-label="选择访问位置"><option '
+  'value="0">第 1 项</option><option value="1">第 4 项</option><option value="2">第 8 '
+  '项</option></select></label><button data-prev>上一步</button><button data-next>开始推演</button><button '
+  'data-reset>重置</button></div><div class="mem-counter"></div><div class="link-zones"></div><div '
+  'class="status" aria-live="polite"></div></div><div class="quote">从 head 出发，沿 next 走 i−1 '
   '步，到达第 i 个元素。</div><p>取第 1 项走 0 步，取第 n 项走 n−1 步：访问是 '
   '<strong>O(n)</strong>。</p><p><strong>表示不变量换了形态</strong>：顺序表是“第 i 个元素恒在 '
   'base+(i−1)×L”；链表是“从 head 出发沿 next 走 i−1 步，恒到达第 i 个元素”。</p><p '
@@ -55,13 +60,23 @@ SLIDES = [['链表与表示的选择',
   '<strong>O(1)</strong>。</p><p class="small">工程连接：火车挂摘一节车厢，只需解开两处挂钩，不必把后面的车厢全部移位。</p>',
   '插入'],
  ['两个链接，先改哪个？',
-  '<p>先自己答：新结点指向后继、前驱指向新结点——这两步，先做哪一步？</p><details><summary>说出你的顺序与理由</summary><p><strong>先接后继，再改前驱。</strong><br>若先把前驱指向新结点，链从中间断开，后继的地址就被覆盖丢失——后半条链永远找不回来。</p></details><div '
+  '<p>新结点 104 已经 malloc 出生，要插到 103 与 105 之间。先自己答：s->next = p->next 与 p->next = '
+  's，先做哪一步？说出顺序与理由，再亲手推演——两种顺序各看一遍：</p><div '
+  'data-link="insert"><div class="toolbar"><label>改链接顺序 <select aria-label="选择改链接顺序"><option '
+  'value="0">先 s->next = p->next</option><option value="1">先 p->next = '
+  's</option></select></label><button data-prev>上一步</button><button data-next>开始推演</button><button '
+  'data-reset>重置</button></div><div class="mem-counter"></div><div class="link-zones"></div><div '
+  'class="status" aria-live="polite"></div></div><div '
   'class="quote compact-quote">断链是指针操作的经典陷阱：<br>唯一的线索被覆盖，后面的世界就消失了。</div><p '
-  'class="small">课堂互动：请一位同学上黑板，画出两种顺序各自的结果。</p>',
+  'class="small">课堂互动：请一位同学上黑板，画出两种顺序各自的结果，再与推演对照。</p>',
   '插入'],
  ['摘下结点，就完事了吗？',
-  '<div class="columns"><div class="panel"><p><strong>第一步：改链接</strong></p><p>前驱跳过被删结点，指向它的后继。</p></div><div '
-  'class="panel"><p><strong>第二步：free</strong></p><p>归还结点占用的内存——责任才算完成。</p></div></div><div '
+  '<p>删除 104：改链接与 free，少一步会怎样？两种做法各推演一遍：</p><div '
+  'data-link="delete"><div class="toolbar"><label>删除方式 <select aria-label="选择删除方式"><option '
+  'value="0">q 记录 → 改链接 → free(q)</option><option value="1">直接改链接（看看会发生什么）</option></select></label><button '
+  'data-prev>上一步</button><button data-next>开始推演</button><button data-reset>重置</button></div><div '
+  'class="mem-counter"></div><div class="link-zones"></div><div class="status" '
+  'aria-live="polite"></div></div><div '
   'class="quote">只改链接不 free，结点成了无家可归的孤儿：内存泄漏。</div><p>运行 '
   '<code>code/linklist.c</code>，演示插入与删除的完整过程。</p>',
   '删除'],
@@ -114,13 +129,15 @@ SLIDES = [['链表与表示的选择',
   'O(1)”差在内存模型的哪一步；</li><li>能各举一个该选链表、该选顺序表的场景。</li></ul><div '
   'class="quote">把一次“我以为”变成一次有依据的修正。</div>',
   '学会了吗'],
- ['课后：教材导航与三个练习',
-  '<p><strong>教材导航</strong>：精读 2.5–2.7 节；完成教材第 2 '
-  '章课后习题中与链表相关的题目。课件中带“教学注记”的页面，课后可以自行点开再看。</p><ol><li>补全 '
-  '<code>code/linklist.c</code> 的 insert 链接顺序：先把两行赋值注释掉、自己补全，再运行核对插入 104 '
-  '的结果；</li><li>实现两个有序链表的合并（对照本讲“应用回收”页的步骤）；</li><li>思考：双向链表多付的代价，换来了什么？</li></ol><p '
-  'class="small">挑战：约瑟夫环——10 人围成一圈，从 1 开始报数，数到 3 的人出局，谁留到最后？<br>借助同学或 AI '
-  '时，记录获得的帮助，独立核对关键判断。</p>',
+ ['课后：教材导航与本周作业',
+  '<p><strong>教材导航</strong>：精读 2.5–2.8 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（作业规范见 '
+  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 2 '
+  '章选择题 (4)(5)(6)(7)(12)(13)、算法设计题 (1)。选择题每题附一句“为什么选它”；算法设计题写出思路与关键步骤。</p><p><strong>B. '
+  '扩展作业</strong>：补全 <code>code/linklist.c</code> 的 insert 链接顺序：先把两行赋值注释掉、自己补全，再运行核对插入 '
+  '104 的结果；附预测与实测对照。</p><p '
+  'class="small">自学练习（不提交）：思考——双向链表多付的代价，换来了什么？可试做选择题 (14)(15) 检验自己的想法。<br>挑战：约瑟夫环——10 '
+  '人围成一圈，从 1 开始报数，数到 3 的人出局，谁留到最后？算法设计题 (7)：把单链表的链接方向“原地”逆转。<br>探究：阅读教材 2.8 '
+  '节，用本讲的结点结构实现一元多项式相加——它正是本讲的引入案例。</p>',
   '课后衔接'],
  ['如果只允许在一头存取呢？',
   '<p>链表把“住”的自由给了我们。但有时，自由本身需要被限制：</p><ul><li>食堂的餐盘叠成一摞：只能从顶上放、从顶上取；</li><li>挤满人的电梯：先到的人后走；</li><li>编辑器的“撤销”：最后做的事，最先撤回。</li></ul><div '
