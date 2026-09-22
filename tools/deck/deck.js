@@ -195,7 +195,105 @@ function circQueueTrace(){
  steps.push({cells:cells.slice(),front:2,rear:1,ok:true,count:4,counter:'队内 4 个',msg:'最终 front = 2、rear = 1，队内 C、D、E、F 共 4 个。取模把数组弯成环，前部空位重新可用——假满消失。'});
  return steps;
 }
-if(typeof module!=='undefined')module.exports={pairTrace,MAZE,mazeStep,openNeighbors,memInsertTrace,memDeleteTrace,memAccessTrace,memExpandTrace,memCacheTrace,linkAccessTrace,linkInsertTrace,linkDeleteTrace,stackBracketsTrace,plainQueueTrace,circQueueTrace};
+/* data-recur / data-hanoi: recursion traces (pure logic, no DOM). */
+function recurFactorialTrace(n){
+ const steps=[];
+ const frame=k=>({label:`f(${k})`,n:k,ret:null});
+ steps.push({frames:[],msg:`手工推演 factorial(${n}) 的栈生长与回退。先预测：压几帧？回退时各层依次返回什么？`});
+ for(let k=n;k>=0;k--){
+  const frames=[];for(let j=n;j>=k;j--)frames.push(frame(j));
+  steps.push({frames,top:n-k,count:n-k+1,msg:k===n?`main 调用 factorial(${n})，压一帧。f(${n}) 需要 f(${n-1}) 的值，才能算 ${n} × f(${n-1})。`:k===0?`f(1) 需要 f(0)——压一帧。f(0) 到达出口 n == 0，不再深入。`:`f(${k+1}) 需要 f(${k}) 的值——压一帧。`});
+ }
+ let ret=1;
+ for(let k=0;k<=n;k++){
+  const prev=k===0?1:ret;
+  if(k>0)ret=k*prev;
+  const val=k===0?1:ret;
+  const shown=[];for(let j=n;j>k;j--)shown.push(frame(j));
+  steps.push({frames:shown,retFrame:{label:`f(${k})`,val},count:n-k,msg:k===0?`出口：f(0) = 1，弹帧。返回值 1 交给 f(1)。`:`f(${k}) = ${k} × f(${k-1}) = ${k} × ${prev} = ${val}，弹帧。${k===n?`栈空——main 拿到 ${val}。`:`返回值 ${val} 交给 f(${k+1})。`}`});
+ }
+ return steps;
+}
+function hanoiTrace(n){
+ const pegs=[[],[],[]];
+ for(let k=n;k>=1;k--)pegs[0].push(k);
+ const names=['A','B','C'],steps=[];
+ steps.push({pegs:pegs.map(p=>p.slice()),msg:`hanoi(${n})：把 ${n} 个盘子从 A 移到 C。先自己写出每一步，再用推演核对。`});
+ let k=0;
+ const total=2**n-1;
+ function move(d,from,to){
+  pegs[to].push(pegs[from].pop());k++;
+  let phase='';
+  if(n===3){
+   if(k<=3)phase='（属于“把 2 盘整体移到 B”）';
+   else if(k===4)phase='（最大盘落位）';
+   else phase='（属于“把 2 盘整体移回 C”）';
+  }
+  steps.push({pegs:pegs.map(p=>p.slice()),disk:d,count:k,msg:`第 ${k} 步：盘 ${d} 从 ${names[from]} → ${names[to]}。${phase}`});
+ }
+ function solve(m,from,to,aux){
+  if(m===0)return;
+  solve(m-1,from,aux,to);
+  move(m,from,to);
+  solve(m-1,aux,to,from);
+ }
+ solve(n,0,2,1);
+ steps.push({pegs:pegs.map(p=>p.slice()),ok:true,count:k,msg:`完成：共 ${k} 步 = 2^${n} − 1 = ${total}。${n===3?'第 1–3 步是“2 盘移到 B”，第 4 步最大盘落位，第 5–7 步是“2 盘移回 C”——整体法的三步结构，在轨迹里看得清清楚楚。':''}`});
+ return steps;
+}
+/* data-match: BF / KMP pattern matching traces (pure logic, no DOM). */
+function nextTable(T){
+ const m=T.length,next=Array(m+1).fill(0);
+ for(let j=2;j<=m;j++){
+  let l=0;
+  for(let k=1;k<=j-2;k++)if(T.slice(0,k)===T.slice(j-1-k,j-1))l=k;
+  next[j]=l+1;
+ }
+ return next;
+}
+function matchTrace(S,T,mode){
+ const n=S.length,m=T.length,steps=[];
+ let cmp=0;
+ if(mode==='bf'){
+  steps.push({i:1,j:1,start:1,cmp:0,msg:`BF：主串指针 i、模式指针 j，起点从 1 到 ${n-m+1}。失配时 i 退回下一个起点、j 回 1。先预测：一共几趟？每趟比几次？`});
+  for(let start=1;start<=n-m+1;start++){
+   let j=1,i=start;
+   while(j<=m){
+    cmp++;
+    const equal=S[i-1]===T[j-1];
+    steps.push({i,j,start,cmp,hit:equal,msg:equal?`第 ${start} 趟：S[${i}] = '${S[i-1]}' 与 T[${j}] = '${T[j-1]}' 相等，i、j 各进一步。`:`第 ${start} 趟：S[${i}] = '${S[i-1]}' ≠ T[${j}] = '${T[j-1]}'，失配——这一趟比出来的 ${j-1} 个字符全部作废，i 退回 ${start+1}，j 回 1。`});
+    if(!equal)break;
+    i++;j++;
+   }
+   if(j>m){
+    steps.push({i:i-1,j:m,start,cmp,ok:true,msg:`j 越界——匹配成功，位置 = ${start}。共 ${cmp} 次比较。`});
+    return steps;
+   }
+  }
+  steps.push({i:n,j:1,start:n-m+1,cmp,fail:true,msg:`剩下的字符不够 ${m} 个了——匹配失败。共 ${cmp} 次比较。`});
+ }else{
+  const next=nextTable(T);
+  steps.push({i:1,j:1,start:1,cmp:0,msg:'KMP：失配时 i 不动，j = next[j]；j = 0 时 i、j 各进一步。先预测：i 会回头吗？共比几次？'});
+  let i=1,j=1;
+  while(i<=n){
+   if(j===0){steps.push({i,j:1,start:i,cmp,msg:'j 退到 0：连首字符都对不上——i、j 各进一步。'});i++;j=1;continue;}
+   cmp++;
+   const equal=S[i-1]===T[j-1];
+   if(equal){
+    steps.push({i,j,start:i-j+1,cmp,hit:true,msg:`S[${i}] = '${S[i-1]}' 与 T[${j}] = '${T[j-1]}' 相等，i、j 各进一步。`});
+    i++;j++;
+    if(j>m){steps.push({i:i-1,j:m,start:i-m,cmp,ok:true,msg:`j 越界——匹配成功，位置 = ${i-m}。共 ${cmp} 次比较；i 从 1 走到 ${i-1}，一次头也没回。`});return steps;}
+   }else{
+    const nj=next[j];
+    steps.push({i,j,start:i-j+1,cmp,hit:false,msg:`S[${i}] = '${S[i-1]}' ≠ T[${j}] = '${T[j-1]}'，失配——i 停在 ${i} 不动，j = next[${j}] = ${nj}：模式向右滑，前缀对准已确认相等的部分。`});
+    j=nj;
+   }
+  }
+  steps.push({i:n,j,cmp,fail:true,msg:`主串走完——匹配失败。共 ${cmp} 次比较。`});
+ }
+ return steps;
+}
+if(typeof module!=='undefined')module.exports={pairTrace,MAZE,mazeStep,openNeighbors,memInsertTrace,memDeleteTrace,memAccessTrace,memExpandTrace,memCacheTrace,linkAccessTrace,linkInsertTrace,linkDeleteTrace,stackBracketsTrace,plainQueueTrace,circQueueTrace,recurFactorialTrace,hanoiTrace,nextTable,matchTrace};
 if(typeof document!=='undefined'){
  const slides=[...document.querySelectorAll('.slide')];
  let current=0;
@@ -387,5 +485,84 @@ if(typeof document!=='undefined'){
   root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
   root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
   render();
+ });
+ document.querySelectorAll('[data-recur]').forEach(root=>{
+  const zones=root.querySelector('.recur-zones'),status=root.querySelector('.status'),counter=root.querySelector('.mem-counter');
+  const steps=recurFactorialTrace(4);
+  let step=0;
+  function render(){
+   const s=steps[step];
+   const framesHtml=s.frames.length?s.frames.map(f=>`<div class="tile recur-frame">${f.label}</div>`).join(''):'<div class="tile mem-slot"><span class="mem-ghost">f</span></div>';
+   const retHtml=s.retFrame?`<div class="tile pick recur-ret">${s.retFrame.label}<small>返回 ${s.retFrame.val}</small></div>`:'';
+   zones.innerHTML=`<div class="link-chain"><span class="link-head">栈底</span>${framesHtml}<span class="link-arrow">← 栈顶</span>${retHtml}</div>`;
+   counter.textContent=s.count==null?'':`栈内 ${s.count} 帧`;
+   status.textContent=s.msg;
+   status.classList.toggle('status-ok',step===steps.length-1);
+   root.querySelector('[data-prev]').disabled=step<=0;
+   root.querySelector('[data-next]').disabled=step>=steps.length-1;
+   root.querySelector('[data-next]').textContent=step===0?'开始推演':'下一步';
+  }
+  root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
+  root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
+  root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
+  render();
+ });
+ document.querySelectorAll('[data-hanoi]').forEach(root=>{
+  const select=root.querySelector('select');
+  const zones=root.querySelector('.hanoi-zones'),status=root.querySelector('.status'),counter=root.querySelector('.mem-counter');
+  const names=['A','B','C'];
+  let step=0,steps=[];
+  function render(){
+   const s=steps[step];
+   zones.innerHTML='<div class="hanoi-pegs">'+s.pegs.map((peg,p)=>{
+    const disks=peg.map(d=>`<div class="hanoi-disk ${d===s.disk&&peg[peg.length-1]===d?'hanoi-moved':''}" style="width:${26+d*22}px"></div>`).join('');
+    return `<div class="hanoi-peg"><div class="hanoi-stack">${disks}</div><span class="hanoi-name">${names[p]}</span></div>`;
+   }).join('')+'</div>';
+   counter.textContent=s.count==null?'':`已移 ${s.count} 步`;
+   status.textContent=s.msg;
+   status.classList.toggle('status-ok',!!s.ok);
+   root.querySelector('[data-prev]').disabled=step<=0;
+   root.querySelector('[data-next]').disabled=step>=steps.length-1;
+   root.querySelector('[data-next]').textContent=step===0?'开始推演':'下一步';
+  }
+  select.onchange=()=>{steps=hanoiTrace([3,2][Number(select.value)]);step=0;render();};
+  root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
+  root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
+  root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
+  steps=hanoiTrace(3);render();
+ });
+ document.querySelectorAll('[data-match]').forEach(root=>{
+  const fixed=root.dataset.match;
+  const selects=[...root.querySelectorAll('select')];
+  const zones=root.querySelector('.match-zones'),status=root.querySelector('.status'),counter=root.querySelector('.mem-counter');
+  const S=fixed==='bf'?'abcdefghi':'abaabaabcde',T=fixed==='bf'?'abcdx':'abaabc',n=S.length;
+  let step=0,steps=[];
+  function build(){steps=matchTrace(S,T,fixed==='bf'?'bf':['kmp','bf'][Number(selects[0].value)]);}
+  function render(){
+   const s=steps[step];
+   const cells=[];
+   for(let k=1;k<=n;k++)cells.push(`<div class="match-cell ${k===s.i?'pick':''}">${S[k-1]}<small>${k===s.i?'i':''}</small></div>`);
+   for(let k=1;k<=n;k++){
+    const tIdx=k-s.start+1;
+    if(tIdx>=1&&tIdx<=T.length){
+     const cur=k===s.i&&tIdx===s.j;
+     const cls=cur?(s.hit===false?'match-fail':'pick'):(tIdx<s.j?'match-ok':'');
+     cells.push(`<div class="match-cell ${cls}">${T[tIdx-1]}<small>${tIdx===s.j?'j':''}</small></div>`);
+    }else cells.push('<div class="match-cell match-blank">&nbsp;<small></small></div>');
+   }
+   zones.innerHTML=`<div class="match-grid" style="grid-template-columns:repeat(${n},minmax(30px,44px))">${cells.join('')}</div>`;
+   counter.textContent=`已比较 ${s.cmp} 次`;
+   status.textContent=s.msg;
+   status.classList.toggle('status-fail',!!s.fail);
+   status.classList.toggle('status-ok',!!s.ok);
+   root.querySelector('[data-prev]').disabled=step<=0;
+   root.querySelector('[data-next]').disabled=step>=steps.length-1;
+   root.querySelector('[data-next]').textContent=step===0?'开始推演':'下一步';
+  }
+  if(selects.length)selects.forEach(sel=>sel.onchange=()=>{build();step=0;render();});
+  root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
+  root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
+  root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
+  build();render();
  });
 }

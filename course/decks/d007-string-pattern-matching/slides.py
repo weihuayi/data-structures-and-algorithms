@@ -44,10 +44,11 @@ SLIDES = [['串与模式匹配',
   'class="small">见教材 4.3.3 节算法 4.1。这就是你第 2 页凭直觉想出的办法。</p>',
   'BF'],
  ['手工推演：BF 的五趟',
-  '<p>S = "abcdefghi"，T = "abcdx"。先自己动手：一共几趟？每趟比几次？</p><details><summary>核对答案（5 趟，共 '
-  '9 次比较）</summary><ol><li>第 1 趟：a=b=c=d 全等，第 5 个字符 e≠x 失配——5 次比较；</li><li>第 2 '
-  '趟：从 S 第 2 位重来，b≠a——1 次；</li><li>第 3、4 趟：同样各 1 次即失败；</li><li>第 5 趟：从第 5 位起，e≠a——1 '
-  '次；之后起点不够，失败。</li></ol></details><p>注意第 2、3、4 趟：<strong>还没开始比，结局就已经定了</strong>——为什么？</p>',
+  '<p>S = "abcdefghi"，T = "abcdx"。先自己动手：一共几趟？每趟比几次？再用推演核对：</p><div '
+  'data-match="bf"><div class="toolbar"><button data-prev>上一步</button><button data-next>开始推演</button><button '
+  'data-reset>重置</button></div><div class="mem-counter"></div><div class="match-zones"></div><div '
+  'class="status" aria-live="polite"></div></div><p>注意第 2、3、4 '
+  '趟：<strong>还没开始比，结局就已经定了</strong>——为什么？</p>',
   '手工推演'],
  ['失配时，我们扔掉了什么？',
   '<p>第 1 趟已经告诉我们：S 的前 4 个字符是 a、b、c、d。</p><ul><li>所以 S 的第 2、3、4 位是 b、c、d，'
@@ -91,11 +92,13 @@ SLIDES = [['串与模式匹配',
   '手工推演'],
  ['手工模拟：KMP 跑教材例 4.1',
   '<p>同一组 S = "abaabaabcde"、T = "abaabc"，用 next 表走一遍。规则：失配时 <strong>i 不动，j = '
-  'next[j]</strong>；j = 0 时 i、j 各进一步。先自己模拟。</p><details><summary>核对答案（2 趟，10 '
-  '次比较）</summary><ol><li>第 1 趟：j=1…5 全等，i=6、j=6 处 a≠c 失配——6 次比较；j = next[6] = '
-  '3，i 停在 6；</li><li>第 2 趟：i=6 起 a=a、b=b、c=c……接连相等，i=9、j=6 处 c=c 后 j 越界——4 '
-  '次比较，匹配成功，位置 = 10−6 = 4。</li></ol><p>i 从 1 走到 9，<strong>一次头也没回</strong>。对照 BF：15 次 '
-  '→ 10 次，且少了全部回溯。</p></details>',
+  'next[j]</strong>；j = 0 时 i、j 各进一步。先自己模拟，再用推演核对——也可以切到 BF '
+  '跑同一组数据，当场对照：</p><div data-match="kmp"><div class="toolbar"><label>算法 <select '
+  'aria-label="选择算法"><option value="0">KMP（i 不回头）</option><option value="1">BF（对照）</option></select></label><button '
+  'data-prev>上一步</button><button data-next>开始推演</button><button data-reset>重置</button></div><div '
+  'class="mem-counter"></div><div class="match-zones"></div><div class="status" '
+  'aria-live="polite"></div></div><p class="small">同一组数据：KMP 10 次比较、i 一次头也没回；BF 15 '
+  '次、回溯 3 次——浪费看得见。</p>',
   '手工推演'],
  ['求 next 本身，也是一次匹配',
   '<p>按定义逐个算 next 当然可以，但教材给了一个更快的算法（算法 '
@@ -152,11 +155,15 @@ SLIDES = [['串与模式匹配',
   '表，并用它手工模拟 KMP，说出 i 为什么可以不回头；</li><li>能解释 next[j] 为什么只跟模式有关，跟主串无关；</li><li>能对病毒案例说出"环形 → '
   '倍长复制"的问题转化。</li></ul><div class="quote">能讲给别人听，能算出别人算错的题。</div>',
   '学会了吗'],
- ['课后：教材导航与作业',
-  '<p><strong>教材导航</strong>：精读 4.1–4.3（重点 4.3.3，对照第 15、17 页重新推一遍 next 的定义与求法）；浏览 4.4–4.5。带"教学注记"的页面课后可自行点开。</p><p><strong>A '
-  '部分·书本习题</strong>：完成教材第 4 章课后习题中串的概念与模式匹配（BF、KMP、next 计算）相关题目，具体题号以课堂发布为准。</p><p><strong>B '
-  '部分·扩展作业</strong>：运行 <code>code/match_demo.c</code>，先写下你对两例比较次数的预测，再实测对照；挑战：自己构造一组 S、T，让 BF '
-  '相对 KMP 的浪费尽量大，并解释为什么这组输入能做到。</p><p class="small">AI 使用规范与提交格式见作业规范：带着思考参与整个过程，附过程记录。</p>',
+ ['课后：教材导航与本周作业',
+  '<p><strong>教材导航</strong>：精读 4.1–4.3（重点 4.3.3，对照第 15、17 页重新推一遍 next '
+  '的定义与求法）；浏览 4.4–4.5。带“教学注记”的页面课后可自行点开，带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（作业规范见 '
+  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 4 '
+  '章选择题 (2)(3)(4)(5)、应用题 (1)、算法设计题 (2)。选择题每题附一句“为什么选它”；应用题与算法设计题写出完整过程。</p><p><strong>B. '
+  '扩展作业</strong>：运行 <code>code/match_demo.c</code>，先写下你对两例比较次数的预测，再实测对照。</p><p '
+  'class="small">自学练习（不提交）：应用题 (2)——画出 KMP 的每趟匹配过程（训练价值高，耗时较长）；4.4 数组自学路径：选择题 '
+  '(6)(7)(9)(12)、应用题 (3)；4.5 广义表自学路径：选择题 (13)(14)(15)、应用题 (4)。<br>挑战：自己构造一组 '
+  'S、T，让 BF 相对 KMP 的浪费尽量大，并解释为什么这组输入能做到。</p>',
   '课后衔接'],
  ['如果关系不是“一个接一个”呢？',
   '<p>串、表、栈、队列——到目前为止，数据之间都是"一个接一个"的线性关系。</p><div '

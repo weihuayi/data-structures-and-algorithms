@@ -277,3 +277,20 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .queue-mark{color:var(--accent);font-weight:700}
 .deck .status.status-fail{background:#fdeae4;border-left-color:#c02a0c}
 .deck .status.status-ok{background:#e6f5f1;border-left-color:#087a67}
+/* data-recur / data-hanoi: recursion traces (D006) */
+.deck .recur-frame{min-width:clamp(58px,4.5vw,96px)}
+.deck .recur-ret small{color:var(--accent);font-weight:700}
+.deck .hanoi-pegs{display:flex;gap:clamp(20px,4vw,64px);justify-content:center;margin:16px 0}
+.deck .hanoi-peg{display:flex;flex-direction:column;align-items:center;min-width:clamp(90px,9vw,160px)}
+.deck .hanoi-stack{display:flex;flex-direction:column-reverse;align-items:center;min-height:110px;width:100%;border-bottom:4px solid var(--ink);padding-bottom:2px}
+.deck .hanoi-disk{height:20px;border-radius:4px;background:var(--blue);margin:2px 0}
+.deck .hanoi-disk.hanoi-moved{background:var(--accent)}
+.deck .hanoi-name{font-size:clamp(17px,1.3vw,24px);font-weight:700;color:var(--muted);margin-top:6px}
+/* data-match: BF / KMP pattern matching traces (D007) */
+.deck .match-grid{display:grid;gap:4px;margin:14px 0}
+.deck .match-cell{border:2px solid var(--line);border-radius:6px;text-align:center;padding:8px 2px;font-size:clamp(18px,1.5vw,26px);font-weight:650;background:#f5f8fc}
+.deck .match-cell small{display:block;font-size:13px;font-weight:700;color:var(--accent);min-height:1.1em}
+.deck .match-cell.match-blank{border-style:dashed;background:transparent}
+.deck .match-cell.pick{border-color:var(--accent);background:#fff1e9}
+.deck .match-cell.match-fail{border-color:#c02a0c;background:#fdeae4}
+.deck .match-cell.match-ok{border-color:#087a67;background:#e6f5f1}

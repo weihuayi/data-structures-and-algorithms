@@ -19,6 +19,9 @@ python3 tools/deck/build.py D001
 - `data-link="access|insert|delete"`：链表链式推演——沿 next 走访计数、插入改两个链接（含先改前驱的断链陷阱现场）、删除（含只改链接不 free 的内存泄漏对照）（D004）。
 - `data-stack="brackets"`：括号匹配栈轨迹——左括号压栈、右括号弹栈核对，含匹配成功与遍历完栈非空两种对照情形（D005）。
 - `data-queue="plain|circ"`：队列推演——顺序队列假满现场；N=5 循环队列 front/rear 轨迹（判满 → 出队 → rear 绕回 → 再次判满）（D005）。
+- `data-recur="factorial"`：递归工作栈逐帧推演——factorial(4) 压帧五层、回退 1→1→2→6→24（D006）。
+- `data-hanoi="disks"`：汉诺塔盘子移动推演——2 盘/3 盘可选，3 盘标注"整体法"三段结构（D006）。
+- `data-match="bf|kmp"`：模式匹配轨迹——主串与模式网格对齐、逐次比较、失配标红、比较计数；BF 五趟浪费复现，KMP 可切 BF 对照（i 不回头 vs 回溯）（D007）。
 
 嵌入方式：在 `slides.py` 的 `body_html` 中放置带 `data-*` 属性的根元素，内含 `.toolbar`（情形选择与上一步/下一步/重置）、演示区与 `.status` 状态栏。纯逻辑函数（trace）与 DOM 分离，经 `module.exports` 导出，可用 Node 直接断言。新增交互组件按同一模式加入共享层，不在单个 Deck 内私造。
 

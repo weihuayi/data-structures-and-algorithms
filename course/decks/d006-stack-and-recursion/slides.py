@@ -45,9 +45,12 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   '递归登场'],
  ['四行程序，栈怎么走？',
   '<pre>int factorial(int n) {\n    if (n == 0) return 1;   /* 出口 */\n    return n * '
-  'factorial(n - 1);\n}</pre><p>手工推演 factorial(4) 的栈生长与回退：</p><table><thead><tr><th>阶段</th><th>栈（左底右顶）</th></tr></thead><tbody><tr><td>压帧</td><td>main → '
-  'f(4) → f(3) → f(2) → f(1) → f(0)</td></tr><tr class="focus-row"><td>回退</td><td>f(0)=1 → f(1)=1 → '
-  'f(2)=2 → f(3)=6 → f(4)=24</td></tr></tbody></table>',
+  'factorial(n - 1);\n}</pre><p>手工推演 factorial(4) 的栈生长与回退——先预测压几帧、各层返回什么，再逐步核对：</p><div '
+  'data-recur="factorial"><div class="toolbar"><button data-prev>上一步</button><button '
+  'data-next>开始推演</button><button data-reset>重置</button></div><div class="mem-counter"></div><div '
+  'class="recur-zones"></div><div class="status" aria-live="polite"></div></div><p '
+  'class="small">压帧一路向下：f(4) → f(3) → f(2) → f(1) → f(0)；回退一路向上：1 → 1 → 2 → 6 → '
+  '24。先压的后弹——正是 LIFO。</p>',
   '递归登场'],
  ['递归三要素：缺哪个会死？',
   '<ol><li><strong>基础情形</strong>：不再递归的出口（0! = 1）；</li><li><strong>递推步骤</strong>：用更小的同类问题表达自己（n! '
@@ -89,11 +92,14 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   '帮忙）。</li></ol><p>第 1、3 步就是更小一号的原问题——<strong>递归信任的实战：你只需要设计这一层。</strong></p>',
   '汉诺塔'],
  ['手工推演：hanoi(3) 的 7 步',
-  '<p>先推演 2 盘：小盘 A→B，大盘 A→C，小盘 B→C——3 步。</p><p>再展开 3 盘：按“整体”法，2 盘移到 '
-  'B、最大盘移到 C、2 盘移回 C。先自己写出每一步。</p><details><summary>核对答案（7 '
-  '步）</summary><ol><li>盘 1：A→C</li><li>盘 2：A→B</li><li>盘 1：C→B</li><li>盘 '
-  '3：A→C</li><li>盘 1：B→A</li><li>盘 2：B→C</li><li>盘 '
-  '1：A→C</li></ol><p>第 1–3 步是“2 盘移到 B”，第 4 步最大盘落位，第 5–7 步是“2 盘移回 C”。</p></details>',
+  '<p>先推演 2 盘：小盘 A→B，大盘 A→C，小盘 B→C——3 步。再展开 3 盘：按“整体”法，2 盘移到 '
+  'B、最大盘移到 C、2 盘移回 C。先自己在纸上写出每一步，再用推演核对：</p><div '
+  'data-hanoi="disks"><div class="toolbar"><label>盘子数 <select aria-label="选择盘子数"><option '
+  'value="0">3 盘（课堂案例）</option><option value="1">2 盘（先热身）</option></select></label><button '
+  'data-prev>上一步</button><button data-next>开始推演</button><button data-reset>重置</button></div><div '
+  'class="mem-counter"></div><div class="hanoi-zones"></div><div class="status" '
+  'aria-live="polite"></div></div><p class="small">3 盘的 7 步里藏着“整体法”的三段结构：第 1–3 步把 2 盘移到 '
+  'B，第 4 步最大盘落位，第 5–7 步把 2 盘移回 C。</p>',
   '汉诺塔'],
  ['要挪多少步？',
   '<p>设 T(n) 为 n 个盘子的最少步数。按“整体”法：</p><div class="quote">T(n) = 2T(n−1) + 1，　T(1) = '
@@ -147,13 +153,15 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   'hanoi 的递归步骤：移走整体、落最大盘、移回整体；</li><li>能说出递归三要素，并检查一段递归缺了哪一个。</li></ul><div '
   'class="quote">把一次“我以为”变成一次有依据的修正。</div>',
   '学会了吗'],
- ['课后：教材导航与三个练习',
-  '<p><strong>教材导航</strong>：精读 3.4 节；完成教材第 3 '
-  '章课后习题中与递归相关的题目。课件中带“教学注记”的页面，课后可以自行点开再看。</p><ol><li>手工写出 hanoi(4) 的前 5 步和后 2 步，再用 '
-  '<code>code/recursion_demo.c</code> 核对；</li><li>迭代版 factorial '
-  '与递归版对比：写下两者在空间上的差别（回收“递归的代价”）；</li><li>递归逆序打印链表：用“先递归、后打印”实现（回收 '
-  'D004）。</li></ol><p class="small">挑战：把 D005 的括号匹配改写成递归——不许用显式的栈。<br>借助同学或 AI '
-  '时，记录获得的帮助，独立核对关键判断。</p>',
+ ['课后：教材导航与本周作业',
+  '<p><strong>教材导航</strong>：精读 3.4 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（作业规范见 '
+  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 3 '
+  '章选择题 (5)(15)、算法设计题 (9)。选择题每题附一句“为什么选它”；算法设计题写出思路与关键步骤，Ack(2,1) '
+  '的计算过程要求画出递归工作栈的压帧与弹帧。</p><p><strong>B. 扩展作业</strong>：手工写出 hanoi(4) 的前 5 步与后 '
+  '2 步（先写下你的推演），再运行 <code>code/recursion_demo.c</code> Part 2 核对；附预测与实测对照。</p><p '
+  'class="small">自学练习（不提交）：迭代版与递归版 factorial 在空间上差在哪（回收“递归的代价”）；递归逆序打印链表——“先递归、后打印”（回收 '
+  'D004）；可试做算法设计题 (10)（单链表上的递归）。<br>挑战：把 D005 '
+  '的括号匹配改写成递归——不许用显式的栈。</p>',
   '课后衔接'],
  ['在一篇文章里找一个词，计算机怎么找？',
   '<p>在整篇文章里找一个词：从头开始，逐个字符比过去。</p><div class="quote">要多久？已经匹配过的信息，<br>能不能不浪费？</div><p>下次课：串与模式匹配。</p>',
