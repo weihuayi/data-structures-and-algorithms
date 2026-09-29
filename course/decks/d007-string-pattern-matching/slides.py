@@ -18,12 +18,17 @@ SLIDES = [['串与模式匹配',
   '的连续布局，每个字符住在一个字节里，地址同样能用公式算。</p>',
   '串是什么'],
  ['串的术语：先约定语言',
-  '<div class="quote compact-quote"><strong>教材定义</strong><br>串（string）是由零个或多个字符组成的有限序列，'
-  '记为 s = "a₁a₂…aₙ"。串中字符的数目 n 称为串的<strong>长度</strong>；零个字符的串称为<strong>空串</strong>；'
+  '<div class="quote compact-quote"><strong>教材定义（改写为 0 起始口径）</strong><br>串（string）是由零个或多个字符组成的有限序列，'
+  '记为 s = <code class="str">"a₀a₁…aₙ₋₁"</code>。串中字符的数目 n 称为串的<strong>长度</strong>；零个字符的串称为<strong>空串</strong>；'
   '串中任意个连续字符组成的子序列称为<strong>子串</strong>，包含子串的串称为<strong>主串</strong>；'
-  '子串在主串中的位置，以子串第一个字符在主串中的位置表示。</div><ul><li>空串 ≠ 空格串："　"长度是 '
-  '1，不是 0；</li><li>例：a="BEI"、b="JING"、c="BEIJING"——a 是 c 的子串，位置是 1；b 是 c 的子串，位置是 '
-  '4。</li></ul><p class="small">见教材 4.1 节：串的定义。</p>',
+  '子串在主串中的位置，以子串第一个字符在主串中的位置表示。</div><ul><li>空串 <code '
+  'class="str">""</code> ≠ 空格串 <code class="str">"␣"</code>：␣ 表示一个真实的空格字符——长度是 '
+  '1，不是 0；</li><li>例：a = <code class="str">"BEI"</code>、b = <code class="str">"JING"</code>、c = <code '
+  'class="str">"BEIJING"</code>——a 是 c 的子串，位置是 0；b 是 c 的子串，位置是 '
+  '3。</li><li>头部的子串叫<strong>前缀</strong>，尾部的子串叫<strong>后缀</strong>：c 的前缀有 <code '
+  'class="str">"B"</code>、<code class="str">"BE"</code>、…，后缀有 <code class="str">"G"</code>、<code '
+  'class="str">"NG"</code>、…（都不含 c 自己）。</li></ul><p class="small">见教材 4.1 节：串的定义。本课件与 '
+  'C 一致：位置从 0 开始编号；教材从 1 开始——对照教材时，位置号差 1。</p>',
   '教材定义'],
  ['一种植物病毒，怎么变成计算问题？',
   '<p>教材案例 4.1：植物双生病毒是全球性 DNA 病毒，危害苹果、桑树等多种树种。研究人员不断从新树种中检测到新病毒'
@@ -34,33 +39,33 @@ SLIDES = [['串与模式匹配',
  ['把检测翻译成模式匹配',
   '<div class="quote compact-quote"><strong>教材定义</strong><br>设 S 为主串（正文串），T 为子串（模式）。'
   '在主串 S 中查找与模式 T 相匹配的子串，若成功，确定其第一个字符在 S 中的位置——子串的定位运算称为<strong>模式匹配</strong>。'
-  '</div><ul><li>植物 DNA 序列 = 主串 S；病毒 DNA 序列 = 模式 T；</li><li>匹配成功 → '
+  '</div><ul><li>植物 DNA 序列 = 主串 S（长度记为 n）；病毒 DNA 序列 = 模式 T（长度记为 m）；</li><li>匹配成功 → '
   '感染；匹配失败 → 未感染。</li></ul><p>搜索引擎、拼写检查、入侵检测、病毒特征码——同一个问题，不同的主串和模式。</p>',
   '建模'],
  ['最直观的找法：BF 算法',
-  '<p>BF（Brute-Force，朴素匹配）：主串指针 i、模式指针 j。</p><pre>比较 S[i] 与 T[j]：\n    '
-  '相等　→ i、j 各进一步，继续比；\n    不等　→ i 退回 i−j+2（主串下一个起点），j 退回 '
-  '1，重新来；\n直到 j 越界（匹配成功，位置 = i−m）或 i 越界（失败）。</pre><p '
+  '<p>BF（Brute-Force，朴素匹配）：主串指针 i、模式指针 j，都从 0 开始。</p><pre>比较 S[i] 与 T[j]：\n    '
+  '相等　→ i、j 各进一步，继续比；\n    不等　→ i 退回 i−j+1（主串下一个起点），j 退回 '
+  '0，重新来；\n直到 j 越界（匹配成功，位置 = i−m）或 i 越界（失败，返回 −1）。</pre><p '
   'class="small">见教材 4.3.3 节算法 4.1。这就是你第 2 页凭直觉想出的办法。</p>',
   'BF'],
  ['手工推演：BF 的五趟',
-  '<p>S = "abcdefghi"，T = "abcdx"。先自己动手：一共几趟？每趟比几次？再用推演核对：</p><div '
+  '<p>S = <code class="str">"abcdefghi"</code>，T = <code class="str">"abcdx"</code>。先自己动手：一共几趟？每趟比几次？再用推演核对：</p><div '
   'data-match="bf"><div class="toolbar"><button data-prev>上一步</button><button data-next>开始推演</button><button '
   'data-reset>重置</button></div><div class="mem-counter"></div><div class="match-zones"></div><div '
   'class="status" aria-live="polite"></div></div><p>注意第 2、3、4 '
   '趟：<strong>还没开始比，结局就已经定了</strong>——为什么？</p>',
   '手工推演'],
  ['失配时，我们扔掉了什么？',
-  '<p>第 1 趟已经告诉我们：S 的前 4 个字符是 a、b、c、d。</p><ul><li>所以 S 的第 2、3、4 位是 b、c、d，'
+  '<p>第 1 趟已经告诉我们：S 的前 4 个字符是 a、b、c、d。</p><ul><li>所以 S 的位置 1、2、3 是 b、c、d，'
   '<strong>已知</strong>它们都不等于 T 的首字符 a；</li><li>第 2、3、4 趟是去验证一件已经知道答案的事。</li></ul><div '
-  'class="quote">BF 浪费的不只是时间，是信息。<br>失配不是纯粹的失败——它携带信息。</div><p>最坏情形：S = '
-  '"aaaaaa…ab"，T = "aaab"，每趟都比到最后才失败——O(n·m)。</p>',
+  'class="quote">BF 浪费的不只是时间，是信息。<br>失配不是纯粹的失败——它携带信息。</div><p>最坏情形：S = <code class="str">'
+  '"aaaaaa…ab"</code>，T = <code class="str">"aaab"</code>，每趟都比到最后才失败——O(n·m)。</p>',
   '浪费'],
  ['教材例 4.1：再看一次浪费',
-  '<p>S = "abaabaabcde"，T = "abaabc"（教材例 4.1）：</p><table><thead><tr><th>趟次</th><th>起点</th><th>结果</th><th>比较次数</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>比到第 '
-  '6 个字符失配（a≠c）</td><td>6</td></tr><tr><td>2</td><td>2</td><td>b≠a，立即失败</td><td>1</td></tr><tr><td>3</td><td>3</td><td>第 '
-  '2 个字符失配</td><td>2</td></tr><tr class="focus-row"><td>4</td><td>4</td><td>全部相等，匹配成功，位置 '
-  '4</td><td>6</td></tr></tbody></table><p>共 15 次比较。第 1 趟比出来的 5 个字符，后面真的被用上了吗？</p>',
+  '<p>S = <code class="str">"abaabaabcde"</code>，T = <code class="str">"abaabc"</code>（教材例 4.1）：</p><table><thead><tr><th>趟次</th><th>起点</th><th>结果</th><th>比较次数</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>比到 j = 5 '
+  '失配（a≠c）</td><td>6</td></tr><tr><td>2</td><td>1</td><td>j = 0 就失配（b≠a）</td><td>1</td></tr><tr><td>3</td><td>2</td><td>比到 j = 1 '
+  '失配</td><td>2</td></tr><tr class="focus-row"><td>4</td><td>3</td><td>全部相等，匹配成功，位置 '
+  '3</td><td>6</td></tr></tbody></table><p>共 15 次比较。第 1 趟比出来的 5 个字符，后面真的被用上了吗？</p>',
   'BF'],
  ['主串指针一定要回头吗？',
   '<p>BF 每次失配，i 都要退回去。可是失配点左边的字符，我们全都见过、全都认识。</p><div '
@@ -68,31 +73,45 @@ SLIDES = [['串与模式匹配',
   '的两个问题：<strong>① i 为什么可以不回溯？② j 该回溯到什么位置？</strong>接下来逐一回答。</p>',
   'KMP'],
  ['第一问：i 为什么不回头？',
-  '<p>失配发生在 S 的第 i 位。此时 i 左边的 j−1 个字符，与 T 的前 j−1 个字符<strong>逐一相等</strong>——这是我们刚比出来的事实。</p><p>所以任何一个'
+  '<p>失配发生在 S 的位置 i。此时 i 左边的 j 个字符，与 T 的前 j 个字符（T[0] 到 T[j−1]）<strong>逐一相等</strong>——这是我们刚比出来的事实。</p><p>所以任何一个'
   '“更早的起点”要不要试，<strong>不用看主串，查模式自己就能判断</strong>：T 的前几个字符，和 T 失配点左边那几个字符，对得上吗？</p><div '
   'class="quote">i 不回头的前提：回头能知道的事，<br>不回头也能知道。</div>',
   'KMP'],
  ['第二问：j 退到哪里？谁说了算？',
-  '<p>例 4.1 第 1 趟：i=6、j=6 处失配。此时 S 第 4、5 位是 "ab"，恰好等于 T 的前两个字符 '
-  '"ab"。</p><p>于是第 2 趟不必从 S 第 2 位重来：<strong>i 停在 6 不动，j 退到 3</strong> 继续比——相当于把模式向右滑，'
-  '让它的前缀对准主串中已经确认相等的部分。</p><div class="quote">j 退到哪，由模式的自相似结构决定，<br>与主串无关。</div>',
+  '<p>教材例 4.1：S = <code class="str">"abaabaabcde"</code>，T = <code '
+  'class="str">"abaabc"</code>——先把这两个串画出来看：</p><pre>第 1 趟（T 从 S 的位置 0 开始对齐）：\n'
+  '位置:  0   1   2   3   4   5   6   7   8   9   10\n'
+  'S:     a   b   a   a   b   a   a   b   c   d   e\n'
+  'T:     a   b   a   a   b   c\n'
+  '                           ↑ i = 5，j = 5 失配（a ≠ c）；左边 5 对已全部相等\n'
+  '                            其中 S[3..4] = "ab"，恰好等于 T 的前两个字符 T[0..1]\n'
+  '\n'
+  '第 2 趟（i 不动，j 退到 2，T 向右滑）：\n'
+  '位置:  0   1   2   3   4   5   6   7   8   9   10\n'
+  'S:     a   b   a   a   b   a   a   b   c   d   e\n'
+  'T:                 a   b   a   a   b   c\n'
+  '                           ↑ i = 5，j = 2，从这里继续比</pre>'
+  '<p>相当于把模式向右滑，让它的前缀对准主串中<strong>已经确认相等</strong>的部分——不必从 S 的位置 1 重来。</p>'
+  '<div class="quote">j 退到哪，由模式的自相似结构决定，<br>与主串无关。</div>',
   'KMP'],
  ['next[j]：把“退到哪”算出来',
-  '<div class="quote compact-quote"><strong>教材定义</strong><br>next[j]：失配发生在模式第 j 位时，j '
-  '应退到的位置。设 T′ 为失配点左边的子串 "t₁t₂…tⱼ₋₁"：若 T′ 存在相等的<strong>前缀与后缀</strong>，取其最大长度 '
-  'l_max，则 next[j] = l_max + 1；不存在则 next[j] = 1；规定 next[1] = 0。</div><p '
-  'class="small">见教材 4.3.3 节式（4-1）。前缀后缀相等 = 模式开头的一段，在失配点左边刚刚出现过。</p><p>注意：这个定义里<strong>没有出现主串</strong>。</p>',
+  '<div class="quote compact-quote"><strong>教材定义（改写为 0 起始口径）</strong><br>next[j]：失配发生在模式位置 j 时，j '
+  '应退到的位置。设 T′ 为失配点左边的子串 <code class="str">"t₀t₁…tⱼ₋₁"</code>：若 T′ 存在相等的<strong>前缀与后缀</strong>，取其最大长度 '
+  'l_max，则 next[j] = l_max；规定 next[0] = −1（首字符就失配时，i、j 各进一步）。</div><p>以例 4.1 失配点左边的 T′ = '
+  '<code class="str">"abaab"</code> 为例（前缀、后缀都<strong>不含 T′ 自己</strong>）：</p><pre>前缀（从头部取）：a    ab    aba    abaa\n'
+  '后缀（从尾部取）：b    ab    aab    baab\n'
+  '                       ↑↑ 唯一相等且最长的一对：l_max = 2，next[5] = 2</pre><p '
+  'class="small">见教材 4.3.3 节式（4-1）：教材为 1 起始口径（next[j] = l_max + 1，next[1] = 0），与本页定义是同一件事、编号差 1。前缀后缀相等 = 模式开头的一段，在失配点左边刚刚出现过。</p><p>注意：这个定义里<strong>没有出现主串</strong>。</p>',
   'next'],
  ['手工推演：T = "abaabc" 的 next 表',
-  '<p>按定义手算。先算两个：next[4] 与 next[6]，其余自己补齐。</p><details><summary>next[4] '
-  '怎么算？</summary><p>T′ = "aba"。前缀候选：a、ab；后缀候选：a、ba。相等且最长的只有 "a"，长度 1，所以 next[4] '
-  '= 2。</p></details><details><summary>完整 next 表</summary><table><thead><tr><th>j</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td>T[j]</td><td>a</td><td>b</td><td>a</td><td>a</td><td>b</td><td>c</td></tr><tr '
-  'class="focus-row"><td>next[j]</td><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td><td>3</td></tr></tbody></table><p>next[6] '
-  '= 3：T′ = "abaab" 的最长相等前后缀是 "ab"——正是第 13 页"j 退到 3"的依据。</p></details><p>观察整张表：<strong>没有一个字符来自主串</strong>。</p>',
+  '<p>按定义手算。先算两个：next[3] 与 next[5]，其余自己补齐。</p><details><summary>next[3] '
+  '怎么算？</summary><p>失配发生在 j = 3 时，T′ = T[0..2] = <code class="str">"aba"</code>。前缀候选：a、ab；后缀候选：a、ba。相等且最长的只有 <code class="str">"a"</code>，长度 1，所以 next[3] '
+  '= 1。</p></details><details><summary>完整 next 表</summary><table><thead><tr><th>j</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead><tbody><tr><td>T[j]</td><td>a</td><td>b</td><td>a</td><td>a</td><td>b</td><td>c</td></tr><tr '
+  'class="focus-row"><td>next[j]</td><td>−1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>2</td></tr></tbody></table><p>next[5] '
+  '= 2：T′ = <code class="str">"abaab"</code> 的最长相等前后缀是 <code class="str">"ab"</code>——正是第 13 页"j 退到 2"的依据。</p></details><p>观察整张表：<strong>没有一个字符来自主串</strong>。</p>',
   '手工推演'],
  ['手工模拟：KMP 跑教材例 4.1',
-  '<p>同一组 S = "abaabaabcde"、T = "abaabc"，用 next 表走一遍。规则：失配时 <strong>i 不动，j = '
-  'next[j]</strong>；j = 0 时 i、j 各进一步。先自己模拟，再用推演核对——也可以切到 BF '
+  '<p>同一组 S = <code class="str">"abaabaabcde"</code>、T = <code class="str">"abaabc"</code>，用 next 表走一遍。规则：失配时 <strong>i 不动，j = next[j]</strong>；j = −1 时（首字符就失配）i、j 各进一步。先自己模拟，再用推演核对——也可以切到 BF '
   '跑同一组数据，当场对照：</p><div data-match="kmp"><div class="toolbar"><label>算法 <select '
   'aria-label="选择算法"><option value="0">KMP（i 不回头）</option><option value="1">BF（对照）</option></select></label><button '
   'data-prev>上一步</button><button data-next>开始推演</button><button data-reset>重置</button></div><div '
@@ -109,8 +128,8 @@ SLIDES = [['串与模式匹配',
   'next'],
  ['先预测，再运行：match_demo',
   '<p><code>code/match_demo.c</code>：同一组 S、T 上分别跑 BF 与 '
-  'KMP，打印各自的字符比较次数。</p><ul><li>例 A：S = "abaabaabcde"，T = "abaabc"；</li><li>例 B：S = '
-  '"aaaaaaab"，T = "aaab"。</li></ul><p>先预测：两例各比多少次？哪一例 BF 与 KMP 的差距更大，为什么？</p><details><summary>说出你的预测与理由</summary><p>例 '
+  'KMP，打印各自的字符比较次数。</p><ul><li>例 A：S = <code class="str">"abaabaabcde"</code>，T = <code class="str">"abaabc"</code>；</li><li>例 B：S = <code class="str">'
+  '"aaaaaaab"</code>，T = <code class="str">"aaab"</code>。</li></ul><p>先预测：两例各比多少次？哪一例 BF 与 KMP 的差距更大，为什么？</p><details><summary>说出你的预测与理由</summary><p>例 '
   'A：BF 15 次，KMP 10 次（第 10、16 页已推演）；例 B：BF 每趟都比到最后才失败，共 20 次，KMP 12 次。例 B '
   '差距更大：模式自相似越强、主串重复越多，回溯的浪费越大。</p></details><div class="quote '
   'compact-quote">先预测、再运行、再检查。</div>',
@@ -145,8 +164,8 @@ SLIDES = [['串与模式匹配',
  ['把几个情境放在一起看',
   '<table><thead><tr><th>情境</th><th>数学/结构</th><th>C 表达</th></tr></thead><tbody><tr><td>在文章里找一个词</td><td>主串 S、模式 '
   'T、定位运算</td><td>字符数组，\'\\0\' 结尾</td></tr><tr><td>失配后重新起点</td><td>i 回溯到 '
-  'i−j+2</td><td>BF：两重指针</td></tr><tr '
-  'class="focus-row"><td>失配后不回头</td><td>next[j] = 最大相等前后缀长度 + 1</td><td>KMP：预处理 '
+  'i−j+1</td><td>BF：两重指针</td></tr><tr '
+  'class="focus-row"><td>失配后不回头</td><td>next[j] = 最大相等前后缀长度</td><td>KMP：预处理 '
   'next，一遍过</td></tr><tr><td>环状病毒检测</td><td>环 = 序列存两遍</td><td>m 个起点，m '
   '次匹配</td></tr></tbody></table><p class="small">同一个问题，四层的翻译。</p>',
   '案例收口'],

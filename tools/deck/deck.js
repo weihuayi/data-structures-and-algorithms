@@ -243,11 +243,12 @@ function hanoiTrace(n){
 }
 /* data-match: BF / KMP pattern matching traces (pure logic, no DOM). */
 function nextTable(T){
- const m=T.length,next=Array(m+1).fill(0);
- for(let j=2;j<=m;j++){
+ const m=T.length,next=Array(m).fill(0);
+ next[0]=-1;
+ for(let j=1;j<m;j++){
   let l=0;
-  for(let k=1;k<=j-2;k++)if(T.slice(0,k)===T.slice(j-1-k,j-1))l=k;
-  next[j]=l+1;
+  for(let k=1;k<j;k++)if(T.slice(0,k)===T.slice(j-k,j))l=k;
+  next[j]=l;
  }
  return next;
 }
@@ -255,41 +256,41 @@ function matchTrace(S,T,mode){
  const n=S.length,m=T.length,steps=[];
  let cmp=0;
  if(mode==='bf'){
-  steps.push({i:1,j:1,start:1,cmp:0,msg:`BF：主串指针 i、模式指针 j，起点从 1 到 ${n-m+1}。失配时 i 退回下一个起点、j 回 1。先预测：一共几趟？每趟比几次？`});
-  for(let start=1;start<=n-m+1;start++){
-   let j=1,i=start;
-   while(j<=m){
+  steps.push({i:0,j:0,start:0,cmp:0,msg:`BF：主串指针 i、模式指针 j，都从 0 开始；起点从 0 到 ${n-m}。失配时 i 退回下一个起点、j 回 0。先预测：一共几趟？每趟比几次？`});
+  for(let start=0;start<=n-m;start++){
+   let j=0,i=start;
+   while(j<m){
     cmp++;
-    const equal=S[i-1]===T[j-1];
-    steps.push({i,j,start,cmp,hit:equal,msg:equal?`第 ${start} 趟：S[${i}] = '${S[i-1]}' 与 T[${j}] = '${T[j-1]}' 相等，i、j 各进一步。`:`第 ${start} 趟：S[${i}] = '${S[i-1]}' ≠ T[${j}] = '${T[j-1]}'，失配——这一趟比出来的 ${j-1} 个字符全部作废，i 退回 ${start+1}，j 回 1。`});
+    const equal=S[i]===T[j];
+    steps.push({i,j,start,cmp,hit:equal,msg:equal?`第 ${start+1} 趟：S[${i}] = '${S[i]}' 与 T[${j}] = '${T[j]}' 相等，i、j 各进一步。`:`第 ${start+1} 趟：S[${i}] = '${S[i]}' ≠ T[${j}] = '${T[j]}'，失配——这一趟比出来的 ${j} 个字符全部作废，i 退回 ${start+1}，j 回 0。`});
     if(!equal)break;
     i++;j++;
    }
-   if(j>m){
-    steps.push({i:i-1,j:m,start,cmp,ok:true,msg:`j 越界——匹配成功，位置 = ${start}。共 ${cmp} 次比较。`});
+   if(j===m){
+    steps.push({i:i-1,j:m-1,start,cmp,ok:true,msg:`j 走完模式——匹配成功，位置 = ${start}。共 ${cmp} 次比较。`});
     return steps;
    }
   }
-  steps.push({i:n,j:1,start:n-m+1,cmp,fail:true,msg:`剩下的字符不够 ${m} 个了——匹配失败。共 ${cmp} 次比较。`});
+  steps.push({i:n-1,j:0,start:n-m,cmp,fail:true,msg:`剩下的字符不够 ${m} 个了——匹配失败。共 ${cmp} 次比较。`});
  }else{
   const next=nextTable(T);
-  steps.push({i:1,j:1,start:1,cmp:0,msg:'KMP：失配时 i 不动，j = next[j]；j = 0 时 i、j 各进一步。先预测：i 会回头吗？共比几次？'});
-  let i=1,j=1;
-  while(i<=n){
-   if(j===0){steps.push({i,j:1,start:i,cmp,msg:'j 退到 0：连首字符都对不上——i、j 各进一步。'});i++;j=1;continue;}
+  steps.push({i:0,j:0,start:0,cmp:0,msg:'KMP：失配时 i 不动，j = next[j]；j = −1 时（首字符就失配）i、j 各进一步。先预测：i 会回头吗？共比几次？'});
+  let i=0,j=0;
+  while(i<n){
+   if(j===-1){steps.push({i,j:0,start:i,cmp,msg:'j = −1：连首字符都对不上——i 进一步，j 回 0。'});i++;j=0;continue;}
    cmp++;
-   const equal=S[i-1]===T[j-1];
+   const equal=S[i]===T[j];
    if(equal){
-    steps.push({i,j,start:i-j+1,cmp,hit:true,msg:`S[${i}] = '${S[i-1]}' 与 T[${j}] = '${T[j-1]}' 相等，i、j 各进一步。`});
+    steps.push({i,j,start:i-j,cmp,hit:true,msg:`S[${i}] = '${S[i]}' 与 T[${j}] = '${T[j]}' 相等，i、j 各进一步。`});
     i++;j++;
-    if(j>m){steps.push({i:i-1,j:m,start:i-m,cmp,ok:true,msg:`j 越界——匹配成功，位置 = ${i-m}。共 ${cmp} 次比较；i 从 1 走到 ${i-1}，一次头也没回。`});return steps;}
+    if(j===m){steps.push({i:i-1,j:m-1,start:i-m,cmp,ok:true,msg:`j 走完模式——匹配成功，位置 = ${i-m}。共 ${cmp} 次比较；i 从 0 走到 ${i-1}，一次头也没回。`});return steps;}
    }else{
     const nj=next[j];
-    steps.push({i,j,start:i-j+1,cmp,hit:false,msg:`S[${i}] = '${S[i-1]}' ≠ T[${j}] = '${T[j-1]}'，失配——i 停在 ${i} 不动，j = next[${j}] = ${nj}：模式向右滑，前缀对准已确认相等的部分。`});
+    steps.push({i,j,start:i-j,cmp,hit:false,msg:`S[${i}] = '${S[i]}' ≠ T[${j}] = '${T[j]}'，失配——i 停在 ${i} 不动，j = next[${j}] = ${nj}：模式向右滑，前缀对准已确认相等的部分。`});
     j=nj;
    }
   }
-  steps.push({i:n,j,cmp,fail:true,msg:`主串走完——匹配失败。共 ${cmp} 次比较。`});
+  steps.push({i:n-1,j,cmp,fail:true,msg:`主串走完——匹配失败。共 ${cmp} 次比较。`});
  }
  return steps;
 }
@@ -541,13 +542,13 @@ if(typeof document!=='undefined'){
   function render(){
    const s=steps[step];
    const cells=[];
-   for(let k=1;k<=n;k++)cells.push(`<div class="match-cell ${k===s.i?'pick':''}">${S[k-1]}<small>${k===s.i?'i':''}</small></div>`);
+   for(let k=1;k<=n;k++)cells.push(`<div class="match-cell ${k-1===s.i?'pick':''}">${S[k-1]}<small>${k-1===s.i?'i':''}</small></div>`);
    for(let k=1;k<=n;k++){
-    const tIdx=k-s.start+1;
-    if(tIdx>=1&&tIdx<=T.length){
-     const cur=k===s.i&&tIdx===s.j;
+    const tIdx=k-1-s.start;
+    if(tIdx>=0&&tIdx<T.length){
+     const cur=k-1===s.i&&tIdx===s.j;
      const cls=cur?(s.hit===false?'match-fail':'pick'):(tIdx<s.j?'match-ok':'');
-     cells.push(`<div class="match-cell ${cls}">${T[tIdx-1]}<small>${tIdx===s.j?'j':''}</small></div>`);
+     cells.push(`<div class="match-cell ${cls}">${T[tIdx]}<small>${tIdx===s.j?'j':''}</small></div>`);
     }else cells.push('<div class="match-cell match-blank">&nbsp;<small></small></div>');
    }
    zones.innerHTML=`<div class="match-grid" style="grid-template-columns:repeat(${n},minmax(30px,44px))">${cells.join('')}</div>`;
