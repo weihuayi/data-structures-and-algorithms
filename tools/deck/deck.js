@@ -529,7 +529,7 @@ if(typeof document!=='undefined'){
   root.querySelector('[data-next]').onclick=()=>{if(step<steps.length-1){step++;render();}};
   root.querySelector('[data-prev]').onclick=()=>{if(step>0){step--;render();}};
   root.querySelector('[data-reset]').onclick=()=>{step=0;render();};
-  steps=hanoiTrace(3);render();
+  steps=hanoiTrace([3,2][Number(select.value)]);render();
  });
  document.querySelectorAll('[data-match]').forEach(root=>{
   const fixed=root.dataset.match;

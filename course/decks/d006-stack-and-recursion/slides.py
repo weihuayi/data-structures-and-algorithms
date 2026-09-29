@@ -13,7 +13,7 @@ SLIDES = [['栈与递归：程序执行的栈模型',
  ['每次调用，系统压一帧',
   '<p>每发生一次函数调用，系统就往内存里压入一个<strong>栈帧</strong>：</p><ul><li><strong>返回地址</strong>：调用处的下一行；</li><li><strong>参数</strong>：这次调用收到的输入；</li><li><strong>局部变量</strong>：这一层自己的草稿纸。</li></ul><table><thead><tr><th>栈帧（上顶下底）</th><th>返回地址</th><th>局部变量</th></tr></thead><tbody><tr '
   'class="focus-row"><td>g</td><td>f 中调用 g 的下一行</td><td>g 自己的</td></tr><tr><td>f</td><td>main 中调用 f '
-  '的下一行</td><td>f 自己的</td></tr><tr><td>main</td><td>操作系统</td><td>main '
+  '的下一行</td><td>f 自己的</td></tr><tr><td>main</td><td>运行时启动代码</td><td>main '
   '自己的</td></tr></tbody></table><p>g 返回时弹掉自己的帧——栈顶正好是 f，于是恰好回到 f 的下一行。</p>',
   '调用栈'],
  ['为什么恰好是栈？',
@@ -95,7 +95,7 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   '<p>先推演 2 盘：小盘 A→B，大盘 A→C，小盘 B→C——3 步。再展开 3 盘：按“整体”法，2 盘移到 '
   'B、最大盘移到 C、2 盘移回 C。先自己在纸上写出每一步，再用推演核对：</p><div '
   'data-hanoi="disks"><div class="toolbar"><label>盘子数 <select aria-label="选择盘子数"><option '
-  'value="0">3 盘（课堂案例）</option><option value="1">2 盘（先热身）</option></select></label><button '
+  'value="1">2 盘（先热身）</option><option value="0">3 盘（课堂案例）</option></select></label><button '
   'data-prev>上一步</button><button data-next>开始推演</button><button data-reset>重置</button></div><div '
   'class="mem-counter"></div><div class="hanoi-zones"></div><div class="status" '
   'aria-live="polite"></div></div><p class="small">3 盘的 7 步里藏着“整体法”的三段结构：第 1–3 步把 2 盘移到 '
@@ -103,7 +103,8 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   '汉诺塔'],
  ['要挪多少步？',
   '<p>设 T(n) 为 n 个盘子的最少步数。按“整体”法：</p><div class="quote">T(n) = 2T(n−1) + 1，　T(1) = '
-  '1<br>解出来：T(n) = 2ⁿ − 1</div><p>递归关系的解是<strong>指数</strong>。64 '
+  '1</div><p>逐项展开，每一步把 T 换成更小一号的同类项：</p><div class="quote">T(n) = 2T(n−1) + 1 = '
+  '4T(n−2) + 3 = … = 1 + 2 + 4 + … + 2ⁿ⁻¹ = 2ⁿ − 1</div><p>递归关系的解是<strong>指数</strong>。64 '
   '个盘子的寓言：僧侣昼夜不停、每秒一步，也要五千多亿年——比宇宙的年龄还长得多。</p><div class="quote '
   'compact-quote">指数增长：每多一个盘子，工作量翻倍。</div><details '
   'class="teacher-note"><summary>教学注记</summary><p>斐波那契一行回收：学生 Python 课见过 fib '
@@ -118,8 +119,10 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   '先预测再运行'],
  ['递归的代价，与两条退路',
   '<p><strong>代价</strong>：每次调用一帧——递归多深，空间就多大；深度失控，就是栈溢出。</p><ul><li><strong>尾递归 '
-  '→ 循环</strong>：递归调用是最后一步时，可直接改成循环。阶乘不是尾递归（返回后还要做乘法），但引入累加变量同样能改写成循环：<code>for (r = 1; n > 0; --n) r *= '
-  'n;</code></li><li><strong>一般递归 → '
+  '→ 循环</strong>：递归调用是函数的<strong>最后一步</strong>、返回后不再做任何计算，就叫尾递归——没有后续计算要记，'
+  '所以可以直接改成循环。阶乘原版 <code>n * factorial(n−1)</code> 不是尾递归（返回后还要乘 n）；引入累加变量 r 就是尾递归版：'
+  '<code>fact(n, r)</code>：n = 0 返回 r，否则 <code>fact(n−1, n·r)</code>——逐行对照，正是循环 '
+  '<code>for (r = 1; n > 0; --n) r *= n;</code>。</li><li><strong>一般递归 → '
   '显式栈</strong>：把系统替你维护的栈，换成自己维护的栈——这个栈，你在 D005 已经会写了。</li></ul><div class="quote '
   'compact-quote">工具已在手，用到时再展开。</div>',
   '代价与转化'],
