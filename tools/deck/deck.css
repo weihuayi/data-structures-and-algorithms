@@ -295,3 +295,94 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .match-cell.pick{border-color:var(--accent);background:#fff1e9}
 .deck .match-cell.match-fail{border-color:#c02a0c;background:#fdeae4}
 .deck .match-cell.match-ok{border-color:#087a67;background:#e6f5f1}
+
+/* Static tree diagrams: shared structure, focus and representation layouts. */
+.deck .tree-layout{display:grid;grid-template-columns:1fr 1.18fr;gap:28px;align-items:center}
+.deck .tree-layout>*{min-width:0}
+.deck .tree-figure{margin:0;text-align:center}
+.deck .tree-diagram{display:block;width:100%;max-height:340px}
+.deck .tree-node rect{fill:#eef4f9;stroke:#005a9c;stroke-width:2.5}
+.deck .tree-node text{fill:#152943;font-size:25px;font-weight:700;text-anchor:middle}
+.deck .tree-node.focus rect{fill:#fff0df;stroke:#bc4615;stroke-width:4}
+.deck .tree-node.vacant rect{fill:white;stroke:#758698;stroke-dasharray:5 4}
+.deck .tree-node.vacant text{font-size:17px}
+.deck .tree-edge{stroke:#71899c;stroke-width:3}
+.deck .tree-edge.focus{stroke:#bc4615;stroke-width:5}
+.deck .tree-detail{fill:#40576a;font-size:19px;text-anchor:middle}
+.deck .tree-level{stroke:#bdcbd5;stroke-dasharray:5 6}
+.deck .tree-region{fill:#edf7f3;stroke:#81b7a5;stroke-dasharray:6 4}
+.deck .tree-figure figcaption{font-size:17px;color:var(--muted);margin:8px 0}
+.deck .tree-explain p,.deck .tree-explain li{font-size:clamp(20px,1.7vw,27px);margin:10px 0}
+.deck .tree-explain td,.deck .tree-explain th{font-size:clamp(16px,1.4vw,23px);padding:7px 6px}
+.deck .tree-explain pre{font-size:clamp(16px,1.35vw,22px);padding:16px;margin:10px 0}
+.deck .tree-explain .compact-quote{font-size:clamp(19px,1.6vw,26px)}
+.deck .tree-gallery{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:22px;align-items:start}
+.deck .tree-gallery .tree-diagram{max-height:240px}
+.deck .tree-gallery p{font-size:20px;margin:8px 0}
+@media(max-width:760px){.deck .tree-layout{grid-template-columns:1fr}.deck .tree-gallery{grid-auto-flow:row;grid-template-columns:1fr}.deck .tree-diagram{max-height:280px}}
+@media print{.deck .tree-layout{grid-template-columns:1fr 1.18fr}.deck .tree-gallery{grid-auto-flow:column}.deck .tree-diagram{max-height:65mm}}
+
+/* LaTeX mathematics keeps the surrounding slide's scale. */
+.deck .katex{font-size:1.08em}
+.deck .katex-display{margin:.65em 0;overflow-x:auto;overflow-y:hidden;padding:.15em 0}
+.deck .tree-explain .katex-display{font-size:clamp(20px,1.7vw,27px)}
+
+/* Tree traversal: separate current control, visit history and finished subtree. */
+.deck .tree-node.visited rect{fill:#dcecf9}
+.deck .tree-node.completed rect{stroke:#087a67;stroke-width:4}
+.deck .tree-node.focus.visited rect,.deck .tree-player .tree-node.focus rect{stroke:#bc4615;stroke-width:5}
+.deck .tree-player [hidden]{display:none!important}
+.deck .tree-player .toolbar{margin:4px 0 12px}
+.deck .tree-player .tree-layout{grid-template-columns:1fr 1.1fr;align-items:center}
+.deck .trace-action{min-height:2.8em;border-left:4px solid var(--accent);padding-left:12px}
+.deck .trace-state{background:#f0f5fa;padding:10px 14px;font-size:19px}
+.deck .trace-pending{margin:6px 0;padding-left:24px;min-height:76px}
+.deck .trace-pending li{font-size:19px;margin:1px 0;line-height:1.35}
+.deck .trace-output{border-top:2px solid var(--blue);padding-top:8px}
+.deck .trace-legend,.deck .tree-step{font-size:16px;color:var(--muted);margin:8px 0 0}
+.deck .trace-sequence{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:12px 0;font-size:21px}
+.deck .trace-sequence>strong{min-width:52px}
+.deck .trace-sequence>span{padding:5px 9px;border:1px solid #bacbd7;border-radius:5px}
+.deck .trace-sequence .seq-root{background:#fff0df;border-color:#bc4615}
+.deck .trace-sequence .seq-left{background:#e3f3ee;border-color:#087a67}
+.deck .trace-sequence .seq-right{background:#e1effb;border-color:#005a9c}
+.deck .trace-thread{stroke:#bc4615;stroke-width:3;stroke-dasharray:7 5;fill:none}
+.deck .trace-compact p{font-size:20px;margin:9px 0}
+@media(max-width:760px){.deck .tree-player .tree-layout{grid-template-columns:1fr}}
+@media print{.deck .tree-step-panel[hidden]{display:none!important}}
+/* Projection-sized traces and optional examples. */
+.deck .tree-player .tree-diagram{max-height:235px}
+.deck .tree-player+details.teacher-note{margin-top:12px}
+.deck .tree-player .trace-action{min-height:2.5em}
+.deck .tree-player .trace-legend{margin-top:4px}
+.deck .trace-compact td,.deck .trace-compact th{font-size:20px;padding:7px 10px}
+.deck .tree-swap:has(>details[open])>.tree-preview{display:none}
+.deck .tree-answer .tree-diagram{max-height:190px}
+.deck .tree-answer details{margin-top:10px}
+.deck .tree-answer .tree-figure figcaption{font-size:16px}
+.deck .tree-swap>.tree-preview .tree-diagram{max-height:260px}
+.deck .tree-swap .tree-answer .tree-diagram{max-height:155px}
+.deck .tree-swap details>p{font-size:19px;line-height:1.45}
+.deck .trace-compact .tree-diagram{max-height:130px}
+
+/* Semantic edge labels for representation and prefix-code diagrams. */
+.deck .tree-edge-label{font-size:22px;font-weight:700;fill:var(--blue);paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round}
+
+.deck .tree-player.tree-spacious .tree-diagram{max-height:270px}
+
+/* Directory context: distinguish folders/files and compare the same names. */
+.deck .directory-context>p{font-size:22px;line-height:1.45;margin:10px 0}
+.deck .directory-compare{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin:12px 0}
+.deck .directory-compare h3{font-size:23px;margin:0 0 8px;color:var(--blue)}
+.deck .directory-compare ul{list-style:none;margin:0;padding:0}
+.deck .directory-compare li{font-size:21px;line-height:1.28;margin:1px 0}
+.deck .directory-tree ul{margin-left:10px;padding-left:28px;border-left:1px solid #a8bac9}
+.deck .directory-tree ul>li{position:relative}
+.deck .directory-tree ul>li:before{content:"";position:absolute;left:-28px;top:14px;width:20px;border-top:1px solid #a8bac9}
+.deck .directory-folder:before{content:"";display:inline-block;width:19px;height:13px;background:#f4cf6b;border:1px solid #927020;border-radius:2px;margin-right:10px;box-shadow:-2px -4px 0 -1px #f4cf6b}
+.deck .directory-file:before{content:"";display:inline-block;width:13px;height:17px;border:1px solid #6b8294;background:white;margin:0 13px 0 3px;vertical-align:-2px}
+.deck .directory-flat{border-left:2px solid var(--line);padding-left:22px!important}
+@media(max-width:760px){.deck .directory-compare{grid-template-columns:1fr;gap:20px}}
+.deck .slide:has(.directory-context) h2{margin-bottom:12px}
+.deck .directory-context+details.teacher-note{margin-top:8px;padding:8px 14px}
+.deck .directory-context .directory-compare{margin:8px 0}

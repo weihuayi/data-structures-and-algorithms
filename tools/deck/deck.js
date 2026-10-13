@@ -567,3 +567,13 @@ if(typeof document!=='undefined'){
   build();render();
  });
 }
+
+/* Static, deterministic tree snapshots; manual controls never auto-play. */
+if(typeof document!=='undefined'){
+ document.querySelectorAll('[data-tree-player]').forEach(root=>{
+  const panels=[...root.querySelectorAll(':scope > .tree-step-panel')];let step=0;
+  const buttons=root.querySelector('.toolbar');
+  function render(){panels.forEach((p,i)=>p.hidden=i!==step);buttons.querySelector('[data-step="prev"]').disabled=step===0;buttons.querySelector('[data-step="next"]').disabled=step===panels.length-1;buttons.querySelector('.tree-step').textContent=`步骤 ${step+1} / ${panels.length}`;}
+  buttons.addEventListener('click',e=>{const action=e.target.dataset.step;if(!action)return;step=action==='reset'?0:Math.max(0,Math.min(panels.length-1,step+(action==='next'?1:-1)));render();});render();
+ });
+}

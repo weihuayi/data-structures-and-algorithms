@@ -21,7 +21,8 @@ def load_deck(deck_dir: Path):
     return mod
 
 
-def render(deck_dir: Path):
+def render_document(deck_dir: Path):
+    """Return the controlled derivative without changing the working tree."""
     mod = load_deck(deck_dir)
     blocks = []
     for i, (name, body, part) in enumerate(mod.SLIDES, 1):
@@ -40,16 +41,29 @@ def render(deck_dir: Path):
         '<div><button id="prev">上一页</button> <span id="page" aria-live="polite"></span> '
         '<button id="next">下一页</button></div><div id="progress" class="progress"></div></footer>'
     )
+    math_assets = ''
+    if getattr(mod, "MATH", False):
+        math_assets = (
+            '<link rel="stylesheet" href="../../../tools/deck/vendor/katex/katex.min.css">'
+            '<script defer src="../../../tools/deck/vendor/katex/katex.min.js"></script>'
+            '<script defer src="../../../tools/deck/vendor/katex/contrib/auto-render.min.js"></script>'
+            '<script defer src="../../../tools/deck/math.js"></script>'
+        )
     doc = (
         '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         f'<title>{html.escape(mod.DECK_ID)}｜{html.escape(mod.TITLE)}</title>'
-        f'<link rel="stylesheet" href="{CSS_REL}"></head>'
+        f'{math_assets}<link rel="stylesheet" href="{CSS_REL}"></head>'
         f'<body class="deck">{nav}<noscript>请启用浏览器 JavaScript 以使用翻页与演示功能。</noscript>'
         f'<main>{"".join(blocks)}</main>{foot}<script src="{JS_REL}"></script></body></html>'
     )
+    return doc, len(mod.SLIDES)
+
+
+def render(deck_dir: Path):
+    doc, count = render_document(deck_dir)
     (deck_dir / "index.html").write_text(doc, encoding="utf-8")
-    return len(mod.SLIDES)
+    return count
 
 
 def main():

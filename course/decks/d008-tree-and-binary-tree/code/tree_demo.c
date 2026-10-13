@@ -13,18 +13,19 @@ typedef struct Node {
 } Node;
 
 typedef struct {
+    /* max_position is meaningful only when nodes > 0. */
     size_t nodes, leaves, height, max_position, degree_two;
 } Stats;
 
 /* Precondition: a finite tree with no cycles or shared nodes. All complete-tree
- * position numbers must fit in size_t. Classroom inputs have height <= 4.
+ * positions start at zero; position numbers must fit in size_t. Classroom inputs have height <= 4.
  * D009 will unpack this recursive visit. NULL has height zero.
  */
 static Stats inspect(const Node *node, size_t position)
 {
     if (node == NULL) return (Stats){0, 0, 0, 0, 0};
-    Stats l = node->left ? inspect(node->left, 2 * position) : (Stats){0};
-    Stats r = node->right ? inspect(node->right, 2 * position + 1) : (Stats){0};
+    Stats l = node->left ? inspect(node->left, 2 * position + 1) : (Stats){0};
+    Stats r = node->right ? inspect(node->right, 2 * position + 2) : (Stats){0};
     size_t deepest_position = l.max_position > r.max_position
                             ? l.max_position : r.max_position;
     return (Stats){
@@ -62,7 +63,7 @@ static bool valid_parents(const int *parent, size_t n)
 static void check(const Node *root, size_t n, size_t leaves,
                   size_t height, size_t position)
 {
-    Stats s = inspect(root, 1);
+    Stats s = inspect(root, 0);
     assert(s.nodes == n && s.leaves == leaves);
     assert(s.height == height && s.max_position == position);
     if (root) assert(s.leaves == s.degree_two + 1);
@@ -70,9 +71,11 @@ static void check(const Node *root, size_t n, size_t leaves,
 
 static void show(const char *label, const Node *root)
 {
-    Stats s = inspect(root, 1);
-    printf("%s: n=%zu leaves=%zu height=%zu max_position=%zu\n",
-           label, s.nodes, s.leaves, s.height, s.max_position);
+    Stats s = inspect(root, 0);
+    printf("%s: n=%zu leaves=%zu height=%zu max_position=",
+           label, s.nodes, s.leaves, s.height);
+    if (s.nodes) printf("%zu\n", s.max_position);
+    else puts("none");
 }
 
 int main(void)
@@ -86,15 +89,15 @@ int main(void)
                      {'C', NULL, NULL}, {'D', NULL, NULL}};
     for (size_t i = 0; i < 3; ++i) chain[i].right = &chain[i + 1];
 
-    check(&root, 7, 4, 3, 7);
-    check(chain, 4, 1, 4, 15);
+    check(&root, 7, 4, 3, 6);
+    check(chain, 4, 1, 4, 14);
     check(NULL, 0, 0, 0, 0);
-    check(&a, 1, 1, 1, 1);
+    check(&a, 1, 1, 1, 0);
     Node left_only = {'L', &a, NULL}, right_only = {'R', NULL, &a};
-    check(&left_only, 2, 1, 2, 2);
-    check(&right_only, 2, 1, 2, 3);
+    check(&left_only, 2, 1, 2, 1);
+    check(&right_only, 2, 1, 2, 2);
     Node pruned = {'*', &minus, NULL};
-    check(&pruned, 4, 2, 3, 5);
+    check(&pruned, 4, 2, 3, 4);
 
     const int parents[] = {-1, 0, 0, 1, 1, 2, 2};
     const int cycle[] = {-1, 3, 0, 1, 1, 2, 2};
