@@ -49,12 +49,14 @@ python3 tools/deck/build.py D001     # 构建指定 Deck（支持 Deck ID 或目
 
 ## 五、内容体例约定
 
-- 叙事方式：案例驱动的问题链，而非教材章节式罗列；幻灯片标题优先用问题形式，按分节标签组织叙事线；Deck 之间显式衔接（前一 Deck 留下问题，后一 Deck 回到问题）；
-- 概念引入走完整链条：对象与信息 → 计算表示 → 条件 → 程序 → 运行检查，再回到教材术语建立对应；教材定义用「教材定义」引用块明确锚定，与案例解释分开呈现；
-- 用多栏对照表收束结构化理解（情境 ↔ 数学 ↔ C 表达、跨案例对比、教材概念 ↔ 课堂案例映射）；
+- 叙事方式：案例驱动的问题链，而非教材章节式罗列；标题首先帮助学习者定位当前认知任务或理解焦点，有助于认知推进时优先用问题形式，不要求每页都提出问题；按分节标签组织叙事线；Deck 之间显式衔接（前一 Deck 留下问题，后一 Deck 回到问题）；
+- 概念引入依据当前学习任务明确必要的认知依赖，组织问题、对象、信息、操作、表示、算法、成立条件、代价及验证之间实际需要建立的关系；关键前提应先于依赖它的结论，不要求所有概念执行同一条完整链条；教材术语准确对应，教材定义用「教材定义」引用块明确锚定，与案例解释分开呈现；
+- 需要比较或映射对象时，用对照表支持结构化理解（如情境 ↔ 数学 ↔ C 表达、跨案例对比、教材概念 ↔ 课堂案例映射），不作为每页或每个 Deck 的固定形式；
 - 课后练习放在 Deck 末尾"课后衔接"页；只有任务边界已确认的练习才进入 `course/assignments/` 成为正式 Assignment；
 - 教师注记层：理念层与现场展开脚本以 `<details class="teacher-note">` 直接嵌入所在页 `body_html`，投影默认收起、打印保持收起，样式在共享层 `tools/deck/deck.css`；注记是可公开的教学注释——不出现可识别的学生个体，不引用考勤与表现性信息；教师私有备注不入库；
-- 课程顶层认知框架（抽象计算对象 → 计算表示 → 实现算法主线、各结构的理解定位）维护在 WhyOS 的 `kb/structured_understanding_memos/courses/` 下的结构化理解备忘录中；课件叙事骨架应与之保持一致，Memo 面向理解主体，教学表达需再向学习者转换。
+- WhyOS 的[课程工程 Memo](https://github.com/weihuayi/whyos/blob/develop/kb/structured_understanding_memos/courses/why_course_engineering_structured_understanding_memo.md)与[数据结构与算法 Memo](https://github.com/weihuayi/whyos/blob/develop/kb/structured_understanding_memos/courses/why_data_structures_and_algorithms_structured_understanding_memo.md)分别维护 Why 对课程工程、课程及领域结构的长期理解；[高质量幻灯片表达 Memo](https://github.com/weihuayi/whyos/blob/develop/kb/structured_understanding_memos/expression_and_communication/why_high_quality_slide_based_communication_structured_understanding_memo.md)提供制作与评审的认知输入。个人 Memo 不自动构成本仓库强制规则，教学表达需面向学习者转换。
+- 本仓库 [Learning Progression](course/data_structures_algorithms_learning_progression.md)维护学习者认知演化的候选设计基线，不是更高优先级的正式治理依据；[Matrix](course/data_structures_algorithms_D001_D020_learning_progression_matrix.md)维护 Deck 与认知主线、最低学习证据及资产状态的映射。
+- 具体 Deck 由 [Registry](course/decks/README.md)定位，`README.md` 维护当前设计与教学组织，`slides.py` 维护教学表达；相应 [Offering](course/offerings/2026-fall/schedule.md)记录某学期已经发生的课堂运行。设计、资产形成和运行记录均不能替代学生学习证据或能力达成判断。
 
 具体修订方法、例证和适用边界见 [Deck 课件修订方法](docs/design/deck-revision-guide.md)。修订时遵循以下触发式约束：
 
