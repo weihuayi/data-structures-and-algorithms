@@ -93,3 +93,6 @@ node --test tools/deck/tests/check_browser.test.cjs
 `tree_diagram.tree` 可通过 `edge_labels={(parent, child): label}` 给边标注 L/R 或 0/1；省略时保持原图。共享 `tree-spacious` 类为较深的快照树提供更多显示高度。相关语义测试纳入同一 Python 测试入口。
 
 层线可通过 `level_start` 指定起始编号；默认值 1 保持既有调用，D008 显式使用 0。层编号不自动决定程序高度的计数口径，课件需分别说明。
+
+
+`huffman_trace.selection_scan_states` 展示首轮合并之前两遍完整扫描已建记录的微步骤，累计查看次数（包括排除项）、分别保存当前记录和当前最小根，末态追加合成记录并更新双亲。它使用与 `merge_states` 相同的正整数且至少两符号的课堂输入范围，复用现有播放器；不模拟 C 容量、溢出检查或整个程序运行时间。共享 `.record-scan` 样式区分当前记录、最小权值与已合并记录。D010 第 20 页用这一过程引出各轮扫描成本。

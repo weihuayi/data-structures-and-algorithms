@@ -2,9 +2,36 @@ from pathlib import Path
 import sys
 import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from huffman_trace import merge_states, decode_states
+from huffman_trace import merge_states, decode_states, selection_scan_states
 
 class HuffmanTraceTests(unittest.TestCase):
+    def test_record_scans_count_exclusion_and_preserve_snapshots(self):
+        states = selection_scan_states([8, 4, 2, 2])
+        self.assertEqual(len(states), 11)
+        viewed = [s for s in states if s['scan'] and s['current'] is not None]
+        self.assertEqual([s['current'] for s in viewed], list(range(4)) * 2)
+        self.assertEqual([s['inspections'] for s in viewed], list(range(1, 9)))
+        self.assertEqual([s['best'] for s in viewed], [0, 1, 2, 2, 0, 1, 1, 3])
+        excluded = viewed[6]
+        self.assertEqual((excluded['exclude'], excluded['current']), (2, 2))
+        self.assertEqual(excluded['records'][2]['parent'], None)
+        final = states[-1]
+        self.assertEqual(final['selected'], [2, 3])
+        self.assertEqual(final['inspections'], 8)
+        self.assertEqual([r['parent'] for r in final['records']], [None, None, 4, 4, None])
+        self.assertEqual(final['records'][4], dict(symbol='CD', weight=4, parent=None))
+        self.assertEqual(len(states[0]['records']), 4)
+        self.assertTrue(all(r['parent'] is None for r in states[0]['records']))
+
+    def test_record_scan_ties_and_invalid_input(self):
+        for weights in ([1, 1], [4, 4, 4, 4], [6, 3, 2, 1]):
+            end = selection_scan_states(weights)[-1]
+            self.assertEqual(end['selected'], sorted(range(len(weights)), key=lambda i: (weights[i], i))[:2])
+            self.assertEqual(end['inspections'], 2 * len(weights))
+        for weights in ([], [1], [1, 0], [1, -1], [1, 2.5]):
+            with self.assertRaises(ValueError):
+                selection_scan_states(weights)
+
     def test_merges_preserve_subtrees_and_choose_smallest_roots(self):
         for weights,total in [([8,4,2,2],28),([6,3,2,1],21),([5,2,1,1],15),([7,3,2,1],22)]:
             states=merge_states(weights)

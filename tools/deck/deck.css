@@ -386,3 +386,27 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .slide:has(.directory-context) h2{margin-bottom:12px}
 .deck .directory-context+details.teacher-note{margin-top:8px;padding:8px 14px}
 .deck .directory-context .directory-compare{margin:8px 0}
+
+/* Learning tasks: keep input, recall cues and one optional response in view. */
+.deck .learning-task .tree-layout{align-items:start}
+.deck .learning-task p,.deck .learning-task .tree-explain p{font-size:20px;line-height:1.45;margin:8px 0}
+.deck .learning-task p.small{font-size:18px}
+.deck .learning-task details{margin-top:6px;padding:6px 12px}
+.deck .learning-task summary{font-size:18px}
+.deck .learning-task .tree-explain td,.deck .learning-task .tree-explain th{font-size:18px;line-height:1.4;padding:6px}
+.deck .learning-task .tree-figure figcaption{font-size:16px}
+.deck .slide:has(.learning-task) h2{margin-bottom:14px}
+.deck .learning-task .tree-diagram{max-height:270px}
+.deck .learning-task details .tree-diagram{max-height:155px}
+.deck .learning-task details .tree-answer .tree-diagram{max-height:185px}
+
+/* Optional trace checks replace the player with a complete static check view. */
+.deck .tree-swap:has(>.learning-task .support-options details:not(.teacher-note)[open])>.tree-preview{display:none}
+.deck .learning-task .support-options details{margin-top:2px}
+.deck .learning-task .tree-explain>.tree-figure .tree-diagram{max-height:245px}
+
+/* Record-scan traces distinguish an inspected row, the best weight and retired roots. */
+.deck .record-scan .scan-inactive{background:#eef1f4;color:var(--muted)}
+.deck .record-scan .scan-current{background:#fff0df;box-shadow:inset 4px 0 #bc4615}
+.deck .record-scan .scan-best td:nth-child(3){outline:2px solid var(--blue);outline-offset:-3px;color:var(--blue);font-weight:700}
+.deck .learning-task .record-scan td,.deck .learning-task .record-scan th{font-size:18px;line-height:1.4;padding:5px 6px}

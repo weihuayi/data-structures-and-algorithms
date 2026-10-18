@@ -23,6 +23,53 @@ def merge_states(weights):
     return states
 
 
+def selection_scan_states(weights):
+    """First merge, matching the C demo's two full record scans.
+
+    Classroom snapshots count record inspections, including the excluded record;
+    they do not count weight comparisons or machine instructions. As in
+    merge_states, positive integer inputs with at least two symbols are required.
+    This is not a model of the C program's capacity/overflow checks.
+    """
+    initial = merge_states(weights)[0]['nodes']
+    records = [dict(symbol=n['symbol'], weight=n['weight'], parent=None)
+               for n in initial.values()]
+    states, selected = [], []
+    inspections = 0
+
+    def save(action, scan, current=None, best=None, exclude=None):
+        states.append(dict(action=action, scan=scan, current=current, best=best,
+                           exclude=exclude, inspections=inspections,
+                           selected=selected.copy(),
+                           records=[r.copy() for r in records]))
+
+    for scan in (1, 2):
+        exclude = selected[0] if selected else None
+        best = None
+        save(f'第 {scan} 遍从下标 0 开始；先预测本遍会选谁。', scan,
+             exclude=exclude)
+        for i, record in enumerate(records):
+            inspections += 1
+            if i == exclude or record['parent'] is not None:
+                action = f'查看 {record["symbol"]}[{i}]，已选中或已有双亲，检查后跳过。'
+            elif best is None or record['weight'] < records[best]['weight']:
+                best = i
+                action = f'查看 {record["symbol"]}[{i}]，更新当前最小根。'
+            else:
+                action = f'查看 {record["symbol"]}[{i}]，保留当前最小根；等权先取较早编号。'
+            save(action, scan, i, best, exclude)
+        selected.append(best)
+
+    a, b = selected
+    parent = len(records)
+    records[a]['parent'] = records[b]['parent'] = parent
+    symbol = records[a]['symbol'] + records[b]['symbol']
+    records.append(dict(symbol=symbol, weight=weights[a] + weights[b], parent=None))
+    save(f'新建 {symbol}[{parent}]；两孩子的 parent 改为 {parent}。下一轮仍扫描全部 {len(records)} 条记录。',
+         0, current=parent)
+    return states
+
+
 def decode_states(nodes, root, bits):
     """Requires a valid full binary tree produced by merge_states."""
     if any(b not in '01' for b in bits):
