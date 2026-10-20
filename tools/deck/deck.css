@@ -410,3 +410,22 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .record-scan .scan-current{background:#fff0df;box-shadow:inset 4px 0 #bc4615}
 .deck .record-scan .scan-best td:nth-child(3){outline:2px solid var(--blue);outline-offset:-3px;color:var(--blue);font-weight:700}
 .deck .learning-task .record-scan td,.deck .learning-task .record-scan th{font-size:18px;line-height:1.4;padding:5px 6px}
+/* General graph relations; arrows describe logical direction, never list links. */
+.deck .graph-layout{display:grid;grid-template-columns:1fr 1.18fr;gap:28px;align-items:center}
+.deck .graph-layout>*{min-width:0}
+.deck .graph-figure{margin:0}
+.deck .graph-figure svg{display:block;width:100%;max-height:290px}
+.graph-edge{stroke:#536779;stroke-width:3;fill:none}
+.graph-edge.marked{stroke:#b33d10;stroke-width:6;stroke-dasharray:10 5}
+.graph-arrow{stroke:#152943;stroke-width:3;fill:none}
+.graph-node circle{fill:#eef4f9;stroke:#005a9c;stroke-width:3}
+.graph-node text{text-anchor:middle;font-size:26px;font-weight:700;fill:#152943}
+.graph-label{text-anchor:middle;font-size:23px;font-weight:700;fill:#152943;paint-order:stroke;stroke:#fff;stroke-width:7px;stroke-linejoin:round}
+.deck .graph-figure figcaption{font-size:18px;line-height:1.5;color:var(--muted);margin-top:8px}
+.deck .graph-layout table td,.deck .graph-layout table th{font-size:22px;padding:6px 9px}
+.deck .graph-layout pre{font-size:21px;padding:16px;margin:8px 0}
+.deck .graph-layout p{font-size:23px}
+.deck .graph-layout .small{font-size:18px}
+.deck .graph-mark{font-weight:750;text-decoration:underline;background:#fff1e9;color:#923309}
+@media(max-width:760px){.deck .graph-layout{grid-template-columns:1fr}}
+@media print{.deck .graph-layout{grid-template-columns:1fr 1.18fr}.deck .graph-figure svg{max-height:60mm}}
