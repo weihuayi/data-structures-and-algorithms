@@ -64,6 +64,25 @@ class GraphDiagramTests(unittest.TestCase):
     def test_highlight_style_and_node_annotations(self):
         css = (Path(__file__).resolve().parents[1] / 'deck.css').read_text()
         self.assertIn('.graph-edge.marked{stroke:#c62828;stroke-width:6;stroke-dasharray:none}', css)
+        self.assertIn('.graph-node-current circle{fill:#f6d9c9;stroke:#c2410c;stroke-width:5}', css)
         svg = self.svg(node_details={'P': '编号 0', 'I': '度 0'})
         self.assertEqual([x.text for x in svg.findall('.//text[@class="graph-detail"]')],
                          ['编号 0', '度 0'])
+
+    def test_vertex_states_are_explicit_and_validated(self):
+        svg = self.svg(states={'P': 'seen', 'Q': 'current', 'I': 'unseen'})
+        nodes = svg.findall('.//g[@data-vertex]')
+        self.assertEqual([n.attrib['data-state'] for n in nodes], ['seen', 'current', 'unseen'])
+        self.assertIn('graph-node-seen', nodes[0].attrib['class'])
+        self.assertIn('graph-node-current', nodes[1].attrib['class'])
+        self.assertIn('graph-node-unseen', nodes[2].attrib['class'])
+        with self.assertRaises(ValueError):
+            self.svg(states={'P': 'done'})
+
+    def test_legend_can_be_overridden_or_suppressed(self):
+        html = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='edge',
+                     marked=[('P','Q')], legend='红线：树边')
+        self.assertIn('红线：树边', html)
+        html = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='edge',
+                     marked=[('P','Q')], legend='')
+        self.assertNotIn('graph-legend', html)
