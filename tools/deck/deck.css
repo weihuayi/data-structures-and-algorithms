@@ -340,6 +340,12 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .trace-pending li{font-size:19px;margin:1px 0;line-height:1.35}
 .deck .trace-output{border-top:2px solid var(--blue);padding-top:8px}
 .deck .trace-legend,.deck .tree-step{font-size:16px;color:var(--muted);margin:8px 0 0}
+.deck .graph-player .graph-layout{grid-template-columns:1fr 1.2fr;align-items:start;gap:18px}
+.deck .graph-player .graph-figure svg{max-height:235px}
+.deck .graph-player .trace-action{min-height:3.2em;font-size:19px}
+.deck .graph-player .trace-state{font-size:18px;padding:8px 12px}
+.deck .graph-player .trace-output{font-size:18px}
+.deck .graph-player .trace-detail{font-size:17px;line-height:1.45;color:var(--muted);margin:6px 0}
 .deck .trace-sequence{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:12px 0;font-size:21px}
 .deck .trace-sequence>strong{min-width:52px}
 .deck .trace-sequence>span{padding:5px 9px;border:1px solid #bacbd7;border-radius:5px}
@@ -428,6 +434,7 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .graph-label{text-anchor:middle;font-size:23px;font-weight:700;fill:#152943;paint-order:stroke;stroke:#fff;stroke-width:7px;stroke-linejoin:round}
 .deck .graph-figure figcaption{font-size:18px;line-height:1.5;color:var(--muted);margin-top:8px}
 .deck .compact-table td,.deck .compact-table th{font-size:20px;padding:4px 7px;line-height:1.35}
+.deck tr.matrix-focus td,.deck tr.matrix-focus th,.deck th.matrix-focus{background:#fff1e9;color:#9b1c1c;font-weight:700}
 .deck .graph-layout table td,.deck .graph-layout table th{font-size:22px;padding:6px 9px}
 .deck .graph-layout .compact-table td,.deck .graph-layout .compact-table th{font-size:20px;padding:4px 7px;line-height:1.35}
 .deck .graph-layout pre{font-size:21px;padding:16px;margin:8px 0}

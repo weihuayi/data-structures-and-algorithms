@@ -100,3 +100,9 @@ node --test tools/deck/tests/check_browser.test.cjs
 ## 静态一般图
 
 `graph_diagram.graph` 接收顶点坐标、端点对及可选的方向、权值标签和讨论边标记，不假定树的单亲或无环结构。SVG 箭头止于顶点边界；红色粗实线与线宽共同标记当前关注的已有边；只有命中实际边时才显示图例。`states` 可把顶点标为 `unvisited`、`visited` 或 `current`，对应共享的灰/蓝/橙样式；`legend` 可改写红线图例，传入空串可抑制图例。状态语义必须同时由文字说明或表格承载，不能只靠颜色。无向边标记不区分端点顺序，有向弧标记严格区分方向。`node_details` 可在顶点下显示编号或度数，保留孤立顶点和零值标签。`beside` 将图与表示并置。共享样式为 `.graph-*`；案例数据留在 Deck。适用于无自环、端点坐标不同的小图；不提供自动布局、平行弧避让或任意交叉标签检测，须人工看图。语义测试纳入 Python unittest 入口。
+
+## 图搜索状态播放器
+
+`graph_trace.py` 提供 D012 无向主例（A–E，边 AB、AC、BC、CD）的确定性搜索状态：`dfs_states(order)` 与 `bfs_states(order)` 各 15 个快照，保存 `visited`、当前顶点、`(vertex,next)` 栈或队列、`parent`、`distance`、`tree_edges` 与输出。`dfs_player('recursive'|'stack')`、`bfs_player()` 复用 `tree_trace.player` 的 `data-tree-player` 上一步/下一步/重置控件；每个面板由图、容器、动作、输出与 parent/distance 组成，无自动播放。
+
+状态逻辑在 Python，DOM 只负责显示；`tests/test_graph_trace.py` 覆盖主例序列、parent/tree_edges/distance、降序、游标推进、无重复访问、播放器控件与非法参数。边界：只覆盖该无向无权小图；不提供任意图、带权图、SCC 或扩展存储动画；不把“全部邻居一次入栈”的错误写法纳入播放器。无 JavaScript 时第一个状态仍静态可见。
