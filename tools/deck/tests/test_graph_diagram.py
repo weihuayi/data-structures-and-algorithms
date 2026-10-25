@@ -70,12 +70,12 @@ class GraphDiagramTests(unittest.TestCase):
                          ['编号 0', '度 0'])
 
     def test_vertex_states_are_explicit_and_validated(self):
-        svg = self.svg(states={'P': 'seen', 'Q': 'current', 'I': 'unseen'})
+        svg = self.svg(states={'P': 'visited', 'Q': 'current', 'I': 'unvisited'})
         nodes = svg.findall('.//g[@data-vertex]')
-        self.assertEqual([n.attrib['data-state'] for n in nodes], ['seen', 'current', 'unseen'])
-        self.assertIn('graph-node-seen', nodes[0].attrib['class'])
+        self.assertEqual([n.attrib['data-state'] for n in nodes], ['visited', 'current', 'unvisited'])
+        self.assertIn('graph-node-visited', nodes[0].attrib['class'])
         self.assertIn('graph-node-current', nodes[1].attrib['class'])
-        self.assertIn('graph-node-unseen', nodes[2].attrib['class'])
+        self.assertIn('graph-node-unvisited', nodes[2].attrib['class'])
         with self.assertRaises(ValueError):
             self.svg(states={'P': 'done'})
 

@@ -18,7 +18,7 @@ typedef struct {
 } Graph;
 typedef enum { MATRIX, LIST } Representation;
 typedef struct {
-    bool seen[CAP];
+    bool visited[CAP];
     int order[CAP], parent[CAP], distance[CAP];
     size_t count, scans, roots;
 } Result;
@@ -62,10 +62,11 @@ static void init(Result *r)
     *r = (Result){0};
     for (size_t i = 0; i < CAP; ++i) r->parent[i] = r->distance[i] = -1;
 }
-static void discover(Result *r, int v, int parent)
+/* First visit marks the vertex and records how it was reached. */
+static void visit(Result *r, int v, int parent)
 {
-    assert(!r->seen[v] && r->count < CAP);
-    r->seen[v] = true;
+    assert(!r->visited[v] && r->count < CAP);
+    r->visited[v] = true;
     r->parent[v] = parent;
     r->distance[v] = parent < 0 ? 0 : r->distance[parent] + 1;
     r->order[r->count++] = v;
@@ -76,13 +77,13 @@ static void dfs_recursive(const Graph *g, int u, Representation rep,
     size_t cursor = 0;
     int v;
     while ((v = next_neighbor(g, u, rep, reverse, &cursor, &r->scans)) >= 0)
-        if (!r->seen[v]) {
-            discover(r, v, u);
+        if (!r->visited[v]) {
+            visit(r, v, u);
             dfs_recursive(g, v, rep, reverse, r);
         }
 }
 /* A frame remembers both the vertex and the next neighbor to examine.
- * This reproduces recursive DFS discovery order and parent edges exactly. */
+ * This reproduces recursive DFS visit order and parent edges exactly. */
 static void dfs_stack(const Graph *g, int root, Representation rep,
                       bool reverse, Result *r)
 {
@@ -92,8 +93,8 @@ static void dfs_stack(const Graph *g, int root, Representation rep,
         Frame *f = &stack[top - 1];
         int v = next_neighbor(g, f->vertex, rep, reverse, &f->next, &r->scans);
         if (v < 0) { --top; continue; }
-        if (r->seen[v]) continue;
-        discover(r, v, f->vertex);
+        if (r->visited[v]) continue;
+        visit(r, v, f->vertex);
         assert(top < CAP);
         stack[top++] = (Frame){v, 0};
     }
@@ -107,8 +108,8 @@ static void bfs(const Graph *g, int root, Representation rep,
         int u = queue[front++], v;
         size_t cursor = 0;
         while ((v = next_neighbor(g, u, rep, reverse, &cursor, &r->scans)) >= 0) {
-            if (r->seen[v]) continue;
-            discover(r, v, u); /* Mark before enqueue: each vertex enters once. */
+            if (r->visited[v]) continue;
+            visit(r, v, u); /* Mark before enqueue: each vertex enters once. */
             assert(rear < CAP);
             queue[rear++] = v;
         }
@@ -128,8 +129,8 @@ static bool search(const Graph *g, int source, Method method, Representation rep
     for (size_t step = 0; step <= g->n; ++step) {
         int root = step == 0 ? source : (int)step - 1;
         if (step && !all) break;
-        if (r->seen[root]) continue;
-        ++r->roots; discover(r, root, -1);
+        if (r->visited[root]) continue;
+        ++r->roots; visit(r, root, -1);
         if (method == BFS) bfs(g, root, rep, reverse, r);
         else if (method == STACK_DFS) dfs_stack(g, root, rep, reverse, r);
         else dfs_recursive(g, root, rep, reverse, r);

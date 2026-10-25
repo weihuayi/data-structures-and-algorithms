@@ -420,9 +420,9 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .graph-arrow{stroke:#152943;stroke-width:3;fill:none}
 .graph-node circle{fill:#eef4f9;stroke:#005a9c;stroke-width:3}
 .graph-node text{text-anchor:middle;font-size:26px;font-weight:700;fill:#152943}
-.graph-node-unseen circle{fill:#f4f6f8;stroke:#9caebd;stroke-width:2}
-.graph-node-unseen text{fill:#536779}
-.graph-node-seen circle{fill:#dcebf7;stroke:#005a9c;stroke-width:3}
+.graph-node-unvisited circle{fill:#f4f6f8;stroke:#9caebd;stroke-width:2}
+.graph-node-unvisited text{fill:#536779}
+.graph-node-visited circle{fill:#dcebf7;stroke:#005a9c;stroke-width:3}
 .graph-node-current circle{fill:#f6d9c9;stroke:#c2410c;stroke-width:5}
 .graph-node-current text{fill:#7c2d12}
 .graph-label{text-anchor:middle;font-size:23px;font-weight:700;fill:#152943;paint-order:stroke;stroke:#fff;stroke-width:7px;stroke-linejoin:round}

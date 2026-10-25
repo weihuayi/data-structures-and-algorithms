@@ -3,7 +3,7 @@ from html import escape
 from math import hypot
 
 
-VALID_NODE_STATES = {'unseen', 'seen', 'current'}
+VALID_NODE_STATES = {'unvisited', 'visited', 'current'}
 
 
 def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
@@ -12,7 +12,7 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
 
     Thick red solid edges mark existing relationships under discussion. Directed edges
     end at the vertex boundary; no parent/child or tree assumption is made.
-    Optional states map vertices to unseen/seen/current; optional legend overrides
+    Optional states map vertices to unvisited/visited/current; optional legend overrides
     the red-edge legend and may be empty to suppress it.
     """
     out = [f'<figure class="graph-figure"><svg viewBox="0 0 520 290" role="img" aria-label="{escape(caption, quote=True)}"><title>{escape(caption)}</title>']
@@ -21,7 +21,7 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
         if key not in nodes:
             raise ValueError('State key must be a vertex')
         if state not in VALID_NODE_STATES:
-            raise ValueError('Node state must be unseen, seen, or current')
+            raise ValueError('Node state must be unvisited, visited, or current')
     marked = set(marked)
     has_marked_edge = False
     for a, b in edges:
