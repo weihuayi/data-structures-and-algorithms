@@ -2,7 +2,46 @@
 DECK_ID = "D013"
 TITLE = "最小生成树与并查集"
 
-SLIDES = [
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'tools' / 'deck'))
+from graph_diagram import graph, beside
+from mst_trace import (MAIN_NODES, MAIN_EDGES, MAIN_LABELS, MAIN_LABEL_POS, TRIANGLE_NODES,
+                       TRIANGLE_EDGES, EXERCISE_NODES, EXERCISE_EDGES,
+                       prim_player, kruskal_player)
+
+
+def note(text):
+    return '<details class="teacher-note"><summary>教学注记</summary><p>' + text + '</p></details>'
+
+
+def answer(html, title='核对答案与理由'):
+    return '<details><summary>' + title + '</summary>' + html + '</details>'
+
+
+def main_graph(*, marked=(), candidate=(), rejected=(), states=None, caption='主例带权无向图：边权为建设成本。'):
+    return graph(MAIN_NODES, [(a, b) for a, b, w in MAIN_EDGES], labels=MAIN_LABELS, label_positions=MAIN_LABEL_POS, marked=marked,
+                 candidate=candidate, rejected=rejected, states=states, caption=caption,
+                 legend='')
+
+
+def triangle_graph(*, marked=()):
+    labels = {(a, b): w for a, b, w in TRIANGLE_EDGES}
+    return graph(TRIANGLE_NODES, [(a, b) for a, b, w in TRIANGLE_EDGES], labels=labels, marked=marked,
+                 caption='三角形：AB=10，AC=1，BC=1。')
+
+
+def exercise_graph():
+    labels = {(a, b): w for a, b, w in EXERCISE_EDGES}
+    return graph(EXERCISE_NODES, [(a, b) for a, b, w in EXERCISE_EDGES], labels=labels,
+                 caption='独立练习：P、Q、R、S；边权如下。')
+
+
+def part(title, lead, detail, label):
+    return [title, '<p class="lead">' + lead + '</p><p>' + detail + '</p>', label]
+
+
+_LEGACY_SLIDES = [
 ['最小生成树与并查集', '<p class="lead">每次选一条便宜的边，怎样保证最后仍能得到最优连接？</p><p>数据结构与算法 · D013</p><p class="small">承接 D012；教材 6.6.1</p>', '课程名'],
 ['搜索树为什么可能多花钱？', '<pre>三角形：AB=10，AC=1，BC=1\n从 A 按编号做 DFS：选 AB、BC，总成本 11\n另一棵连接树：选 AC、BC，总成本 2</pre><p>先用 1 分钟解释：DFS 保证什么，没有保证什么？</p><details class="teacher-note"><summary>教学注记</summary><p>回收 D012：搜索树记录首次到达，保证覆盖可达点；没有按建设总成本选边。最少边数路径、搜索树、最小生成树是不同任务。</p></details>', '回收留问'],
 ['五个站点都接通，哪些信息必须保留？', '<pre>A ——1—— B\n \\4    /2 \\5\n    C ——3—— D\n     \\6   /7\n        E</pre><p>每条边表示可建设的双向线路，权为建设成本。<br>选择线路，使五个站点互通，并使总成本最小。</p><details class="teacher-note"><summary>教学注记</summary><p>完整边集 AB1、AC4、BC2、BD5、CD3、CE6、DE7。主例成本非负，不考虑容灾、容量、时延和既有必选边；这些要求改变后须重新建模。不要根据图中线条长短推断权值。</p></details>', '问题与对象'],
@@ -32,3 +71,105 @@ SLIDES = [
 ['课后：教材导航与正式作业', '<p><strong>教材导航</strong>：精读 6.6.1；对照阅读本讲并查集代码。</p><p><strong>A. 书本习题</strong>：第 6 章选择题 <strong>(7)</strong>、应用题 <strong>(2)③</strong>。写选择理由、选边过程和总权。</p><p><strong>B. 程序实践</strong>：把主例 DE 权值由 7 改为 0，先预测两算法的选边和总权，运行 homework 输出核对；写出 Kruskal 每次合并后的分组。</p><p class="small">按<a href="../../assignments/homework-guide.md">作业规范</a>提交 A、B 与 3–5 行过程记录。<br>应用题 (2)①②可画作解题草稿，本次正式提交范围为③。</p><details class="teacher-note"><summary>教学注记</summary><p>A 直接采用仓库 D013 清单，原教材图以教材为准；不声称 D012 已正式布置应用题 (2)①②。B 的 DE0、AB1、BC2、CD3，总和6；Prim 从 A 顺序 AB、BC、CD、DE，Kruskal 顺序 DE、AB、BC、CD。两者顺序可不同，结果合法且最优即可。</p></details>', '课后衔接'],
 ['下一讲：从一个起点出发，距离如何更新？', '<p>Prim 的 key[v] 是接入当前区域的一条边。<br>若任务变成“从 A 到 v 的最少总代价”，状态应保存什么？</p><p class="lead">D014：最短路径。</p><details class="teacher-note"><summary>教学注记</summary><p>不要预先把 Prim 的更新式当作 Dijkstra；后者涉及源路径累计值和权值条件。让学生先说出“到 u 的已有距离加上 u→v 边权”，为下一讲保留问题。</p></details>', '留下问题'],
 ]
+
+
+_OUTLINE = ['本讲要解决哪四个问题？', r'''<table><thead><tr><th>部分</th><th>要解决的问题</th><th>页码</th><th>分钟</th></tr></thead><tbody>
+<tr><td>第一部分</td><td>网络建设目标、生成树、割与安全选择</td><td>3–9</td><td>19</td></tr>
+<tr><td>第二部分</td><td>Prim 的已连接区域与最便宜入口</td><td>10–15</td><td>17</td></tr>
+<tr><td>第三部分</td><td>Kruskal、动态分组与并查集</td><td>16–22</td><td>22</td></tr>
+<tr><td>第四部分</td><td>等权、代价、实现、验证与独立任务</td><td>23–33</td><td>27</td></tr>
+</tbody></table><p><strong>约 45 分钟断点</strong>：第 18 页 Kruskal 推演后。</p>''', '课程路线']
+
+_PART1 = part('第一部分：问题与数学依据', '从一棵搜索树开始，重新定义“连接全网”的优化目标。', '生成树、n−1 条边的边界、割与交换论证。', '第一部分 · 问题与数学依据')
+_PART2 = part('第二部分：Prim', '让一片已连接区域逐步长大。', '状态语义、最轻跨界边、key 与候选 parent、非连通重启。', '第二部分 · Prim')
+_PART3 = part('第三部分：Kruskal 与并查集', '从便宜边开始合并，维护动态分组。', '排序、接受/拒绝、DSU 父指针与路径压缩。', '第三部分 · Kruskal 与 DSU')
+_PART4 = part('第四部分：验证与应用', '把结构可行性、选择安全性与任务边界分开检查。', '等权与实现代价、C 状态、独立练习、MST 与最短路径。', '第四部分 · 验证与应用')
+
+_SEARCH = ['搜索树为什么可能多花钱？',
+ beside(triangle_graph(marked=(('A', 'B'), ('B', 'C'))),
+        r'''<p>按编号从 A 做 DFS：选 AB、BC（红粗），总成本 <strong>11</strong>。</p><p>另一棵连接树 AC、BC 的总成本为 <strong>2</strong>。</p><p>搜索树保证覆盖可达点，没有按建设总成本选边。</p>''') +
+ note('回收 D012：搜索树记录首次到达，保证覆盖可达点；没有按建设总成本选边。最少边数路径、搜索树、最小生成树是不同任务。'),
+ '第一部分 · 问题与数学依据']
+
+_MAIN = ['五个站点都接通，哪些信息必须保留？',
+ beside(main_graph(), r'''<p>顶点 A–E；每条边表示可建设的双向线路，边权为建设成本。</p><p><strong>目标</strong>：选择线路，使五个站点互通，并使总成本最小。</p><p class="small">先保留全部候选边；选多少条、选哪几条，是本讲要回答的问题。</p>''') +
+ note('完整边集 AB1、AC4、BC2、BD5、CD3、CE6、DE7。主例成本非负，不考虑容灾、容量、时延和既有必选边；这些要求改变后须重新建模。不要根据图中线条长短推断权值。'),
+ '第一部分 · 问题与数学依据']
+
+_N1 = ['选了 n−1 条边，就一定完成了吗？',
+ beside(main_graph(marked=(('A', 'B'), ('A', 'C'), ('B', 'C'), ('D', 'E')),
+                    caption='选中 AB、AC、BC、DE：4 条边，但 A–C 与 D–E 两个分量。'),
+        r'''<p>五个顶点选了 4 条边，却仍有两个分量。</p><ul><li>中间状态：已选边应组成森林。</li><li>完成条件：全部顶点连通，且无环。</li><li>对 n 个顶点的森林：边数 = n − 分量数。</li></ul>''') +
+ note('区分结构可行与权值最优。保持无环再选到 n−1 条，才能推出连通。维护等价类正是后续并查集的任务。'),
+ '第一部分 · 问题与数学依据']
+
+_CUT = ['跨过一条分界，哪条边可以安全选？',
+ beside(main_graph(candidate=(('B', 'C'),), states={'A': 'visited', 'B': 'visited'},
+                    caption='S={A,B}（蓝）；跨界 AC4、BC2、BD5；最轻 BC=2（橙虚线）。'),
+        r'''<p><strong>割</strong>：把顶点分成 S 与补集两部分，只考虑跨过这条分界的边。</p><p>S={A,B}，其余={C,D,E}；跨界边 AC=4、BC=2、BD=5，最轻是 <strong>BC=2</strong>。</p><p>若已选边 F 可扩展成某棵 MST，且没有 F 边跨割，加入最轻跨界边后仍可扩展成某棵 MST。</p>''') +
+ note('割是顶点的非空真子集 S 与补集的划分。前提：已选边 F 可扩展成某棵 MST，且割尊重 F（无 F 边跨割）。安全不等于每棵 MST 都必须含该边；等权时可能有多解。'),
+ '第一部分 · 问题与数学依据']
+
+_EXCHANGE = ['为什么这次局部选择不损失最优解？',
+ beside(main_graph(candidate=(('B', 'C'),), states={'A': 'visited', 'B': 'visited'},
+                    caption='e=BC 是当前割上最轻跨界边；用交换论证保留已有选择。'),
+        r'''<ol><li>取一棵包含已选边的最优树 T；若已有最轻跨界边 e，无需改变。</li><li>否则加入 e 形成环；环上还有一条跨界边 f，且 f 不在已选边 F 中。</li><li>用 e 换掉 f：仍是生成树，成本不增加，F 全部保留。</li></ol><p>因为 e 跨割最轻，w(e)≤w(f)；替换后不可能比最优 T 更便宜。</p>''') +
+ note('这是交换论证；不是“每次最小所以整体最小”。先在前页割上用手指追出跨界路径，再读三步理由。'),
+ '第一部分 · 问题与数学依据']
+
+_PRIM_PLAYER = ['从 A 开始，Prim 的每一步怎样变化？',
+ prim_player(), '第二部分 · Prim']
+
+_KRUSKAL_PLAYER = ['Kruskal：当前边、分组与 DSU 父指针',
+ kruskal_player(), '第三部分 · Kruskal 与 DSU']
+
+_EXERCISE = ['新网络：你能说明每一次合并吗？',
+ beside(exercise_graph(), r'''<p>四站点 P、Q、R、S；PQ=3、PR=1、QR=2、QS=4、RS=5。</p><div class="exercise-grid"><p>1. 按 Kruskal 构造 MST。</p><p>2. 写接受/拒绝边及原因。</p><p>3. 写接受后的分组。</p><p>4. 解释 PQ 为何被拒绝。</p><p>5. 任选接受，说明割安全。</p><p>6. 计算总权。</p></div>''' +
+ answer(r'''<p class="small"><strong>顺序/过程</strong>：PR1、QR2、PQ3（此时 MST 未完成，PQ 同组拒绝）、QS4、RS5（拒绝）；总权 7。</p><p class="small"><strong>分组/割</strong>：{P,R}→{P,Q,R}→{P,Q,R,S}；选 QS 时 S={P,Q,R}，跨界 QS4、RS5，QS 最轻。</p>''', '核对答案与理由（7+2 分钟）')),
+ '第四部分 · 验证与应用']
+
+SLIDES = [
+    _LEGACY_SLIDES[0],
+    _OUTLINE,
+    _PART1,
+    _SEARCH,
+    _MAIN,
+    _LEGACY_SLIDES[3],
+    _N1,
+    _CUT,
+    _EXCHANGE,
+    _PART2,
+    _LEGACY_SLIDES[7],
+    _PRIM_PLAYER,
+    _LEGACY_SLIDES[9],
+    _LEGACY_SLIDES[10],
+    _LEGACY_SLIDES[11],
+    _PART3,
+    _LEGACY_SLIDES[12],
+    _KRUSKAL_PLAYER,
+    _LEGACY_SLIDES[14],
+    _LEGACY_SLIDES[15],
+    _LEGACY_SLIDES[16],
+    _LEGACY_SLIDES[17],
+    _PART4,
+    _LEGACY_SLIDES[18],
+    _LEGACY_SLIDES[19],
+    _LEGACY_SLIDES[20],
+    _LEGACY_SLIDES[21],
+    _LEGACY_SLIDES[22],
+    _EXERCISE,
+    _LEGACY_SLIDES[24],
+    _LEGACY_SLIDES[25],
+    _LEGACY_SLIDES[26],
+    _LEGACY_SLIDES[27],
+]
+
+
+for _i in range(3, 9):
+    SLIDES[_i][2] = '第一部分 · 问题与数学依据'
+for _i in range(10, 15):
+    SLIDES[_i][2] = '第二部分 · Prim'
+for _i in range(16, 22):
+    SLIDES[_i][2] = '第三部分 · Kruskal 与 DSU'
+for _i in range(23, 33):
+    SLIDES[_i][2] = '第四部分 · 验证与应用'

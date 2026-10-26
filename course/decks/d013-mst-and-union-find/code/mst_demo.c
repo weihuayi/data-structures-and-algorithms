@@ -2,13 +2,15 @@
  * Edge weights are integers in [-1000000,1000000], including zero.
  * Build: gcc -std=c11 -Wall -Wextra mst_demo.c -o /tmp/d013
  */
-#include <assert.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
 #define CAP 16
 #define MAX_EDGES (CAP * (CAP - 1) / 2)
 #define WEIGHT_LIMIT 1000000
+
+#define CHECK(cond) do { if (!(cond)) { fprintf(stderr, "check failed: %s:%d\n", __FILE__, __LINE__); exit(1); } } while (0)
 
 typedef struct { int u, v, weight; } Edge;
 typedef struct {
@@ -83,7 +85,7 @@ static void sort(Edge *e, Edge *tmp, size_t begin, size_t end)
 }
 static void take(Forest *f, Edge e)
 {
-    assert(f->count < CAP - 1);
+    CHECK(f->count < CAP - 1);
     f->edges[f->count++] = e;
     f->total += e.weight; /* bounded weights and CAP make this sum safe */
 }
@@ -118,7 +120,7 @@ static Forest prim(const Graph *g)
                 if (!used[v]) { u = (int)v; break; }
             ++f.components;
         }
-        assert(u >= 0);
+        CHECK(u >= 0);
         used[u] = true;
         if (parent[u] >= 0) take(&f, (Edge){parent[u], u, key[u]});
         for (size_t v = 0; v < g->n; ++v)
@@ -136,15 +138,15 @@ static void verify(const Graph *g, const Forest *f)
     long long sum = 0;
     for (size_t i = 0; i < f->count; ++i) {
         Edge e = f->edges[i];
-        assert(g->present[e.u][e.v] && g->weight[e.u][e.v] == e.weight);
-        assert(unite(&d, e.u, e.v)); sum += e.weight;
+        CHECK(g->present[e.u][e.v] && g->weight[e.u][e.v] == e.weight);
+        CHECK(unite(&d, e.u, e.v)); sum += e.weight;
     }
     size_t components = 0;
     for (size_t v = 0; v < g->n; ++v) if (find(&d, (int)v) == (int)v) ++components;
     for (size_t i = 0; i < g->m; ++i)
-        assert(find(&d, g->edges[i].u) == find(&d, g->edges[i].v));
-    assert(components == f->components && f->count + components == g->n);
-    assert(sum == f->total);
+        CHECK(find(&d, g->edges[i].u) == find(&d, g->edges[i].v));
+    CHECK(components == f->components && f->count + components == g->n);
+    CHECK(sum == f->total);
 }
 static void print_forest(const char *method, const Graph *g, const Forest *f)
 {
@@ -161,7 +163,7 @@ static bool demo(const char *label, size_t n, const Edge *edges, size_t m)
     if (!build(n, edges, m, &g)) return false;
     Forest p = prim(&g), k = kruskal(&g);
     printf("%s\n", label); print_forest("Prim", &g, &p); print_forest("Kruskal", &g, &k);
-    assert(p.total == k.total && p.components == k.components);
+    CHECK(p.total == k.total && p.components == k.components);
     return true;
 }
 static void checks(void)
@@ -169,20 +171,20 @@ static void checks(void)
     Graph g;
     Edge loop[]={{0,0,1}}, dup[]={{0,1,1},{1,0,2}}, bad[]={{0,2,1}};
     Edge too_large[]={{0,1,WEIGHT_LIMIT+1}};
-    assert(!build(0,NULL,0,&g)); assert(!build(CAP+1,NULL,0,&g));
-    assert(!build(2,NULL,1,&g)); assert(!build(2,loop,1,&g));
-    assert(!build(2,dup,2,&g)); assert(!build(2,bad,1,&g));
-    assert(!build(2,too_large,1,&g));
-    assert(build(1,NULL,0,&g));
+    CHECK(!build(0,NULL,0,&g)); CHECK(!build(CAP+1,NULL,0,&g));
+    CHECK(!build(2,NULL,1,&g)); CHECK(!build(2,loop,1,&g));
+    CHECK(!build(2,dup,2,&g)); CHECK(!build(2,bad,1,&g));
+    CHECK(!build(2,too_large,1,&g));
+    CHECK(build(1,NULL,0,&g));
     Forest p=prim(&g), k=kruskal(&g); verify(&g,&p); verify(&g,&k);
-    assert(p.count==0 && p.components==1 && p.total==0);
+    CHECK(p.count==0 && p.components==1 && p.total==0);
     Edge chain[CAP-1];
     for (int i=0;i<CAP-1;++i) chain[i]=(Edge){i,i+1,-WEIGHT_LIMIT};
-    assert(build(CAP,chain,CAP-1,&g));p=prim(&g);k=kruskal(&g);
-    verify(&g,&p);verify(&g,&k);assert(p.total==-(long long)(CAP-1)*WEIGHT_LIMIT&&p.total==k.total);
-    DSU d;dsu_init(&d,4);assert(unite(&d,0,1));assert(unite(&d,2,3));
-    assert(unite(&d,0,2));assert(!unite(&d,1,3));
-    int root=find(&d,3);assert(d.parent[3]==root && d.size[root]==4);
+    CHECK(build(CAP,chain,CAP-1,&g));p=prim(&g);k=kruskal(&g);
+    verify(&g,&p);verify(&g,&k);CHECK(p.total==-(long long)(CAP-1)*WEIGHT_LIMIT&&p.total==k.total);
+    DSU d;dsu_init(&d,4);CHECK(unite(&d,0,1));CHECK(unite(&d,2,3));
+    CHECK(unite(&d,0,2));CHECK(!unite(&d,1,3));
+    int root=find(&d,3);CHECK(d.parent[3]==root && d.size[root]==4);
 }
 int main(void)
 {

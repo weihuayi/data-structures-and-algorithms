@@ -7,7 +7,7 @@ VALID_NODE_STATES = {'unvisited', 'visited', 'current', 'examined'}
 
 
 def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
-          node_details=None, states=None, legend=None):
+          node_details=None, states=None, legend=None, candidate=(), rejected=(), label_positions=None):
     """nodes maps IDs to (x,y); edges are endpoint pairs, labels map pairs to text.
 
     Thick red solid edges mark existing relationships under discussion. Directed edges
@@ -23,7 +23,9 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
         if state not in VALID_NODE_STATES:
             raise ValueError('Node state must be unvisited, visited, current, or examined')
     marked = set(marked)
-    has_marked_edge = False
+    candidate = set(candidate)
+    rejected = set(rejected)
+    has_highlight = False
     for a, b in edges:
         x, y = nodes[a]
         xx, yy = nodes[b]
@@ -33,14 +35,23 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
         ux, uy = (xx-x)/distance, (yy-y)/distance
         sx, sy, tx, ty = x+24*ux, y+24*uy, xx-24*ux, yy-24*uy
         is_marked = (a, b) in marked or (not directed and (b, a) in marked)
-        has_marked_edge |= is_marked
-        cls = 'graph-edge marked' if is_marked else 'graph-edge'
+        is_candidate = (a, b) in candidate or (not directed and (b, a) in candidate)
+        is_rejected = (a, b) in rejected or (not directed and (b, a) in rejected)
+        has_highlight |= is_marked or is_candidate or is_rejected
+        cls = 'graph-edge'
+        if is_marked: cls += ' marked'
+        if is_candidate: cls += ' candidate'
+        if is_rejected: cls += ' rejected'
         out.append(f'<g data-edge="{escape(a)}-{escape(b)}"><path class="{cls}" d="M {sx} {sy} L {tx} {ty}"/>')
         if directed:
             arrow_cls = 'graph-arrow marked' if is_marked else 'graph-arrow'
             out.append(f'<path class="{arrow_cls}" d="M {tx-12*ux+6*uy} {ty-12*uy-6*ux} L {tx} {ty} L {tx-12*ux-6*uy} {ty-12*uy+6*ux}"/>')
         if labels and (a, b) in labels:
-            out.append(f'<text class="graph-label" x="{(x+xx)/2-14*uy}" y="{(y+yy)/2+14*ux}">{escape(str(labels[a,b]))}</text>')
+            if label_positions and (a, b) in label_positions:
+                lx, ly = label_positions[(a, b)]
+            else:
+                lx, ly = (x+xx)/2-14*uy, (y+yy)/2+14*ux
+            out.append(f'<text class="graph-label" x="{lx}" y="{ly}">{escape(str(labels[a,b]))}</text>')
         out.append('</g>')
     for key, (x, y) in nodes.items():
         state = states.get(key)
@@ -50,7 +61,7 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
         if node_details and key in node_details:
             out.append(f'<text class="graph-detail" x="{x}" y="{y+50}">{escape(str(node_details[key]))}</text>')
     legend_html = ''
-    if has_marked_edge and legend != '':
+    if has_highlight and legend != '':
         legend_text = '红色粗实线：关注的已有边。' if legend is None else legend
         if legend_text:
             legend_html = f' <span class="graph-legend">{escape(legend_text)}</span>'
