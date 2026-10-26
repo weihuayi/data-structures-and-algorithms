@@ -65,17 +65,18 @@ class GraphDiagramTests(unittest.TestCase):
         css = (Path(__file__).resolve().parents[1] / 'deck.css').read_text()
         self.assertIn('.graph-edge.marked{stroke:#c62828;stroke-width:6;stroke-dasharray:none}', css)
         self.assertIn('.graph-node-current circle{fill:#f6d9c9;stroke:#c2410c;stroke-width:5}', css)
+        self.assertIn('.graph-node-examined circle{fill:#dcebf7;stroke:#c2410c;stroke-width:4;stroke-dasharray:6 4}', css)
         svg = self.svg(node_details={'P': '编号 0', 'I': '度 0'})
         self.assertEqual([x.text for x in svg.findall('.//text[@class="graph-detail"]')],
                          ['编号 0', '度 0'])
 
     def test_vertex_states_are_explicit_and_validated(self):
-        svg = self.svg(states={'P': 'visited', 'Q': 'current', 'I': 'unvisited'})
+        svg = self.svg(states={'P': 'visited', 'Q': 'current', 'I': 'examined'})
         nodes = svg.findall('.//g[@data-vertex]')
-        self.assertEqual([n.attrib['data-state'] for n in nodes], ['visited', 'current', 'unvisited'])
+        self.assertEqual([n.attrib['data-state'] for n in nodes], ['visited', 'current', 'examined'])
         self.assertIn('graph-node-visited', nodes[0].attrib['class'])
         self.assertIn('graph-node-current', nodes[1].attrib['class'])
-        self.assertIn('graph-node-unvisited', nodes[2].attrib['class'])
+        self.assertIn('graph-node-examined', nodes[2].attrib['class'])
         with self.assertRaises(ValueError):
             self.svg(states={'P': 'done'})
 

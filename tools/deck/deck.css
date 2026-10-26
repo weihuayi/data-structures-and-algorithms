@@ -135,6 +135,7 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .contact-list{display:grid;grid-template-columns:1fr 1fr;gap:18px;border-top:1px solid var(--line);margin-top:20px;padding-top:10px}
 .deck .contact-list p{font-size:clamp(18px,1.25vw,24px);margin:8px 0}
 .deck .compact-quote{font-size:clamp(22px,1.7vw,30px);margin:14px 0;padding:10px 18px}
+.deck .definition-box{border:1px solid var(--line);background:#f7f9fc;padding:9px 16px;margin:8px 0;font-size:20px;line-height:1.5}
 .deck .question-stack{display:grid;gap:16px;margin:24px 0}
 .deck .question-stack>div{border-left:5px solid var(--blue);background:#f7fafc;padding:14px 20px;display:grid;grid-template-columns:1.1fr 1fr;gap:18px;align-items:center}
 .deck .question-stack strong{font-size:clamp(23px,1.8vw,34px)}
@@ -346,6 +347,10 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .graph-player .trace-state{font-size:18px;padding:8px 12px}
 .deck .graph-player .trace-output{font-size:18px}
 .deck .graph-player .trace-detail{font-size:17px;line-height:1.45;color:var(--muted);margin:6px 0}
+.deck #slide-17 .graph-player .trace-action{font-size:21px;min-height:3.6em}
+.deck #slide-17 .graph-player .trace-state{font-size:20px}
+.deck #slide-17 .graph-player .trace-output{font-size:20px}
+.deck #slide-17 .graph-player .trace-detail{font-size:18px}
 .deck .trace-sequence{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:12px 0;font-size:21px}
 .deck .trace-sequence>strong{min-width:52px}
 .deck .trace-sequence>span{padding:5px 9px;border:1px solid #bacbd7;border-radius:5px}
@@ -431,10 +436,13 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .graph-node-visited circle{fill:#dcebf7;stroke:#005a9c;stroke-width:3}
 .graph-node-current circle{fill:#f6d9c9;stroke:#c2410c;stroke-width:5}
 .graph-node-current text{fill:#7c2d12}
+.graph-node-examined circle{fill:#dcebf7;stroke:#c2410c;stroke-width:4;stroke-dasharray:6 4}
+.graph-node-examined text{fill:#7c2d12}
 .graph-label{text-anchor:middle;font-size:23px;font-weight:700;fill:#152943;paint-order:stroke;stroke:#fff;stroke-width:7px;stroke-linejoin:round}
 .deck .graph-figure figcaption{font-size:18px;line-height:1.5;color:var(--muted);margin-top:8px}
 .deck .compact-table td,.deck .compact-table th{font-size:20px;padding:4px 7px;line-height:1.35}
 .deck tr.matrix-focus td,.deck tr.matrix-focus th,.deck th.matrix-focus{background:#fff1e9;color:#9b1c1c;font-weight:700}
+.deck .forest-table th:first-child,.deck .forest-table td:first-child{width:5.5em;white-space:nowrap}
 .deck .graph-layout table td,.deck .graph-layout table th{font-size:22px;padding:6px 9px}
 .deck .graph-layout .compact-table td,.deck .graph-layout .compact-table th{font-size:20px;padding:4px 7px;line-height:1.35}
 .deck .graph-layout pre{font-size:21px;padding:16px;margin:8px 0}

@@ -3,7 +3,7 @@ from html import escape
 from math import hypot
 
 
-VALID_NODE_STATES = {'unvisited', 'visited', 'current'}
+VALID_NODE_STATES = {'unvisited', 'visited', 'current', 'examined'}
 
 
 def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
@@ -21,7 +21,7 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
         if key not in nodes:
             raise ValueError('State key must be a vertex')
         if state not in VALID_NODE_STATES:
-            raise ValueError('Node state must be unvisited, visited, or current')
+            raise ValueError('Node state must be unvisited, visited, current, or examined')
     marked = set(marked)
     has_marked_edge = False
     for a, b in edges:

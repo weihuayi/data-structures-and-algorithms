@@ -39,6 +39,15 @@ class GraphTraceTests(unittest.TestCase):
         self.assertEqual(target['current'], 'B')
         self.assertNotIn('E', target['visited'])
 
+    def test_dfs_current_matches_stack_top_and_return_restores_parent(self):
+        states = dfs_states()
+        for state in states:
+            expected = state['stack'][-1]['vertex'] if state['stack'] else None
+            self.assertEqual(state['current'], expected)
+        back = next(s for s in states if s['action'].startswith('C 的邻接项已全部检查，弹出帧；回到 B'))
+        self.assertEqual(back['current'], 'B')
+        self.assertEqual(back['stack'][-1], {'vertex': 'B', 'next': 2})
+
     def test_every_dfs_frame_cursor_is_monotonic(self):
         states = dfs_states()
         last = {}
@@ -51,8 +60,11 @@ class GraphTraceTests(unittest.TestCase):
 
     def test_bfs_first_visit_marks_and_enqueues(self):
         states = bfs_states()
-        after_a = next(s for s in states if s['action'].startswith('A 检查位置 1 的 C'))
+        after_a = next(s for s in states if '检查位置 1 的 C' in s['action'])
         self.assertEqual(after_a['queue'], ('B', 'C'))
+        self.assertEqual(after_a['processing'], 'A')
+        self.assertEqual(after_a['examined'], 'C')
+        self.assertEqual(after_a['current'], 'A')
         self.assertEqual(after_a['output'], ('A', 'B', 'C'))
         self.assertEqual(after_a['distance'], {'A': 0, 'B': 1, 'C': 1})
         final = states[-1]
@@ -61,11 +73,46 @@ class GraphTraceTests(unittest.TestCase):
         self.assertEqual(final['distance'], {'A': 0, 'B': 1, 'C': 1, 'D': 2})
         self.assertEqual(final['tree_edges'], (('A', 'B'), ('A', 'C'), ('C', 'D')))
 
+    def test_bfs_processing_vertex_and_examined_neighbor_are_distinct(self):
+        states = bfs_states()
+        a_b = next(s for s in states if '正在处理 A，检查位置 0 的 B' in s['action'])
+        self.assertEqual((a_b['processing'], a_b['examined'], a_b['current']), ('A', 'B', 'A'))
+        a_c = next(s for s in states if '正在处理 A，检查位置 1 的 C' in s['action'])
+        self.assertEqual((a_c['processing'], a_c['examined'], a_c['current']), ('A', 'C', 'A'))
+        b_dequeue = next(s for s in states if s['action'].startswith('B 出队'))
+        self.assertEqual((b_dequeue['processing'], b_dequeue['examined']), ('B', None))
+        self.assertEqual(b_dequeue['queue'], ('C',))
+        b_c = next(s for s in states if '正在处理 B，检查位置 1 的 C' in s['action'])
+        self.assertEqual((b_c['processing'], b_c['examined']), ('B', 'C'))
+        self.assertEqual(b_c['queue'], ('C',))
+        c_dequeue = next(s for s in states if s['action'].startswith('C 出队'))
+        self.assertEqual(c_dequeue['processing'], 'C')
+        self.assertEqual(c_dequeue['queue'], ())
+
     def test_bfs_descending_order_changes_sequence_not_distance(self):
         final = bfs_states(order='desc')[-1]
         self.assertEqual(final['output'], ('A', 'C', 'B', 'D'))
         self.assertEqual(final['distance'], {'A': 0, 'B': 1, 'C': 1, 'D': 2})
         self.assertEqual(set(final['visited']), {'A', 'B', 'C', 'D'})
+
+    def test_bfs_invariants_hold_in_every_state(self):
+        for state in bfs_states():
+            self.assertEqual(state['output'], state['visited'])
+            self.assertEqual(len(state['visited']), len(set(state['visited'])))
+            self.assertTrue(set(state['queue']) <= set(state['visited']))
+            for vertex in state['visited']:
+                self.assertIn(vertex, state['parent'])
+                if state['parent'][vertex] is None:
+                    self.assertEqual(state['distance'][vertex], 0)
+                else:
+                    self.assertEqual(state['distance'][vertex],
+                                     state['distance'][state['parent'][vertex]] + 1)
+
+    def test_tree_edges_agree_with_parent_in_every_state(self):
+        for states in (dfs_states(), bfs_states(), dfs_states(order='desc'), bfs_states(order='desc')):
+            for state in states:
+                for source, child in state['tree_edges']:
+                    self.assertEqual(state['parent'][child], source)
 
     def test_no_vertex_is_visited_twice(self):
         for states in (dfs_states(), bfs_states(), dfs_states(order='desc'), bfs_states(order='desc')):
@@ -84,6 +131,7 @@ class GraphTraceTests(unittest.TestCase):
             self.assertEqual(html.count('tree-step-panel'), 15)
             self.assertIn('graph-node-current', html)
             self.assertNotIn('seen', html)
+        self.assertIn('graph-node-examined', bfs_player())
 
     def test_invalid_parameters_rejected(self):
         with self.assertRaises(ValueError):

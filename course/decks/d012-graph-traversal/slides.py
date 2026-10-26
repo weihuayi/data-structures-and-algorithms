@@ -41,18 +41,11 @@ def main_graph(*, visited=(), current=None, tree_edges=(), caption=None, details
                  node_details=details, legend=legend)
 
 
-def matrix_table(highlight=None):
-    head = '<tr><th>行/列</th>' + ''.join(
-        f'<th{" class=\"matrix-focus\"" if v == highlight else ""}>{v}({INDEX[v]})</th>' for v in NODES) + '</tr>'
-    rows = []
-    for row in NODES:
-        cells = ''
-        for col in NODES:
-            value = 1 if col in ADJ[row] else 0
-            cells += f'<td>{value}</td>'
-        cls = ' class="matrix-focus"' if row == highlight else ''
-        rows.append(f'<tr{cls}><th>{row}({INDEX[row]})</th>{cells}</tr>')
-    return '<table class="compact-table matrix-table"><thead>' + head + '</thead><tbody>' + ''.join(rows) + '</tbody></table>'
+def matrix_row(highlight='C'):
+    head = '<tr><th>' + highlight + ' 行</th>' + ''.join(f'<th>{v}</th>' for v in NODES) + '</tr>'
+    values = ''.join(f'<td>{1 if v in ADJ[highlight] else 0}</td>' for v in NODES)
+    return ('<table class="compact-table matrix-table"><thead>' + head + '</thead><tbody><tr class="matrix-focus">' +
+            '<th>值</th>' + values + '</tr></tbody></table>')
 
 
 def adjacency_table(highlight=None):
@@ -132,7 +125,7 @@ SLIDES = [
 
 ['同一个 neighbors，扫描代价从哪里来？',
  beside(main_graph(current='C', caption='当前关注 C；C 的邻居是 A、B、D。'), r'''<p>同一图、同一枚举语义：矩阵 5 格，邻接表 3 项。</p>''' +
- matrix_table('C') + r'''<p>C 的邻接表 3 项；矩阵 C 行 5 格（3 个 1、2 个 0）。</p>''') +
+ matrix_row('C') + r'''<p><strong>C 的邻接表</strong>：0→A、1→B、2→D（3 项）。<br><strong>矩阵 C 行</strong>：A 1、B 1、C 0、D 1、E 0（5 格）；两种表示描述同一图。</p>''') +
  note('矩阵行 1、1、0、1、0。矩阵和邻接表描述同一个图；表示不同会改变邻居枚举机制和代价，不改变实际邻接关系。构造矩阵/邻接表另有成本，本页只比较枚举阶段。演示邻接表采用连续邻居数组，保留“仅枚举实际邻接项”的机制。'),
  '第一节 · 从图到遍历任务'],
 
@@ -177,13 +170,13 @@ SLIDES = [
  '第二节 · 深度优先搜索'],
 
 ['把邻居编号降序后，DFS 会先走谁？',
- beside(main_graph(visited={'A', 'C'}, current='C', tree_edges=[('A', 'C')], caption='降序 DFS：A、C 已访问；当前 C。'), r'''<p><strong>顶点标签与整数编号</strong></p>''' + vertex_map() + r'''
+ beside(main_graph(visited={'A', 'C'}, current='C', tree_edges=[('A', 'C')], caption='降序 DFS：A、C 已访问；当前 C。'), r'''<p><strong>编号</strong>：A=0、B=1、C=2、D=3、E=4。</p>
  <table class="compact-table"><thead><tr><th>顶点</th><th>升序（编号小→大）</th><th>降序（编号大→小）</th></tr></thead><tbody>
  <tr><td>A(0)</td><td>B(1)、C(2)</td><td>C(2)、B(1)</td></tr>
  <tr><td>C(2)</td><td>A(0)、B(1)、D(3)</td><td>D(3)、B(1)、A(0)</td></tr>
  </tbody></table>
- <p>DFS 已访问 A、C；下一位 ______，再下一位 ______。</p><p class="small">降序是按整数顶点编号从大到小枚举邻居，不是字母顺序，也不是图上的几何位置。邻接顺序改变，边的存在性不变。</p>''') +
- note('2 分钟补全及解释：A C D B，树边 AC、CD、CB；集合仍为 A B C D。不能把存储表示名称当成序列的唯一决定因素：还取决于起点、邻接次序、搜索策略。'),
+ <p>DFS 已访问 A、C；下一位 ______，再下一位 ______。</p>''' + answer(r'''<p><strong>答案</strong>：A C D B；下一位 D，再下一位 B。</p><p><strong>理由</strong>：C 的降序邻接 D、B、A；A 已访问，先 D；D 只连 C，返回 C 后 B；B 的邻居 A、C 都已访问。树边 AC、CD、CB，集合仍为 A B C D。</p>''') + r'''<p class="small">降序：按整数编号从大到小，不是字母序/几何位置；边存在性不变。</p>''') +
+ note('2 分钟补全；先让学生写 D、B，再展开核对。不要先投影答案。'),
  '第二节 · 深度优先搜索'],
 
 ['不用递归，栈里要记住什么？',
@@ -204,7 +197,7 @@ SLIDES = [
         visited[v]=true；parent[v]=u
         输出 v；distance[v]=distance[u]+1
         v 入队</pre>
- <p class="small"><strong>教材定义（概述）</strong>：广度优先搜索（BFS）先访问近邻，再逐层向外扩展。</p>
+ <div class="definition-box"><strong>教材定义（概述）</strong>：广度优先搜索（BFS）先访问近邻，<br>逐层向外。</div>
  ''') +
  note('输出发生在首次访问时；队列保存已访问、尚未完成邻接扫描的顶点。教材 6.5.2 算法 6.7：访问 w 时立即置 visited[w]=true，随后 w 入队——先标记、再入队。'),
  '第三节 · 广度优先搜索'],
@@ -220,7 +213,7 @@ SLIDES = [
  '第三节 · 广度优先搜索'],
 
 ['为什么不重复、不遗漏，而且会结束？',
- r'''<ul><li><strong>不重复</strong>：第 8 页不变量——首次访问即标记；只安排未访问顶点。</li><li>不遗漏：若某可达点漏掉，沿源到它的路径找第一个漏点；其前驱被处理时本应访问它。</li><li>终止：顶点有限，每个顶点只安排一次，邻接枚举也有限。</li></ul>''' +
+ r'''<ul><li><strong>不重复</strong>：首次访问即标记；只安排未访问顶点。</li><li>不遗漏：若某可达点漏掉，沿源到它的路径找第一个漏点；其前驱被处理时本应访问它。</li><li>终止：顶点有限，每个顶点只安排一次，邻接枚举也有限。</li></ul>''' +
  note('假设图在搜索中不变，邻接枚举完整且终止。全图无遗漏还需外层扫描。这里只用任务相关的正确性语言，不新增统一证明框架的背诵要求。'),
  '第三节 · 广度优先搜索'],
 
@@ -252,11 +245,11 @@ for 每个顶点 v（按编号）：
 
 ['搜索森林的树数，就是强连通分量数吗？',
  beside(graph({'B': (120, 90), 'A': (340, 90)}, [('B', 'A')], directed=True,
-              caption='有向图 B→A：从 B 可到 A；从 A 不能到 B。'), r'''<p><strong>全图遍历</strong>按外层顶点顺序 A、B：先 A 得到树 {A}，再 B 得到树 {B,A}，共 2 棵树。</p><p>按外层顺序 B、A：先 B 得到树 {B,A}，A 已访问，共 1 棵树。</p>
- <table class="compact-table"><thead><tr><th>外层顺序</th><th>搜索森林</th><th>强连通分量</th></tr></thead><tbody>
- <tr><td>A、B</td><td>{A}、{B,A}（2 棵）</td><td>{A}、{B}</td></tr>
- <tr><td>B、A</td><td>{B,A}（1 棵）</td><td>{A}、{B}</td></tr>
- </tbody></table><p>强连通分量（Strongly Connected Component，SCC）是任意两个顶点互相可达的极大子图。两种顺序下 SCC 都是 {A}、{B}；一棵搜索树可以包含多个 SCC，树数不能当作 SCC 数。</p>'''),
+              caption='有向图 B→A：从 B 可到 A；从 A 不能到 B。'), r'''<p><strong>全图遍历</strong>只初始化一次 visited；不同根之间不重置。</p>
+ <table class="compact-table forest-table"><thead><tr><th>顺序</th><th>实际过程 → 搜索森林</th></tr></thead><tbody>
+ <tr><td>A,B</td><td>访问 A；再以 B 为根，B→A 发现 A 已访问 → {A}、{B}（2 棵）</td></tr>
+ <tr><td>B,A</td><td>从 B 访问 B、A；外层扫描 A 时跳过 → {B,A}（1 棵）</td></tr>
+ </tbody></table><p>两种情况都访问 A、B 各一次；森林的不同树互不共享顶点。</p><p>强连通分量（Strongly Connected Component，SCC）是任意两顶点互相可达的极大子图。两种顺序下 SCC 都是 {A}、{B}；{B,A} 一树含两个 SCC；树数随外层顺序变化，不能当作 SCC 数。</p>'''),
  '第四节 · 性质、代价与应用'],
 
 ['先预测，再运行：同序列也可能不同机制',
@@ -291,7 +284,7 @@ for 每个顶点 v（按编号）：
  <tr class="matrix-focus"><td>a3</td><td>Q</td><td>S</td><td>a4</td><td>—</td></tr>
  <tr><td>a4</td><td>R</td><td>S</td><td>—</td><td>—</td></tr>
  </tbody></table>
- <p class="small"><strong>firstin</strong>：P—，Q a1，R a2，S a3。<br><strong>firstout</strong>：P a1，Q a3，R a4，S—。</p>
+ <p class="small"><strong>firstout</strong>：P a1→a2；Q a3；R a4；S 空。<br><strong>firstin</strong>：P 空；Q a1；R a2；S a3→a4。</p>
  <p>a3（Q→S）既在 Q 的 firstout 链上，也在 S 的 firstin 链上；同一条弧，两个入口。</p>''') +
  note('十字链表把邻接表与逆邻接表结合：每条弧一个结点，同时挂在“同尾”和“同头”两条链上。教材 6.4.3：弧结点 tailvex/headvex 是弧尾/弧头位置，hlink 指向弧头相同的下一条弧，tlink 指向弧尾相同的下一条弧；顶点结点 firstin/firstout 分别指向第一条入弧/出弧。本页不展开建表与增删代码。'),
  '补充 · 扩展存储'],
@@ -303,7 +296,7 @@ for 每个顶点 v（按编号）：
  <tr><td>e2</td><td>unvisited</td><td>A</td><td>C</td><td>—</td><td>e3</td></tr>
  <tr><td>e3</td><td>unvisited</td><td>B</td><td>C</td><td>—</td><td>—</td></tr>
  </tbody></table>
- <p class="small"><strong>firstedge</strong>：A e1、B e1、C e2。<br>e1（A—B）经 ilink 进 A 的边链、经 jlink 进 B 的边链；同一个边结点被两个端点共享。</p>
+ <p class="small"><strong>firstedge</strong>：A e1→e2；B e1→e3；C e2→e3。<br>e1（A—B）经 ilink 进 A 的边链、经 jlink 进 B 的边链；同一个边结点被两个端点共享。</p>
  <p class="small">mark 标记“这条边是否被搜索/处理过”，不是顶点访问标志 visited[v]。</p>''') +
  note('教材 6.4.4：边结点 mark 是边标志域，ivex/jvex 是两端点位置，ilink/jlink 分别指向依附两个端点的下一条边；顶点结点 firstedge 指向第一条依附边。邻接多重表与邻接表存储量同阶，但每条边只有一个结点。'),
  '补充 · 扩展存储'],

@@ -38,11 +38,13 @@ def _copy_stack(stack):
 
 
 def _state(states, action, *, visited, current, stack, queue, parent, distance,
-           tree_edges, output):
+           tree_edges, output, processing=None, examined=None):
     states.append({
         'action': action,
         'visited': tuple(visited),
         'current': current,
+        'processing': processing,
+        'examined': examined,
         'stack': _copy_stack(stack),
         'queue': tuple(queue),
         'parent': dict(parent),
@@ -134,38 +136,44 @@ def bfs_states(start='A', order='asc'):
            distance=distance, tree_edges=tree_edges, output=output)
     while queue:
         vertex = queue.pop(0)
-        _state(states, f'{vertex} 出队；开始检查它的邻接项。',
+        _state(states, f'{vertex} 出队；正在处理 {vertex} 的邻接表。',
                visited=visited, current=vertex, stack=(), queue=queue, parent=parent,
-               distance=distance, tree_edges=tree_edges, output=output)
+               distance=distance, tree_edges=tree_edges, output=output,
+               processing=vertex, examined=None)
         for pos, neighbor in enumerate(_neighbors(vertex, order)):
             if neighbor in visited:
-                _state(states, f'{vertex} 检查位置 {pos} 的 {neighbor}：已访问，跳过。',
+                _state(states, f'正在处理 {vertex}，检查位置 {pos} 的 {neighbor}：已访问，跳过。',
                        visited=visited, current=vertex, stack=(), queue=queue, parent=parent,
-                       distance=distance, tree_edges=tree_edges, output=output)
+                       distance=distance, tree_edges=tree_edges, output=output,
+                       processing=vertex, examined=neighbor)
             else:
                 visit(neighbor, vertex)
                 queue.append(neighbor)
-                _state(states, f'{vertex} 检查位置 {pos} 的 {neighbor}：未访问；访问 {neighbor}，distance={distance[neighbor]}，入队。',
-                       visited=visited, current=neighbor, stack=(), queue=queue, parent=parent,
-                       distance=distance, tree_edges=tree_edges, output=output)
+                _state(states, f'正在处理 {vertex}，检查位置 {pos} 的 {neighbor}：未访问；访问 {neighbor}，distance={distance[neighbor]}，入队。',
+                       visited=visited, current=vertex, stack=(), queue=queue, parent=parent,
+                       distance=distance, tree_edges=tree_edges, output=output,
+                       processing=vertex, examined=neighbor)
     _state(states, '队列空：BFS 结束；E 没有被访问。',
            visited=visited, current=None, stack=(), queue=queue, parent=parent,
            distance=distance, tree_edges=tree_edges, output=output)
     return states
 
 
-def _diagram(state, label):
+def _diagram(state, label, show_examined=False):
+    processing = state.get('processing') or state['current']
+    examined = state.get('examined') if show_examined else None
     states = {}
     for vertex in NODES:
-        if vertex == state['current']:
+        if vertex == processing:
             states[vertex] = 'current'
+        elif vertex == examined:
+            states[vertex] = 'examined'
         elif vertex in state['visited']:
             states[vertex] = 'visited'
         else:
             states[vertex] = 'unvisited'
-    legend = '红=树边。' if state['tree_edges'] else ''
-    return graph(NODES, EDGES, caption=label + '：橙=当前，蓝=已访问，灰=未访问。',
-                 marked=state['tree_edges'], states=states, legend=legend)
+    return graph(NODES, EDGES, caption=label, marked=state['tree_edges'],
+                 states=states, legend='')
 
 
 def _parent_line(state):
@@ -178,6 +186,12 @@ def _parent_line(state):
 
 def _content(state, mode, show_cursor):
     action = '<p class="trace-action">' + escape(state['action']) + '</p>'
+    process = ''
+    if mode == 'bfs' and state.get('processing'):
+        process = '<p class="trace-detail">正在处理：<strong>' + escape(state['processing']) + '</strong>'
+        if state.get('examined'):
+            process += '；刚检查：<strong>' + escape(state['examined']) + '</strong>'
+        process += '。</p>'
     if mode == 'bfs':
         pending = ' '.join(state['queue']) or '空'
         container = ('<div class="trace-state"><strong>队头 → 队尾</strong>：' +
@@ -200,12 +214,15 @@ def _content(state, mode, show_cursor):
     if mode == 'bfs':
         values = ' '.join(f'{v}:{state["distance"][v]}' for v in state['visited']) or '未开始'
         distance = '<p class="trace-detail">distance：' + escape(values) + '（从 A 的最少边数）。</p>'
-    return action + container + output + detail + distance + '<p class="trace-detail">' + escape(_parent_line(state)) + '</p>'
+    return action + process + container + output + detail + distance + '<p class="trace-detail">' + escape(_parent_line(state)) + '</p>'
 
 
 def _legend(mode):
-    return ('<p class="trace-legend">橙框：当前顶点；蓝底：已访问；灰：未访问；红线：搜索树边。' +
-            ('BFS 中 distance 为最少边数。' if mode == 'bfs' else 'DFS 中 distance 为搜索树深度。') + '</p>')
+    if mode == 'bfs':
+        return ('<p class="trace-legend">橙实线=正在处理；橙虚线=刚检查；蓝底=已访问；灰=未访问；红线=搜索树边。'
+                'BFS 中 distance 为最少边数。</p>')
+    return ('<p class="trace-legend">橙=当前帧；蓝底=已访问；灰=未访问；红线=搜索树边。'
+            'DFS 中 distance 为搜索树深度。</p>')
 
 
 def dfs_player(mode='recursive', order='asc'):
@@ -216,7 +233,7 @@ def dfs_player(mode='recursive', order='asc'):
     panels = []
     for i, state in enumerate(states):
         body = ('<div class="graph-layout graph-player-layout">' +
-                _diagram(state, 'DFS 递归' if mode == 'recursive' else 'DFS 显式栈') +
+                _diagram(state, 'DFS 递归' if mode == 'recursive' else 'DFS 显式栈', False) +
                 '<div>' + _content(state, mode, mode == 'stack') + '</div></div>' +
                 _legend(mode))
         panels.append(body)
@@ -229,7 +246,7 @@ def bfs_player(order='asc'):
     panels = []
     for i, state in enumerate(states):
         body = ('<div class="graph-layout graph-player-layout">' +
-                _diagram(state, 'BFS 队列') +
+                _diagram(state, 'BFS 队列', True) +
                 '<div>' + _content(state, 'bfs', False) + '</div></div>' +
                 _legend('bfs'))
         panels.append(body)

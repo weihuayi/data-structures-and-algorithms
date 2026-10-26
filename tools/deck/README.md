@@ -103,6 +103,6 @@ node --test tools/deck/tests/check_browser.test.cjs
 
 ## 图搜索状态播放器
 
-`graph_trace.py` 提供 D012 无向主例（A–E，边 AB、AC、BC、CD）的确定性搜索状态：`dfs_states(order)` 与 `bfs_states(order)` 各 15 个快照，保存 `visited`、当前顶点、`(vertex,next)` 栈或队列、`parent`、`distance`、`tree_edges` 与输出。`dfs_player('recursive'|'stack')`、`bfs_player()` 复用 `tree_trace.player` 的 `data-tree-player` 上一步/下一步/重置控件；每个面板由图、容器、动作、输出与 parent/distance 组成，无自动播放。
+`graph_trace.py` 提供 D012 无向主例（A–E，边 AB、AC、BC、CD）的确定性搜索状态：`dfs_states(order)` 与 `bfs_states(order)` 各 15 个快照，保存 `visited`、当前处理顶点 `processing`、刚检查邻居 `examined`、`(vertex,next)` 栈或队列、`parent`、`distance`、`tree_edges` 与输出。BFS 中 `processing` 是正在扫描邻接表的顶点，`examined` 是刚检查的邻居；新访问的邻居不再被误设为当前处理顶点。`dfs_player('recursive'|'stack')`、`bfs_player()` 复用 `tree_trace.player` 的 `data-tree-player` 上一步/下一步/重置控件；每个面板由图、容器、动作、输出与 parent/distance 组成，无自动播放。
 
-状态逻辑在 Python，DOM 只负责显示；`tests/test_graph_trace.py` 覆盖主例序列、parent/tree_edges/distance、降序、游标推进、无重复访问、播放器控件与非法参数。边界：只覆盖该无向无权小图；不提供任意图、带权图、SCC 或扩展存储动画；不把“全部邻居一次入栈”的错误写法纳入播放器。无 JavaScript 时第一个状态仍静态可见。
+状态逻辑在 Python，DOM 只负责显示；`tests/test_graph_trace.py` 覆盖主例序列、parent/tree_edges/distance、BFS `processing/examined`、DFS 栈顶/返回、降序、游标推进、无重复访问、播放器控件与非法参数；`test_graph_forest.py` 覆盖全图搜索森林，`test_c_crosscheck.py` 对照 C 输出。浏览器可执行 `python3 tools/deck/tests/browser_player_check.py`（若本机有 Chrome）。边界：只覆盖该无向无权小图；不提供任意图、带权图、SCC 或扩展存储动画；不把“全部邻居一次入栈”的错误写法纳入播放器。无 JavaScript 时第一个状态仍静态可见。
