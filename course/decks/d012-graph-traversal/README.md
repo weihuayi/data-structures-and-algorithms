@@ -31,7 +31,7 @@
 - **R7 生成树范围**：第 12 页明确红线是“从 A 出发的深度优先生成树”，E 不在其中；第 23 页广度优先生成树；第 24 页单源树 vs 全图生成森林。
 - **R8 BFS 输出**：第 16 页伪代码明确“访问起点 → 输出 → distance=0 → 入队”和“访问 v → 输出 → distance+1 → 入队”，与教材算法 6.7 一致。
 - **R9 SCC**：第 25 页用全图遍历的外层顺序 A、B 与 B、A 对照两棵/一棵搜索树，SCC 始终 {A}、{B}；给出 SCC 中英文与定义，纠正“树数=SCC 数”。
-- **R10 距离语义**：第 12、14 页播放器注明 DFS distance 是树深度；第 17 页 BFS 播放器注明 distance 是最少边数；第 23 页比较两者；第 21、26 页题目分别要求 BFS 距离/DFS 树深度。
+- **R10 距离语义**：第 12、14 页播放器只显示栈/帧与 parent，不展示未引入的 distance；第 17 页 BFS 播放器注明 distance 是最少边数；第 23 页用 DFS 树深与 BFS 最少边数比较；第 21、26 页题目分别要求 BFS 距离/DFS 树深度。
 - **R11 动态演示**：`tools/deck/graph_trace.py` 生成 DFS 递归、DFS 显式栈、BFS 三种 15 状态轨迹；播放器复用共享 `data-tree-player` 控件，支持上一步/下一步/重置；状态逻辑与渲染分离，测试见 `tools/deck/tests/test_graph_trace.py`。
 
 ## 第四轮定向返修（2026-10-26）
@@ -139,7 +139,7 @@
 ## 动态演示与共享组件
 
 - `tools/deck/graph_trace.py`：D012 主例的确定性状态模型。`dfs_states(order)` 生成 15 个 DFS 快照（visited、current、`(vertex,next)` 栈、parent、tree_edges、output）；`bfs_states(order)` 生成 15 个 BFS 快照（`processing`、`examined`、队列、distance、parent、tree_edges）。递归与显式栈共用同一枚举/访问规则，但播放器标签与游标说明不同。
-- `dfs_player('recursive'|'stack')`、`bfs_player()`：复用共享 `tree_trace.player` 的上一步/下一步/重置控件；每个面板由图、容器、动作、输出、parent/distance 组成，无自动播放。状态逻辑在 Python，DOM 只负责显示。
+- `dfs_player('recursive'|'stack')`、`bfs_player()`：复用共享 `tree_trace.player` 的上一步/下一步/重置控件；每个面板由图、容器、动作与输出组成；DFS 面板显示 parent，BFS 面板显示 parent 与 distance。无自动播放。状态逻辑在 Python，DOM 只负责显示。
 - `tools/deck/tests/test_graph_trace.py`：14 项测试，覆盖邻接一致性、DFS/BFS 序列/parent/tree_edges/distance、BFS `processing/examined`、降序、游标推进、DFS 栈顶/返回、无重复访问、player 控件与非法参数；另有 `test_graph_forest.py` 5 项、`test_c_crosscheck.py` 5 项。完整测试入口当前共 45 项通过。
 - 边界：播放器只覆盖无向、无权、5 顶点主例；不声称支持任意图、带权图、SCC 或十字链表动画。所有状态与 `code/traversal_demo.c` 的 `dfs_recursive`、`dfs_stack`、`bfs` 语义一致；不把“一次性全部邻居入栈”的错误写法纳入播放器。
 
@@ -184,7 +184,7 @@ gcc -std=c11 -Wall -Wextra code/traversal_demo.c -o /tmp/d012
 - 演示仅支持 1–16 个顶点的有限、无权、简单图；拒绝空顶点集、超容量、越界、自环与重复边。无向输入的反向重复同样拒绝，有向互反弧合法。算法思想可扩展，但本演示不声称支持所有图类型。
 - 邻接表以邻居数组实现，按编号升序构造，降序模式反向扫描。矩阵与表同时保留是为了对照，不是低内存部署方案。构造时 O(n²) 扫描另计，单次搜索不重建表示。
 - `search` 接受成功构造且搜索中不修改的图。非法起点/枚举参数失败并清空结果；内部指针要求非空。输出最多 CAP 个顶点，首次访问即标记保证帧栈和队列不超容量。
-- `distance` 在 DFS 中只是树深度；BFS 单源时才是从该源的最少边数。全图模式每棵树从 0 重启。parent=-1 可为根或未访问，结合 visited 判断。
+- `graph_trace` 的 DFS 状态仍计算树深供测试/内部使用，但 DFS 播放器不展示 `distance`；BFS 单源时 `distance` 才是从该源的最少边数，全图模式每棵树从 0 重启。parent=-1 可为根或未访问，结合 visited 判断。
 - 图示状态语义：橙实线=当前处理/当前帧，橙虚线=刚检查的邻居，蓝=已访问，灰=未访问，红线=搜索树边；每张图有 caption/图例，状态表/播放器同时给出文字，不把颜色作为唯一信息。
 - `graph_trace` 仅覆盖主例；它不是任意图播放器，也不把一般图强行套入树的无环/单亲假设。播放器无自动播放；无 JavaScript 时仍显示第一个静态状态。
 - 内置断言检查单顶点、单链满容量、非法构图、有向双向弧及非法起点。不要定义 NDEBUG 后声称断言已经执行。

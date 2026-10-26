@@ -231,7 +231,7 @@ SLIDES = [
  '第四节 · 性质、代价与应用'],
 
 ['队列层次能回答哪一种距离？',
- beside(main_graph(visited={'A', 'B', 'C', 'D'}, tree_edges=[('A', 'B'), ('A', 'C'), ('C', 'D')], caption='BFS 树：蓝=已访问，红=树边；E 不可达。', legend=''), r'''<p>主例 BFS：A=0，B=1，C=1，D=2，E=-1。<br>主例 DFS 树深度：A=0，B=1，C=2，D=3。</p><p>BFS 按距离非递减处理顶点；首次访问 v 时，distance[v] 即等于从 A 到 v 的最少边数。<br>若道路耗时不同，最少边数不保证耗时最少。</p><p class="small">红边构成教材的<strong>广度优先生成树</strong>；DFS 的 distance 是搜索树深度，不是最少边数距离。</p>''') +
+ beside(main_graph(visited={'A', 'B', 'C', 'D'}, tree_edges=[('A', 'B'), ('A', 'C'), ('C', 'D')], caption='BFS 树：蓝=已访问，红=树边；E 不可达。', legend=''), r'''<p>主例 BFS：A=0，B=1，C=1，D=2，E=-1。<br>主例 DFS 树深度：A=0，B=1，C=2，D=3。</p><p>BFS 按距离非递减处理顶点；首次访问 v 时，distance[v] 即等于从 A 到 v 的最少边数。<br>若道路耗时不同，最少边数不保证耗时最少。</p><p class="small">红边构成教材的<strong>广度优先生成树</strong>；DFS 的树深不是最少边数距离。</p>''') +
  note('按层归纳：处理距离 k 的顶点时，新访问的邻居给出 k+1；若它有更短路径，其前驱应更早被处理并访问它，与首次访问矛盾。反例：直达 AD 耗时 10，A→C→D 各 1，则一条边反而更慢。BFS 距离结论适用于无权或每边等代价；D014 处理带权最短路径。E 的 -1 是未到达哨兵，不是负距离。'),
  '第四节 · 性质、代价与应用'],
 

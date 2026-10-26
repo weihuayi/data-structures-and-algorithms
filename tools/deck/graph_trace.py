@@ -221,8 +221,7 @@ def _legend(mode):
     if mode == 'bfs':
         return ('<p class="trace-legend">橙实线=正在处理；橙虚线=刚检查；蓝底=已访问；灰=未访问；红线=搜索树边。'
                 'BFS 中 distance 为最少边数。</p>')
-    return ('<p class="trace-legend">橙=当前帧；蓝底=已访问；灰=未访问；红线=搜索树边。'
-            'DFS 中 distance 为搜索树深度。</p>')
+    return '<p class="trace-legend">橙=当前帧；蓝底=已访问；灰=未访问；红线=搜索树边。</p>'
 
 
 def dfs_player(mode='recursive', order='asc'):
