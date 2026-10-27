@@ -109,6 +109,6 @@ node --test tools/deck/tests/check_browser.test.cjs
 
 ## MST 状态播放器（D013）
 
-`mst_trace.py` 提供 D013 主例的 `prim_states()`（9 状态：S、selected_edges、key、parent、has_key、current_edge、components、总权）和 `kruskal_states()`（16 状态：排序边、当前边、接受/拒绝、selected/rejected、components、真实 DSU parent、总权）。`prim_player()`、`kruskal_player()` 复用 `tree_trace.player` 控件；图用红粗已选、橙虚线候选、灰虚线拒绝，侧栏分别显示 Prim 候选入口或 Kruskal 分组/DSU parent。
+`mst_trace.py` 提供 D013 主例的 `prim_states()`（9 状态：S、selected_edges、key、parent、has_key、current_edge、components、总权）和 `kruskal_states()`（16 状态：排序边、当前边、接受/拒绝、selected/rejected、components、真实 DSU parent、总权）。`prim_player()`、`kruskal_player()` 复用 `tree_trace.player` 控件；图用红粗已接受、橙虚线当前检查、灰细虚线已拒绝，并注明虚线只表示处理状态。Prim 侧栏显示 S、候选入口与 F；Kruskal 侧栏只显示 F、当前分组、拒绝边与总权，不提前显示 DSU 父指针。
 
-`tests/test_mst_trace.py` 覆盖候选跨割、key/parent、接受/拒绝前后分组、DSU parent、等权/零权/负权、非连通 MSF 与练习；`browser_mst_check.py` 在 Chrome 下检查 9/16 状态、next/prev/reset/边界。播放器仅覆盖 D013 数据，不扩展为任意图算法平台；无 JS 时首个状态静态可见。
+`kruskal_states()` 内部的 `dsu_parent` 是真实父指针的只读复制：`parents()` 不再调用带路径压缩的 `find()`，`components()` 使用无副作用的 `root()`；真实 Kruskal 的 `find()` 仍会压缩，并作为算法操作记录在后续快照中。`tests/test_mst_trace.py` 覆盖候选跨割、key/parent、接受/拒绝前后分组、递归父指针与分组一致性、路径压缩、等权/零权/负权、非连通 MSF 与练习；`tests/test_d013_slides.py` 校验术语首次定义页、Prim/Kruskal/DSU 的知识依赖与练习答案折叠。`browser_mst_check.py` 在 Chrome 下检查 9/16 状态、next/prev/reset/边界、封面单行与 33 页无纵向溢出。播放器仅覆盖 D013 数据，不扩展为任意图算法平台；无 JS 时首个状态静态可见。

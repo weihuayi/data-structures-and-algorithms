@@ -80,6 +80,16 @@ class GraphDiagramTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.svg(states={'P': 'done'})
 
+    def test_edge_notes_are_optional_positioned_and_escaped(self):
+        html = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='note',
+                     edge_notes={('P','Q'): '<e>'}, edge_note_positions={('P','Q'): (100,20)})
+        svg = ET.fromstring(html[html.index('<svg'):html.index('</svg>')+6])
+        note = svg.find('.//text[@class="graph-edge-note"]')
+        self.assertEqual(note.text, '<e>')
+        self.assertEqual((note.attrib['x'], note.attrib['y']), ('100', '20'))
+        plain = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='plain')
+        self.assertNotIn('graph-edge-note', plain)
+
     def test_legend_can_be_overridden_or_suppressed(self):
         html = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='edge',
                      marked=[('P','Q')], legend='红线：树边')

@@ -7,7 +7,8 @@ VALID_NODE_STATES = {'unvisited', 'visited', 'current', 'examined'}
 
 
 def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
-          node_details=None, states=None, legend=None, candidate=(), rejected=(), label_positions=None):
+          node_details=None, states=None, legend=None, candidate=(), rejected=(),
+          label_positions=None, edge_notes=None, edge_note_positions=None):
     """nodes maps IDs to (x,y); edges are endpoint pairs, labels map pairs to text.
 
     Thick red solid edges mark existing relationships under discussion. Directed edges
@@ -52,6 +53,14 @@ def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
             else:
                 lx, ly = (x+xx)/2-14*uy, (y+yy)/2+14*ux
             out.append(f'<text class="graph-label" x="{lx}" y="{ly}">{escape(str(labels[a,b]))}</text>')
+        if edge_notes and (a, b) in edge_notes:
+            if edge_note_positions and (a, b) in edge_note_positions:
+                nx, ny = edge_note_positions[(a, b)]
+            else:
+                # Default: near the source end, clear of a midpoint weight label.
+                nx = x + 0.14*(xx-x) + 22*uy
+                ny = y + 0.14*(yy-y) - 22*ux
+            out.append(f'<text class="graph-edge-note" x="{nx}" y="{ny}">{escape(str(edge_notes[a,b]))}</text>')
         out.append('</g>')
     for key, (x, y) in nodes.items():
         state = states.get(key)

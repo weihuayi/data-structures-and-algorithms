@@ -4,12 +4,31 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from mst_trace import (EXERCISE_EDGES, EXERCISE_NODES, MAIN_EDGES, MAIN_NODES,
-                       kruskal_player, kruskal_states, prim_player, prim_states)
+from mst_trace import (EXERCISE_EDGES, EXERCISE_NODES, MAIN_EDGES, MAIN_NODES, _DSU,
+                       dsu_diagram, kruskal_player, kruskal_states, path_compression_demo,
+                       prim_player, prim_states)
 
 
 def norm(a, b, w):
     return (a, b, w) if a < b else (b, a, w)
+
+
+def walk_root(parent, vertex):
+    seen = set()
+    while parent[vertex] != vertex:
+        if vertex in seen:
+            raise AssertionError('parent cycle')
+        seen.add(vertex)
+        vertex = parent[vertex]
+    return vertex
+
+
+def deep_dsu():
+    """Legal non-flat state: unions AB, CD, then BC."""
+    dsu = _DSU(('A', 'B', 'C', 'D'))
+    for a, b in (('A', 'B'), ('C', 'D'), ('B', 'C')):
+        dsu.union(a, b)
+    return dsu
 
 
 class PrimTests(unittest.TestCase):
@@ -104,20 +123,18 @@ class KruskalTests(unittest.TestCase):
                 self.assertEqual(post['total_weight'], pre['total_weight'])
             self.assertIn((a, b, w), post['rejected_edges'] + post['selected_edges'])
 
-    def test_dsu_parent_groups_match_components(self):
+    def test_dsu_parent_groups_match_components_by_parent_walk(self):
         for state in kruskal_states():
+            parent = state['dsu_parent']
+            roots = {v: walk_root(parent, v) for v in parent}
+            covered = set()
             for group in state['components']:
-                roots = {state['dsu_parent'][v] for v in group}
-                self.assertEqual(len(roots), 1)
-            self.assertEqual(set().union(*map(set, state['components'])),
-                             set(MAIN_NODES))
-
-    def test_dsu_groups_and_path_compression_do_not_change_partition(self):
-        states = kruskal_states()
-        before = states[-1]['components']
-        after = states[-1]['dsu_parent']
-        self.assertEqual({v for v in after}, set(MAIN_NODES))
-        self.assertEqual(before, (('A', 'B', 'C', 'D', 'E'),))
+                group_roots = {roots[v] for v in group}
+                self.assertEqual(len(group_roots), 1)
+                root = next(iter(group_roots))
+                self.assertEqual({v for v in parent if roots[v] == root}, set(group))
+                covered |= set(group)
+            self.assertEqual(covered, set(MAIN_NODES))
 
     def test_kruskal_tie_zero_negative_variants(self):
         ties = [('A', 'B', 1), ('A', 'C', 4), ('B', 'C', 2), ('B', 'D', 5),
@@ -142,6 +159,60 @@ class KruskalTests(unittest.TestCase):
         self.assertEqual(final['components'], (('P', 'Q', 'R', 'S'),))
 
 
+class DSUSnapshotTests(unittest.TestCase):
+    def test_parent_snapshot_is_raw_copy_without_compression(self):
+        dsu = deep_dsu()
+        expected = {'A': 'A', 'B': 'A', 'C': 'A', 'D': 'C'}
+        self.assertEqual(dsu.parent, expected)
+        snapshot = dsu.parents()
+        self.assertEqual(dsu.parent, expected)
+        self.assertEqual(snapshot, expected)
+        self.assertEqual(snapshot['D'], 'C')
+        self.assertIsNot(snapshot, dsu.parent)
+
+    def test_components_snapshot_is_read_only(self):
+        dsu = deep_dsu()
+        before = dict(dsu.parent)
+        self.assertEqual(dsu.components(), (('A', 'B', 'C', 'D'),))
+        self.assertEqual(dsu.parent, before)
+        self.assertEqual(dsu.parent['D'], 'C')
+        dsu.components()
+        self.assertEqual(dsu.parent, before)
+
+    def test_find_compresses_and_preserves_partition(self):
+        dsu = deep_dsu()
+        groups = dsu.components()
+        self.assertEqual(dsu.find('D'), 'A')
+        self.assertEqual(dsu.parent['D'], 'A')
+        self.assertEqual(dsu.components(), groups)
+        self.assertEqual(dsu.parent['C'], 'A')
+
+    def test_distinct_parent_structures_encode_same_partition(self):
+        deep = deep_dsu()
+        star = _DSU(('A', 'B', 'C', 'D'))
+        star.parent.update({'B': 'A', 'C': 'A', 'D': 'A'})
+        self.assertEqual(deep.components(), star.components())
+        self.assertNotEqual(deep.parents(), star.parents())
+
+    def test_path_compression_demo_snapshots(self):
+        demo = path_compression_demo()
+        self.assertEqual(demo['before']['parent']['D'], 'C')
+        self.assertEqual(demo['after']['parent']['D'], 'A')
+        self.assertEqual(demo['before']['parent']['C'], 'A')
+        self.assertEqual(demo['before']['components'], demo['after']['components'])
+        self.assertEqual(demo['before']['components'], (('A', 'B', 'C', 'D'),))
+        self.assertEqual(demo['representative'], 'A')
+
+    def test_dsu_diagram_draws_real_parent_links(self):
+        parent = {'A': 'A', 'B': 'A', 'C': 'A', 'D': 'C'}
+        positions = {'A': (260, 45), 'B': (80, 140), 'C': (260, 140), 'D': (430, 220)}
+        html = dsu_diagram(parent, positions, caption='快照', root='A')
+        self.assertIn('data-edge="D-C"', html)
+        self.assertIn('data-edge="C-A"', html)
+        self.assertIn('p[D]=C', html)
+        self.assertNotIn('data-edge="D-A"', html)
+
+
 class PlayerTests(unittest.TestCase):
     def test_players_have_controls_and_all_states(self):
         for html, panels in ((prim_player(), 9), (kruskal_player(), 16)):
@@ -152,9 +223,18 @@ class PlayerTests(unittest.TestCase):
             self.assertEqual(html.count('tree-step-panel'), panels)
             if panels == 9:
                 self.assertIn('graph-node-current', html)
+                self.assertIn('已选边 F', html)
             else:
                 self.assertIn('graph-edge marked', html)
             self.assertNotIn('seen', html)
+
+    def test_kruskal_player_defers_internal_representation(self):
+        html = kruskal_player()
+        self.assertIn('当前分组', html)
+        self.assertIn('已选森林 F', html)
+        self.assertNotIn('DSU parent', html)
+        self.assertNotIn('dsu_parent', html)
+        self.assertNotIn('父指针', html)
 
 
 if __name__ == '__main__':

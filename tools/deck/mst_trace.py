@@ -12,6 +12,10 @@ MAIN_LABELS = {(a, b): w for a, b, w in MAIN_EDGES}
 MAIN_LABEL_POS = {('A', 'B'): (175, 42), ('A', 'C'): (78, 140), ('B', 'C'): (235, 128), ('B', 'D'): (350, 180), ('C', 'D'): (250, 238), ('C', 'E'): (315, 120), ('D', 'E'): (445, 145)}
 TRIANGLE_NODES = {'A': (90, 65), 'B': (320, 60), 'C': (205, 220)}
 TRIANGLE_EDGES = [('A', 'B', 10), ('A', 'C', 1), ('B', 'C', 1)]
+TRIANGLE_LABEL_POS = {('A', 'B'): (205, 35), ('A', 'C'): (120, 150), ('B', 'C'): (290, 150)}
+# Independent equal-weight triangle for the exchange argument (not the main case).
+EXCHANGE_NODES = {'A': (90, 65), 'B': (320, 60), 'C': (205, 220)}
+EXCHANGE_EDGES = [('A', 'B', 1), ('A', 'C', 2), ('B', 'C', 2)]
 EXERCISE_NODES = {'P': (80, 65), 'Q': (280, 55), 'R': (170, 210), 'S': (380, 190)}
 EXERCISE_EDGES = [('P', 'Q', 3), ('P', 'R', 1), ('Q', 'R', 2),
                   ('Q', 'S', 4), ('R', 'S', 5)]
@@ -107,14 +111,32 @@ def prim_states(start='A', edges=MAIN_EDGES, nodes=MAIN_NODES):
 
 
 class _DSU:
+    """Kruskal's dynamic partition.
+
+    ``find`` is an algorithm operation and may compress paths.  ``root`` is a
+    read-only query used by snapshots: it must never change the internal
+    parent pointers while a teacher or a player is inspecting them.
+    """
+
     def __init__(self, vertices):
         self.parent = {v: v for v in vertices}
         self.size = {v: 1 for v in vertices}
 
     def find(self, x):
-        if self.parent[x] != x:
-            self.parent[x] = self.find(self.parent[x])
-        return self.parent[x]
+        root = x
+        while self.parent[root] != root:
+            root = self.parent[root]
+        while self.parent[x] != x:
+            parent = self.parent[x]
+            self.parent[x] = root
+            x = parent
+        return root
+
+    def root(self, x):
+        """Read-only representative lookup; no path compression."""
+        while self.parent[x] != x:
+            x = self.parent[x]
+        return x
 
     def union(self, a, b):
         ra, rb = self.find(a), self.find(b)
@@ -127,13 +149,15 @@ class _DSU:
         return True
 
     def components(self):
+        """Read-only partition snapshot derived from the real parent pointers."""
         groups = {}
         for v in self.parent:
-            groups.setdefault(self.find(v), []).append(v)
+            groups.setdefault(self.root(v), []).append(v)
         return tuple(sorted(tuple(sorted(g)) for g in groups.values()))
 
     def parents(self):
-        return {v: self.find(v) for v in self.parent}
+        """Copy the real parent pointers; never rewrite them through find()."""
+        return dict(self.parent)
 
 
 def kruskal_states(edges=MAIN_EDGES, nodes=MAIN_NODES):
@@ -154,18 +178,19 @@ def kruskal_states(edges=MAIN_EDGES, nodes=MAIN_NODES):
     add('准备：边按 (权值, 端点) 排序；每个顶点独立成组。', index=None)
     for i, e in enumerate(sorted_edges):
         a, b, w = e
-        same = dsu.find(a) == dsu.find(b)
+        # The check is an algorithm operation: a real find() may compress paths.
+        ra, rb = dsu.find(a), dsu.find(b)
+        same = ra == rb
         add(f'检查第 {i + 1} 条边 {a}{b}={w}：两端当前是否同组？', i, e)
         if same:
             rejected.append(e)
             reason = '两端已在同一组；加入会成环，拒绝。'
             add(f'拒绝 {a}{b}={w}；{reason}', i, e, 'reject', reason)
         else:
-            before = (dsu.find(a), dsu.find(b))
             dsu.union(a, b)
             selected.append(e)
             total += w
-            reason = f'两端 {before[0]}、{before[1]} 不同组；接受并合并。'
+            reason = f'两端 {ra}、{rb} 不同组；接受并合并。'
             add(f'接受 {a}{b}={w}；{reason}', i, e, 'accept', reason)
     add(f'扫描结束：已选 {len(selected)} 条边，总权 {total}。')
     return states
@@ -173,6 +198,22 @@ def kruskal_states(edges=MAIN_EDGES, nodes=MAIN_NODES):
 
 def exercise_states():
     return kruskal_states(EXERCISE_EDGES, EXERCISE_NODES)
+
+
+def path_compression_demo():
+    """Independent auxiliary example: unions AB, CD, BC, then find(D).
+
+    Returns the real parent snapshots before/after the query, plus the
+    read-only partition that must stay unchanged.
+    """
+    dsu = _DSU(('A', 'B', 'C', 'D'))
+    for a, b in (('A', 'B'), ('C', 'D'), ('B', 'C')):
+        dsu.union(a, b)
+    before = {'parent': dsu.parents(), 'components': dsu.components()}
+    representative = dsu.find('D')
+    after = {'parent': dsu.parents(), 'components': dsu.components()}
+    return {'query': 'D', 'before': before, 'after': after,
+            'representative': representative}
 
 
 def _graph(state, nodes, edges, labels, prim=False):
@@ -191,8 +232,23 @@ def _graph(state, nodes, edges, labels, prim=False):
     positions = MAIN_LABEL_POS if nodes is MAIN_NODES else None
     return graph(nodes, [(a, b) for a, b, w in edges], labels=labels, marked=tuple(e[:2] for e in selected),
                  candidate=candidates, rejected=rejected, states=states, label_positions=positions,
-                 caption='红粗=已选；橙虚线=候选；灰虚线=拒绝；权值在边旁。',
+                 caption='红粗=已接受；橙虚线=正在检查；灰细虚线=已拒绝。虚线只表示处理状态，每条边都来自输入图。',
                  legend='')
+
+
+def dsu_diagram(parent, positions, *, caption, root=None):
+    """Static DSU parent-pointer forest; every arrow points to p[v].
+
+    The diagram is data-driven: it draws exactly the supplied parent mapping and
+    never calls find(), so a saved snapshot cannot be silently flattened.
+    """
+    if set(parent) - set(positions):
+        raise ValueError('every DSU vertex needs a position')
+    edges = [(v, p) for v, p in sorted(parent.items()) if v != p]
+    details = {v: f'p[{v}]={p}' for v, p in parent.items() if v != p}
+    states = {root: 'visited'} if root in parent else None
+    return graph(positions, edges, directed=True, caption=caption,
+                 node_details=details, states=states, legend='')
 
 
 def _prim_content(state):
@@ -203,10 +259,11 @@ def _prim_content(state):
     return ('<p class="trace-action">' + escape(state['action']) + '</p>' +
             '<p class="trace-detail"><strong>已纳入 S</strong>：' +
             escape('、'.join(state['selected_vertices'])) + '</p>' +
-            '<p class="trace-detail"><strong>候选入口</strong>：' + escape(key) + '</p>' +
-            '<p class="trace-detail"><strong>已选边</strong>：' + escape(selected) +
+            '<p class="trace-detail"><strong>候选入口</strong>：' + escape(key) +
+            '（没有入口的顶点不显示）</p>' +
+            '<p class="trace-detail"><strong>已选边 F</strong>：' + escape(selected) +
             '；<strong>总权</strong>：' + str(total) + '</p>' +
-            '<p class="trace-legend">橙=当前顶点；红=已选边；橙虚线=候选边。key 是接入 S 的一条边权，不是路径距离。</p>')
+            '<p class="trace-legend">橙=当前顶点；红粗=已接受边；橙虚线=当前候选。key 是接入 S 的一条边权，不是路径距离。</p>')
 
 
 def _kruskal_content(state):
@@ -218,13 +275,13 @@ def _kruskal_content(state):
     elif decision == 'reject':
         dec = '<p class="trace-detail"><strong>决定</strong>：拒绝；' + escape(state['reason']) + '</p>'
     comps = '；'.join('{' + ','.join(g) + '}' for g in state['components']) or '空'
-    parents = ' '.join(f'{v}→{p}' for v, p in sorted(state['dsu_parent'].items()))
     return ('<p class="trace-action">' + escape(state['action']) + '</p>' + dec +
-            '<p class="trace-detail"><strong>已选边</strong>：' + escape(_edge_text(state['selected_edges'])) +
+            '<p class="trace-detail"><strong>已选森林 F</strong>：' + escape(_edge_text(state['selected_edges'])) +
             '；<strong>总权</strong>：' + str(state['total_weight']) + '</p>' +
-            '<p class="trace-detail"><strong>当前分组</strong>：' + escape(comps) + '</p>' +
-            '<p class="trace-detail"><strong>DSU parent</strong>：' + escape(parents) + '</p>' +
-            '<p class="trace-legend">红=已选边；橙虚线=当前检查边；灰虚线=已拒绝边。分组与 parent 是两种表示。</p>')
+            '<p class="trace-detail"><strong>当前分组</strong>：' + escape(comps) +
+            '；<strong>已拒绝</strong>：' + escape(_edge_text(state['rejected_edges'])) + '</p>' +
+            '<p class="trace-legend">红粗=已接受；橙虚线=正在检查；灰细虚线=已拒绝。分组是已选边诱导的划分；'
+            '内部表示留到第 20 页再读。</p>')
 
 
 def prim_player():
@@ -243,5 +300,5 @@ def kruskal_player():
         panels.append('<div class="graph-layout graph-player-layout">' +
                       _graph(state, MAIN_NODES, MAIN_EDGES, MAIN_LABELS) +
                       '<div>' + _kruskal_content(state) + '</div></div>')
-    html = step_player(panels, 'Kruskal 与 DSU 推演')
+    html = step_player(panels, 'Kruskal 分组合并推演')
     return html.replace('class="tree-player"', 'class="tree-player graph-player mst-player"', 1)
