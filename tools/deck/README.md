@@ -101,6 +101,8 @@ node --test tools/deck/tests/check_browser.test.cjs
 
 `graph_diagram.graph` 接收顶点坐标、端点对及可选的方向、权值标签和讨论边标记，不假定树的单亲或无环结构。SVG 箭头止于顶点边界；红色粗实线与线宽共同标记当前关注的已有边；只有命中实际边时才显示图例。`states` 可把顶点标为 `unvisited`、`visited` 或 `current`，对应共享的灰/蓝/橙样式；`legend` 可改写红线图例，传入空串可抑制图例。状态语义必须同时由文字说明或表格承载，不能只靠颜色。无向边标记不区分端点顺序，有向弧标记严格区分方向。`node_details` 可在顶点下显示编号或度数，保留孤立顶点和零值标签。`beside` 将图与表示并置。共享样式为 `.graph-*`；案例数据留在 Deck。适用于无自环、端点坐标不同的小图；不提供自动布局、平行弧避让或任意交叉标签检测，须人工看图。语义测试纳入 Python unittest 入口。
 
+`view_box=(x,y,width,height)` 可裁去与任务无关的空白；默认仍为 `(0,0,520,290)`。`regions` 是显式背景多边形序列，每项给出 `points`、`label`、`label_position`，在边与顶点之前绘制。D013 用它表示已选顶点集合 U；图形工具不自动推导或证明集合成员关系，须核对区域、顶点和跨界边。字号需乘以 SVG 实际缩放比例再判断，不能只读取 CSS 标称值。
+
 ## 图搜索状态播放器
 
 `graph_trace.py` 提供 D012 无向主例（A–E，边 AB、AC、BC、CD）的确定性搜索状态：`dfs_states(order)` 与 `bfs_states(order)` 各 15 个快照，保存 `visited`、当前处理顶点 `processing`、刚检查邻居 `examined`、`(vertex,next)` 栈或队列、`parent`、`distance`、`tree_edges` 与输出。BFS 中 `processing` 是正在扫描邻接表的顶点，`examined` 是刚检查的邻居；新访问的邻居不再被误设为当前处理顶点。`dfs_player('recursive'|'stack')`、`bfs_player()` 复用 `tree_trace.player` 的 `data-tree-player` 上一步/下一步/重置控件；每个面板由图、容器、动作与输出组成；DFS 面板显示 parent，BFS 面板显示 parent 与 distance。无自动播放。
@@ -109,6 +111,10 @@ node --test tools/deck/tests/check_browser.test.cjs
 
 ## MST 状态播放器（D013）
 
-`mst_trace.py` 提供 D013 主例的 `prim_states()`（9 状态：S、selected_edges、key、parent、has_key、current_edge、components、总权）和 `kruskal_states()`（16 状态：排序边、当前边、接受/拒绝、selected/rejected、components、真实 DSU parent、总权）。`prim_player()`、`kruskal_player()` 复用 `tree_trace.player` 控件；图用红粗已接受、橙虚线当前检查、灰细虚线已拒绝，并注明虚线只表示处理状态。Prim 侧栏显示 S、候选入口与 F；Kruskal 侧栏只显示 F、当前分组、拒绝边与总权，不提前显示 DSU 父指针。
+`mst_trace.py` 提供 D013 主例的 `prim_states()`（9 状态：U（对应 selected_vertices）、selected_edges、key、parent、has_key、current_edge、components、总权）和 `kruskal_states()`（16 状态：排序边、当前边、接受/拒绝、selected/rejected、components、真实 DSU parent、总权）。`prim_player()`、`kruskal_player()` 复用 `tree_trace.player` 控件；图用红粗已接受、橙虚线当前检查、灰细虚线已拒绝，并注明虚线只表示处理状态。Prim 侧栏以 LaTeX 显示 U，另列候选入口与 F；Kruskal 侧栏只显示 F、当前分组、拒绝边与总权，不提前显示 DSU 父指针。
 
-`kruskal_states()` 内部的 `dsu_parent` 是真实父指针的只读复制：`parents()` 不再调用带路径压缩的 `find()`，`components()` 使用无副作用的 `root()`；真实 Kruskal 的 `find()` 仍会压缩，并作为算法操作记录在后续快照中。`tests/test_mst_trace.py` 覆盖候选跨割、key/parent、接受/拒绝前后分组、递归父指针与分组一致性、路径压缩、等权/零权/负权、非连通 MSF 与练习；`tests/test_d013_slides.py` 校验术语首次定义页、Prim/Kruskal/DSU 的知识依赖与练习答案折叠。`browser_mst_check.py` 在 Chrome 下检查 9/16 状态、next/prev/reset/边界、封面单行与 33 页无纵向溢出。播放器仅覆盖 D013 数据，不扩展为任意图算法平台；无 JS 时首个状态静态可见。
+Prim 快照的 `key_changes` 保存外部点入口的旧值/新值，表格保留无入口行，候选检查步骤不产生更新。Kruskal 的 `result_complete` 标识已连为一个分量：本讲和 C 使用全扫描变式，MST 完成后只核对剩余边。排序条突出当前扫描位置，完成状态与扫描末态分开解释；非连通末态标为 MSF。第 8–9 页的 MST 性质与交换也复用同一播放器，分别为 2/3 个状态，采用共享 `.relation-player` 大图布局。
+
+共享 `.answer-workspace` 将输入图和提问/答案并置。原生 details 展开时只替换 `.answer-prompt`，图和权值保持可见，收起后恢复提问；第 14、22、29 页用于预测与独立诊断。目标投影尺寸须同时检查两种状态。打印仍显示提问，完整分页与静态步骤取舍需按使用场景人工核对。
+
+`kruskal_states()` 内部的 `dsu_parent` 是真实父指针的只读复制：`parents()` 不再调用带路径压缩的 `find()`，`components()` 使用无副作用的 `root()`；真实 Kruskal 的 `find()` 仍会压缩，并作为算法操作记录在后续快照中。`tests/test_mst_trace.py` 覆盖候选连接已选与未选顶点、key/parent、接受/拒绝前后分组、递归父指针与分组一致性、路径压缩、等权/零权/负权、非连通 MSF 与练习；`tests/test_d013_slides.py` 校验术语首次定义页、Prim/Kruskal/DSU 的知识依赖与练习答案折叠。`browser_mst_check.py` 在 Chrome 下检查 9/16 状态、next/prev/reset/边界、封面单行与 33 页无纵向溢出。播放器仅覆盖 D013 数据，不扩展为任意图算法平台；无 JS 时首个状态静态可见。

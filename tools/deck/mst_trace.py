@@ -35,15 +35,6 @@ def _edge(a, b, w):
     return (a, b, w) if a < b else (b, a, w)
 
 
-def _key_text(key, parent, has_key, selected):
-    parts = []
-    for v in sorted(key):
-        if v in selected or not has_key.get(v):
-            continue
-        parts.append(f'{v}←{parent[v]}:{key[v]}')
-    return '，'.join(parts) or '无'
-
-
 def _edge_text(edges):
     return '、'.join(f'{a}{b}:{w}' for a, b, w in edges) or '无'
 
@@ -58,24 +49,30 @@ def prim_states(start='A', edges=MAIN_EDGES, nodes=MAIN_NODES):
     total, states = 0, []
 
     def update(u):
+        changes = {}
         for v, w in adj[u]:
             if v in selected_vertices:
                 continue
             if not has_key.get(v) or w < key[v]:
+                old = (parent[v], key[v]) if has_key.get(v) else None
                 has_key[v], key[v], parent[v] = True, w, u
+                changes[v] = (old, (u, w))
+        return changes
 
-    update(start)
+    initial_changes = update(start)
 
-    def add(action, current_edge=None, current_vertex=None):
+    def add(action, current_edge=None, current_vertex=None, changes=None):
         states.append({
             'selected_vertices': tuple(sorted(selected_vertices)),
             'selected_edges': tuple(selected),
             'key': dict(key), 'parent': dict(parent), 'has_key': dict(has_key),
             'current_edge': current_edge, 'current_vertex': current_vertex,
             'total_weight': total, 'components': len(component_roots), 'action': action,
+            'key_changes': dict(changes or {}),
         })
 
-    add(f'准备：S={{{start}}}；先预测最轻跨界边。', current_vertex=start)
+    add(r'准备：\(U=\{' + start + r'\}\)；先预测最轻跨界边。', current_vertex=start,
+        changes=initial_changes)
     while len(selected_vertices) < len(nodes):
         candidates = [(key[v], v, parent[v]) for v in key
                       if v not in selected_vertices and has_key.get(v)]
@@ -83,13 +80,13 @@ def prim_states(start='A', edges=MAIN_EDGES, nodes=MAIN_NODES):
             root = min((v for v in nodes if v not in selected_vertices), key=lambda v: str(v))
             component_roots.append(root)
             selected_vertices.add(root)
-            update(root)
+            changes = update(root)
             if len(selected_vertices) == len(nodes):
                 action = (f'重启新分量 {root}（第 {len(component_roots)} 个分量）；'
                           f'已覆盖全部顶点，MSF 完成，总权 {total}。')
             else:
                 action = f'没有跨界候选：当前分量结束；重启新分量 {root}（第 {len(component_roots)} 个分量）。'
-            add(action, current_vertex=root)
+            add(action, current_vertex=root, changes=changes)
             continue
         w, v, u = min(candidates, key=lambda x: (x[0], x[1]))
         e = _edge(u, v, w)
@@ -101,12 +98,13 @@ def prim_states(start='A', edges=MAIN_EDGES, nodes=MAIN_NODES):
             key.pop(vertex, None)
             parent.pop(vertex, None)
             has_key.pop(vertex, None)
-        update(v)
+        changes = update(v)
         if len(selected_vertices) == len(nodes):
-            action = f'接受 {u}{v}={w}；S 覆盖全部顶点，MST 完成，总权 {total}。'
+            result = 'MST' if len(component_roots) == 1 else 'MSF'
+            action = f'接受 {u}{v}={w}；\\(U\\) 覆盖全部顶点，{result} 完成，总权 {total}。'
         else:
             action = f'接受 {u}{v}={w}；更新外部顶点的 key/parent；总权 {total}。'
-        add(action, current_vertex=v)
+        add(action, current_vertex=v, changes=changes)
     return states
 
 
@@ -167,12 +165,14 @@ def kruskal_states(edges=MAIN_EDGES, nodes=MAIN_NODES):
     selected, rejected, total, states = [], [], 0, []
 
     def add(action, index=None, candidate=None, decision=None, reason=''):
+        components = dsu.components()
         states.append({
             'sorted_edges': sorted_edges, 'current_index': index,
             'candidate_edge': candidate, 'selected_edges': tuple(selected),
-            'rejected_edges': tuple(rejected), 'components': dsu.components(),
+            'rejected_edges': tuple(rejected), 'components': components,
             'dsu_parent': dsu.parents(), 'decision': decision, 'reason': reason,
             'total_weight': total, 'action': action,
+            'result_complete': len(components) == 1,
         })
 
     add('准备：边按 (权值, 端点) 排序；每个顶点独立成组。', index=None)
@@ -190,9 +190,11 @@ def kruskal_states(edges=MAIN_EDGES, nodes=MAIN_NODES):
             dsu.union(a, b)
             selected.append(e)
             total += w
-            reason = f'两端 {ra}、{rb} 不同组；接受并合并。'
-            add(f'接受 {a}{b}={w}；{reason}', i, e, 'accept', reason)
-    add(f'扫描结束：已选 {len(selected)} 条边，总权 {total}。')
+            reason = f'端点 {a}、{b} 位于不同分组；接受并合并。'
+            complete = ' MST 已完成；可以提前停止。' if len(dsu.components()) == 1 else ''
+            add(f'接受 {a}{b}={w}；{reason}{complete}', i, e, 'accept', reason)
+    result = 'MST' if len(dsu.components()) == 1 else 'MSF'
+    add(f'扫描结束：{result}，{len(dsu.components())} 个分量；已选 {len(selected)} 条边，总权 {total}。')
     return states
 
 
@@ -236,7 +238,7 @@ def _graph(state, nodes, edges, labels, prim=False):
                  legend='')
 
 
-def dsu_diagram(parent, positions, *, caption, root=None):
+def dsu_diagram(parent, positions, *, caption, root=None, view_box=(0, 0, 520, 290)):
     """Static DSU parent-pointer forest; every arrow points to p[v].
 
     The diagram is data-driven: it draws exactly the supplied parent mapping and
@@ -248,40 +250,60 @@ def dsu_diagram(parent, positions, *, caption, root=None):
     details = {v: f'p[{v}]={p}' for v, p in parent.items() if v != p}
     states = {root: 'visited'} if root in parent else None
     return graph(positions, edges, directed=True, caption=caption,
-                 node_details=details, states=states, legend='')
+                 node_details=details, states=states, legend='', view_box=view_box)
+
+
+def _edge_set_math(edges):
+    members = ','.join(a + b for a, b, _ in edges)
+    value = r'\{' + members + r'\}' if members else r'\varnothing'
+    return r'\(F=' + value + r'\)'
 
 
 def _prim_content(state):
-    selected = _edge_text(state['selected_edges'])
-    key = _key_text(state['key'], state['parent'], state['has_key'],
-                    set(state['selected_vertices']))
+    selected = _edge_set_math(state['selected_edges'])
     total = state['total_weight']
+    rows = []
+    for v in MAIN_NODES:
+        if v in state['selected_vertices']:
+            continue
+        available = state['has_key'].get(v, False)
+        entry = f'{state["parent"][v]}:{state["key"][v]}' if available else '无入口'
+        change = state['key_changes'].get(v)
+        if change:
+            old, new = change
+            previous = f'{old[0]}:{old[1]}' if old else '无入口'
+            note = f'{previous} → {new[0]}:{new[1]}'
+        else:
+            note = '不变' if available else 'has_key=0'
+        cls = ' class="matrix-focus"' if change else ''
+        rows.append(f'<tr{cls}><th>{v}</th><td>{entry}</td><td>{note}</td></tr>')
+    table = ('<table class="compact-table candidate-table"><thead><tr><th>外部点</th>'
+             '<th>parent:key</th><th>本步更新</th></tr></thead><tbody>' + ''.join(rows) +
+             '</tbody></table>') if rows else '<p class="trace-detail">外部顶点为空，构造完成。</p>'
     return ('<p class="trace-action">' + escape(state['action']) + '</p>' +
-            '<p class="trace-detail"><strong>已纳入 S</strong>：' +
+            r'<p class="trace-detail"><strong>已纳入 \(U\)</strong>：' +
             escape('、'.join(state['selected_vertices'])) + '</p>' +
-            '<p class="trace-detail"><strong>候选入口</strong>：' + escape(key) +
-            '（没有入口的顶点不显示）</p>' +
-            '<p class="trace-detail"><strong>已选边 F</strong>：' + escape(selected) +
+            '<p class="trace-detail"><strong>候选入口</strong>（高亮行有更新）</p>' + table +
+            '<p class="trace-detail"><strong>已选边集合</strong>：' + selected +
             '；<strong>总权</strong>：' + str(total) + '</p>' +
-            '<p class="trace-legend">橙=当前顶点；红粗=已接受边；橙虚线=当前候选。key 是接入 S 的一条边权，不是路径距离。</p>')
+            r'<p class="trace-legend">key 是接入 \(U\) 的一条边权；接受该顶点后，入口边才进入 \(F\)。</p>')
 
 
 def _kruskal_content(state):
-    candidate = state.get('candidate_edge')
-    decision = state.get('decision')
-    dec = ''
-    if decision == 'accept':
-        dec = '<p class="trace-detail"><strong>决定</strong>：接受；' + escape(state['reason']) + '</p>'
-    elif decision == 'reject':
-        dec = '<p class="trace-detail"><strong>决定</strong>：拒绝；' + escape(state['reason']) + '</p>'
     comps = '；'.join('{' + ','.join(g) + '}' for g in state['components']) or '空'
-    return ('<p class="trace-action">' + escape(state['action']) + '</p>' + dec +
-            '<p class="trace-detail"><strong>已选森林 F</strong>：' + escape(_edge_text(state['selected_edges'])) +
+    sequence = '<div class="edge-order" aria-label="按权排序的边">'
+    for i, (a, b, w) in enumerate(state['sorted_edges']):
+        cls = ' class="edge-current"' if i == state['current_index'] else ''
+        sequence += f'<span{cls}>{a}{b}:{w}</span>'
+    sequence += '</div>'
+    completion = ('<p class="trace-complete">MST 已完成；后续仅核对剩余边。</p>'
+                  if state['result_complete'] else '')
+    return (sequence + '<p class="trace-action">' + escape(state['action']) + '</p>' +
+            '<p class="trace-detail"><strong>已选边集合</strong>：' + _edge_set_math(state['selected_edges']) +
             '；<strong>总权</strong>：' + str(state['total_weight']) + '</p>' +
             '<p class="trace-detail"><strong>当前分组</strong>：' + escape(comps) +
             '；<strong>已拒绝</strong>：' + escape(_edge_text(state['rejected_edges'])) + '</p>' +
-            '<p class="trace-legend">红粗=已接受；橙虚线=正在检查；灰细虚线=已拒绝。分组是已选边诱导的划分；'
-            '内部表示留到第 20 页再读。</p>')
+            completion + '<p class="trace-legend">保留全部顶点，只看已选边：得到的森林中，每棵树对应一个分组。</p>')
 
 
 def prim_player():

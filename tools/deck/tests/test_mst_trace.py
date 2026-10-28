@@ -65,6 +65,22 @@ class PrimTests(unittest.TestCase):
             for a, b, w in state['selected_edges']:
                 self.assertIn((a, b, w), [norm(*e) for e in MAIN_EDGES])
 
+    def test_key_updates_record_old_and_new_entries_without_mutating_snapshots(self):
+        states = prim_states()
+        self.assertEqual(states[2]['key_changes'],
+                         {'C': (('A', 4), ('B', 2)), 'D': (None, ('B', 5))})
+        self.assertEqual(states[0]['key']['C'], 4)
+        self.assertEqual(states[2]['key']['C'], 2)
+        for pre, post in zip(states, states[1:]):
+            for v, (old, new) in post['key_changes'].items():
+                self.assertEqual(new, (post['parent'][v], post['key'][v]))
+                if old:
+                    self.assertEqual(old, (pre['parent'][v], pre['key'][v]))
+                    self.assertLess(new[1], old[1])
+                else:
+                    self.assertFalse(pre['has_key'].get(v, False))
+        self.assertEqual(states[3]['key_changes'], {})  # candidate step does not update
+
     def test_prim_from_c_changes_order_not_total(self):
         states = prim_states(start='C')
         self.assertEqual(states[-1]['total_weight'], 12)
@@ -79,6 +95,11 @@ class PrimTests(unittest.TestCase):
         self.assertEqual(len(final['selected_edges']), 3)
         self.assertIn('E', final['selected_vertices'])
         self.assertEqual(final['selected_edges'][-1], ('C', 'D', 3))
+        # Completion by accepting an edge in the final component is still MSF.
+        final = prim_states(edges=[('B', 'C', 0), ('D', 'E', 1)])[-1]
+        self.assertEqual(final['components'], 3)
+        self.assertEqual(final['total_weight'], 1)
+        self.assertIn('MSF 完成', final['action'])
 
     def test_tie_zero_and_negative_variants(self):
         ties = [('A', 'B', 1), ('A', 'C', 4), ('B', 'C', 2), ('B', 'D', 5),
@@ -93,6 +114,25 @@ class PrimTests(unittest.TestCase):
 
 
 class KruskalTests(unittest.TestCase):
+    def test_completion_is_marked_before_remaining_edges_are_checked(self):
+        states = kruskal_states()
+        complete = next(i for i, s in enumerate(states) if s['result_complete'])
+        self.assertEqual(states[complete]['candidate_edge'], ('C', 'E', 6))
+        self.assertEqual(states[complete]['decision'], 'accept')
+        self.assertIn('端点 C、E', states[complete]['reason'])
+        self.assertNotIn('端点 A、E', states[complete]['reason'])
+        self.assertEqual(len(states[complete]['selected_edges']), len(MAIN_NODES) - 1)
+        for state in states[complete:]:
+            self.assertTrue(state['result_complete'])
+            self.assertEqual(state['selected_edges'], states[complete]['selected_edges'])
+            self.assertEqual(state['total_weight'], 12)
+        self.assertEqual(states[complete + 1]['candidate_edge'], ('D', 'E', 7))
+        disconnected = [e for e in MAIN_EDGES if 'E' not in e[:2]]
+        forest = kruskal_states(disconnected)
+        self.assertFalse(any(s['result_complete'] for s in forest))
+        self.assertIn('MSF', forest[-1]['action'])
+        self.assertEqual(len(forest[-1]['components']), 2)
+
     def test_sorted_order_and_final_result(self):
         states = kruskal_states()
         self.assertEqual(states[0]['sorted_edges'][:3],
@@ -223,15 +263,20 @@ class PlayerTests(unittest.TestCase):
             self.assertEqual(html.count('tree-step-panel'), panels)
             if panels == 9:
                 self.assertIn('graph-node-current', html)
-                self.assertIn('已选边 F', html)
+                self.assertIn('已选边集合', html)
             else:
                 self.assertIn('graph-edge marked', html)
             self.assertNotIn('seen', html)
+            self.assertIn(r'\(F=\varnothing\)', html)
+            self.assertIn(r'\(F=\{AB,BC,CD,CE\}\)', html)
+            self.assertNotIn('已选森林 F', html)
 
     def test_kruskal_player_defers_internal_representation(self):
         html = kruskal_player()
         self.assertIn('当前分组', html)
-        self.assertIn('已选森林 F', html)
+        self.assertIn('已选边集合', html)
+        self.assertIn('保留全部顶点，只看已选边', html)
+        self.assertIn('每棵树对应一个分组', html)
         self.assertNotIn('DSU parent', html)
         self.assertNotIn('dsu_parent', html)
         self.assertNotIn('父指针', html)

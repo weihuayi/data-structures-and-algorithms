@@ -470,6 +470,7 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .graph-pair>*{min-width:0}
 .deck .graph-pair .graph-figure svg{max-height:230px}
 .deck .graph-pair .graph-figure figcaption{font-size:18px}
+.deck .graph-comparison .graph-figure svg{height:290px;max-height:290px}
 .deck .graph-pair.tight .graph-figure svg{max-height:150px}
 .deck .graph-pair.tight .graph-figure figcaption{font-size:16px;line-height:1.35}
 .deck .graph-stages{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
@@ -486,3 +487,41 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 
 .deck .graph-layout .graph-index td,.deck .graph-layout .graph-index th{padding:3px 8px;line-height:1.35;font-size:22px}
 .deck .graph-change{margin:6px 0;font-size:21px;line-height:1.45;padding:10px 16px}
+
+/* Relation lessons: one readable state at a time, with the input kept in view. */
+.graph-region polygon{fill:#e9f2fb;stroke:#0073b4;stroke-width:2}
+.graph-region text{text-anchor:middle;fill:#005a9c;font-size:24px;font-weight:700}
+.deck .relation-player .graph-layout{grid-template-columns:1fr 1fr;align-items:center;gap:24px}
+.deck .relation-player .graph-figure svg{height:290px;max-height:290px}
+.deck .relation-player .graph-edge-note{font-size:24px}
+.deck .relation-player p,.deck .graph-lesson p{font-size:21px;line-height:1.45;margin:10px 0}
+.deck .relation-player .compact-text,.deck .graph-lesson .compact-text{font-size:20px}
+.deck .relation-player .graph-figure figcaption{font-size:18px;line-height:1.4}
+.deck .graph-lesson .graph-figure svg{max-height:270px}
+.deck .graph-lesson .small{font-size:18px}
+.deck .graph-lesson>p:last-child,.deck .dsu-workspace>p:last-child{margin-bottom:0}
+.deck .answer-workspace{align-items:center}
+.deck .answer-workspace:has(details[open]) .answer-prompt{display:none}
+.deck .answer-workspace details{margin-top:12px;padding:10px 14px}
+.deck .answer-workspace details p{font-size:21px;line-height:1.45;margin:10px 0}
+.deck .answer-workspace .compact-table td,.deck .answer-workspace .compact-table th{font-size:21px}
+.deck .answer-workspace .graph-figure svg{height:290px;max-height:290px}
+.deck .dsu-workspace .graph-pair .graph-figure svg{height:240px;max-height:240px}
+.deck .dsu-workspace .graph-figure figcaption{font-size:18px;line-height:1.35}
+.deck .dsu-workspace .three-objects td,.deck .dsu-workspace .three-objects th{font-size:19px;padding:3px 7px;line-height:1.3}
+.deck .dsu-workspace .small{font-size:18px;line-height:1.4;margin:8px 0}
+.deck .dsu-workspace .compact-text{font-size:20px;margin:10px 0}
+.deck .mst-player .graph-layout{grid-template-columns:1fr 1.15fr}
+.deck .mst-player .graph-figure svg{max-height:270px}
+.deck .mst-player .trace-action{min-height:0;font-size:21px;line-height:1.45;margin:4px 0 12px}
+.deck .mst-player .trace-detail{font-size:19px;line-height:1.4;margin:6px 0}
+.deck .mst-player .candidate-table td,.deck .mst-player .candidate-table th{font-size:19px;padding:4px 7px}
+.deck .mst-player .trace-legend{font-size:18px;line-height:1.4}
+.deck .edge-order{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 12px}
+.deck .edge-order span{font-size:18px;line-height:1.4;padding:3px 5px;border:1px solid var(--line);border-radius:4px}
+.deck .edge-order .edge-current{border:2px solid var(--accent);padding:2px 4px;background:#fff1e9;font-weight:700}
+.deck .mst-player .trace-complete{font-size:19px;color:#006451;font-weight:700;line-height:1.4;margin:8px 0}
+.deck .implementation-map td,.deck .implementation-map th{font-size:21px;padding:8px 10px;line-height:1.4}
+.deck .run-command{font-size:19px;line-height:1.4;padding:14px 18px;margin:12px 0}
+@media(max-width:760px){.deck .relation-player .graph-layout,.deck .mst-player .graph-layout{grid-template-columns:1fr}}
+@media print{.deck .answer-workspace:has(details[open]) .answer-prompt{display:block}}

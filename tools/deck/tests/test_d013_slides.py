@@ -1,7 +1,9 @@
 """D013 visible-content order: terms, definitions, and page dependencies."""
 import sys
 import unittest
+import re
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'tools' / 'deck'))
@@ -52,7 +54,7 @@ class D013ContentTests(unittest.TestCase):
     def test_prim_auxiliary_state_precedes_player(self):
         aux = self.text(12)
         self.assertIn('辅助信息', aux)
-        for term in ('S', 'F', 'key[v]', 'parent[v]', 'has_key', 'used'):
+        for term in ('U', 'F', 'key[v]', 'parent[v]', 'has_key', 'used'):
             self.assertIn(term, aux)
         self.assertIn('不是从起点到 v 的路径长度', aux)
         self.assertNotIn('data-tree-player', aux)
@@ -70,19 +72,58 @@ class D013ContentTests(unittest.TestCase):
         self.assertIn('当前已经接受的边', dsu)
 
     def test_cut_and_exchange_figures_state_all_premises(self):
-        cut = self.text(8)
-        for phrase in ('F={AB}', '割尊重 F', 'AC=4', 'BC=2', 'BD=5', 'CD=3'):
-            self.assertIn(phrase, cut)
-        exchange = self.text(9)
-        for phrase in ('AB=1', 'AC=2', 'BC=2', 'T={AB,BC}', "T′={AB,AC}", '交换论证', 'f∉F'):
-            self.assertIn(phrase, exchange)
-        self.assertIn('独立等权三角形', self.text(9))  # teacher note labels the auxiliary case
+        diagrams = [ET.fromstring(s) for s in re.findall(r'<svg.*?</svg>', self.text(8))]
+        self.assertEqual(len(diagrams), 2)
+        for svg, expected_s in zip(diagrams, ({'A', 'B'}, {'A', 'B', 'C'})):
+            inside = {g.attrib['data-vertex'] for g in svg.findall('.//g[@data-state="visited"]')}
+            self.assertEqual(inside, expected_s)
+            self.assertIsNotNone(svg.find('.//g[@class="graph-region"]'))
+            crossing, candidate = [], []
+            for g in svg.findall('.//g[@data-edge]'):
+                a, b = g.attrib['data-edge'].split('-')
+                classes = g.find('path').attrib['class'].split()
+                cross = (a in inside) != (b in inside)
+                if 'marked' in classes:
+                    self.assertFalse(cross, 'cut must respect selected F')
+                if cross:
+                    crossing.append(int(g.find('text[@class="graph-label"]').text))
+                if 'candidate' in classes:
+                    self.assertTrue(cross)
+                    candidate.append(int(g.find('text[@class="graph-label"]').text))
+            self.assertEqual(candidate, [min(crossing)])
+
+        stages = [ET.fromstring(s) for s in re.findall(r'<svg.*?</svg>', self.text(9))]
+        self.assertEqual(len(stages), 3)
+        selected = []
+        for svg in stages:
+            selected.append({g.attrib['data-edge'] for g in svg.findall('.//g[@data-edge]')
+                             if 'marked' in g.find('path').attrib['class'].split()})
+        self.assertEqual(selected, [{'A-B', 'B-C'}, {'A-B', 'B-C'}, {'A-B', 'A-C'}])
+        self.assertTrue(all('A-B' in edges for edges in selected), 'exchange preserves F')
+        self.assertIn('跨回', self.text(9))
+        self.assertIn(r'\(f\notin F\)', self.text(9))
+        self.assertIn(r'\(F=\varnothing\)', self.text(9))
+        self.assertIn('已选边连通全部顶点并组成一棵树', self.text(9))
+
+    def test_textbook_notation_uses_math_without_extra_cut_terminology(self):
+        page = self.text(8)
+        self.assertIn(r'\(U=\{A,B\}\)', page)
+        self.assertIn(r'\(V-U=\{C,D,E\}\)', page)
+        self.assertIn('教材 MST 性质', page)
+        for title, body, _ in self.slides:
+            self.assertNotIn('割', title + body)
+        for number in (8, 9, 11, 12, 13, 17):
+            for old in ('S=', 'S′=', 'V∖S', '已纳入 S', '接入 S'):
+                self.assertNotIn(old, self.text(number))
 
     def test_dsu_static_figures_use_real_snapshots_and_are_labeled(self):
         objects = self.text(20)
         self.assertIn('真实快照', objects)
         self.assertIn('p[D]=A', objects)
-        self.assertIn('AC 已拒绝', objects)
+        self.assertIn('已拒绝的 AC', objects)
+        self.assertIn('已选边集合', objects)
+        self.assertIn(r'\(F=\{AB,BC,CD\}\)', objects)
+        self.assertIn('E 单独成树', objects)
         compress = self.text(21)
         self.assertIn('独立辅助例（不是主例）', compress)
         self.assertIn('压缩前', compress)
@@ -102,6 +143,17 @@ class D013ContentTests(unittest.TestCase):
         self.assertNotIn('QS=1', exercise)
         self.assertIn('<details><summary>核对答案与理由（7+2 分钟）</summary>', exercise)
         self.assertNotIn('<details open', exercise)
+
+    def test_independent_dsu_diagnostic_keeps_input_outside_answer(self):
+        page = self.text(22)
+        visible, solution = page.split('<details>', 1)
+        for edge in ('A-B', 'C-D', 'D-B'):
+            self.assertIn(f'data-edge="{edge}"', visible)
+        self.assertNotIn('data-edge="C-B"', visible)
+        self.assertIn('find(C)', visible)
+        self.assertIn('p[C] 从 D 改为 B', solution)
+        self.assertIn(r'\(F\) 不变', solution)
+        self.assertNotIn('<details open', page)
 
 
 if __name__ == '__main__':

@@ -90,6 +90,21 @@ class GraphDiagramTests(unittest.TestCase):
         plain = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='plain')
         self.assertNotIn('graph-edge-note', plain)
 
+    def test_cropped_regions_preserve_graph_edges_and_escape_labels(self):
+        svg = self.svg(view_box=(20, 10, 420, 180), regions=({
+            'points': ((20, 10), (90, 10), (90, 90), (20, 90)),
+            'label': 'S < V', 'label_position': (55, 25)},))
+        self.assertEqual(svg.attrib['viewBox'], '20 10 420 180')
+        self.assertEqual(svg.find('.//g[@class="graph-region"]/text').text, 'S < V')
+        self.assertEqual(len(svg.findall('.//g[@data-edge]')), 1)
+        self.assertEqual(svg.find('.//g[@data-edge]').attrib['data-edge'], 'P-Q')
+        # Background regions must not cover graph marks in SVG paint order.
+        self.assertLess(list(svg).index(svg.find('g[@class="graph-region"]')),
+                        list(svg).index(svg.find('g[@data-edge]')))
+        for box in ((0, 0, 0, 10), (0, 0, 10, -1), (0, 0, float('inf'), 10)):
+            with self.assertRaises(ValueError):
+                self.svg(view_box=box)
+
     def test_legend_can_be_overridden_or_suppressed(self):
         html = graph({'P': (50,50), 'Q': (200,50)}, [('P','Q')], caption='edge',
                      marked=[('P','Q')], legend='红线：树边')

@@ -89,7 +89,9 @@ static void take(Forest *f, Edge e)
     f->edges[f->count++] = e;
     f->total += e.weight; /* bounded weights and CAP make this sum safe */
 }
-/* Preconditions for both algorithms: g is successfully built and unchanged. */
+/* Preconditions for both algorithms: g is successfully built and unchanged.
+ * Full-scan teaching variant: after n-1 edges the MST is complete; the loop
+ * still checks remaining edges. An early-stop variant has the same result. */
 static Forest kruskal(const Graph *g)
 {
     DSU d; dsu_init(&d, g->n);

@@ -1,6 +1,6 @@
 """Accessible static general graphs; coordinates carry no metric meaning."""
 from html import escape
-from math import hypot
+from math import hypot, isfinite
 
 
 VALID_NODE_STATES = {'unvisited', 'visited', 'current', 'examined'}
@@ -8,15 +8,31 @@ VALID_NODE_STATES = {'unvisited', 'visited', 'current', 'examined'}
 
 def graph(nodes, edges, *, caption, directed=False, marked=(), labels=None,
           node_details=None, states=None, legend=None, candidate=(), rejected=(),
-          label_positions=None, edge_notes=None, edge_note_positions=None):
+          label_positions=None, edge_notes=None, edge_note_positions=None,
+          view_box=(0, 0, 520, 290), regions=()):
     """nodes maps IDs to (x,y); edges are endpoint pairs, labels map pairs to text.
 
     Thick red solid edges mark existing relationships under discussion. Directed edges
     end at the vertex boundary; no parent/child or tree assumption is made.
     Optional states map vertices to unvisited/visited/current; optional legend overrides
     the red-edge legend and may be empty to suppress it.
+    view_box may crop unused space. regions are explicit background polygons with
+    points, label and label_position; their geometry is supplied by the lesson.
     """
-    out = [f'<figure class="graph-figure"><svg viewBox="0 0 520 290" role="img" aria-label="{escape(caption, quote=True)}"><title>{escape(caption)}</title>']
+    if (len(view_box) != 4 or not all(isfinite(x) for x in view_box)
+            or view_box[2] <= 0 or view_box[3] <= 0):
+        raise ValueError('view_box must have finite coordinates and positive dimensions')
+    box = ' '.join(str(x) for x in view_box)
+    out = [f'<figure class="graph-figure"><svg viewBox="{box}" role="img" aria-label="{escape(caption, quote=True)}"><title>{escape(caption)}</title>']
+    for region in regions:
+        points = region['points']
+        lx, ly = region['label_position']
+        if (len(points) < 3 or not all(isfinite(v) for point in points for v in point)
+                or not isfinite(lx) or not isfinite(ly)):
+            raise ValueError('A region needs at least three finite points and a finite label position')
+        coords = ' '.join(f'{x},{y}' for x, y in points)
+        out.append(f'<g class="graph-region"><polygon points="{coords}"/>'
+                   f'<text x="{lx}" y="{ly}">{escape(region["label"])}</text></g>')
     states = states or {}
     for key, state in states.items():
         if key not in nodes:

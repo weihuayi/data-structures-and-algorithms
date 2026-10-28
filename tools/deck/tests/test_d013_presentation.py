@@ -1,4 +1,4 @@
-"""D013 visual and content contracts for the third targeted revision."""
+"""D013 content and interaction contracts; geometry is checked in the browser."""
 import sys
 import unittest
 from pathlib import Path
@@ -34,7 +34,7 @@ class D013PresentationTests(unittest.TestCase):
         page = self.slides[8][1]
         self.assertIn("独立辅助例", page)
         self.assertEqual(page.count('<figure class="graph-figure">'), 3)
-        for marker in ("F={AB}", "e=AC", "f=BC", "T′"):
+        for marker in (r"\(F=\{AB\}\)", "e=AC", "f=BC", "T′"):
             self.assertIn(marker, page)
 
     def test_start_at_c_has_graph_and_hidden_answer(self):
@@ -52,7 +52,14 @@ class D013PresentationTests(unittest.TestCase):
         self.assertIn("最小生成森林", page)
 
     def test_complexity_uses_big_o(self):
-        self.assertIn(r"\(O(n^2)\)", self.slides[24][1])
+        self.assertIn(r"\(O(n^2)\)", self.slides[25][1])
+
+    def test_textbook_mapping_and_full_scan_contract_are_visible(self):
+        mapping = self.slides[26][1]
+        for term in ('lowcost', 'adjvex', 'Vexset', 'present', 'weight', 'find(v)'):
+            self.assertIn(term, mapping)
+        self.assertIn('扫描全部边', self.slides[16][1])
+        self.assertIn('未处理', self.slides[28][1])
 
     def test_generated_html_matches_source(self):
         expected, count = render_document(DECK_DIR)
