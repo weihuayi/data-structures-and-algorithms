@@ -28,8 +28,8 @@ window.addEventListener("load", () => {
       rejected: p.querySelectorAll('.graph-edge.rejected').length};
   }
   const out = {};
-  for (const slide of [13, 18]) {
-    const root = document.querySelector('#slide-' + slide + ' [data-tree-player]');
+  for (const [name, labelText] of [["prim", "Prim 最小生成树推演"], ["kruskal", "Kruskal 分组合并推演"]]) {
+    const root = document.querySelector(`[data-tree-player][aria-label="${labelText}"]`);
     const panels = [...root.querySelectorAll(':scope > .tree-step-panel')];
     const next = root.querySelector('[data-step="next"]');
     const prev = root.querySelector('[data-step="prev"]');
@@ -42,7 +42,7 @@ window.addEventListener("load", () => {
     prev.click();
     const afterPrev = read(panels, label);
     reset.click();
-    out[slide] = {panels: panels.length, initialPrev, initialNext, endPrev, endNext,
+    out[name] = {panels: panels.length, initialPrev, initialNext, endPrev, endNext,
                   steps, afterPrev, afterReset: read(panels, label)};
   }
   const select = document.querySelector('#slide-select');
@@ -90,7 +90,7 @@ def main():
             harness.unlink(missing_ok=True)
 
     for label, data in results.items():
-        for slide, count in (('13', 9), ('18', 16)):
+        for slide, count in (('prim', 9), ('kruskal', 16)):
             result = data[slide]
             assert result['panels'] == count, (label, slide, result['panels'])
             assert [x['active'] for x in result['steps']] == list(range(count)), (label, slide)
@@ -101,15 +101,15 @@ def main():
             assert all(x['step'] == f'步骤 {i + 1} / {count}' for i, x in enumerate(result['steps'])), (label, slide)
         assert data['coverLines'] == 1, (label, data['coverLines'])
         assert data['overflow'] == [], (label, data['overflow'])
-        assert '父指针' not in data['18']['steps'][0]['text'], label
-        assert 'DSU' not in data['18']['steps'][0]['text'], label
-        assert '已选边 F' in data['13']['steps'][0]['text'], label
-        assert '总权 12' in data['13']['steps'][-1]['action'], label
-        assert '总权 12' in data['18']['steps'][-1]['action'], label
-        assert data['18']['steps'][7]['candidate'] == 1, (label, 'AC candidate')
-        assert data['18']['steps'][8]['rejected'] == 1, (label, 'AC rejected')
+        assert '父指针' not in data['kruskal']['steps'][0]['text'], label
+        assert 'DSU' not in data['kruskal']['steps'][0]['text'], label
+        assert '已选边集合' in data['prim']['steps'][0]['text'], label
+        assert '总权 12' in data['prim']['steps'][-1]['action'], label
+        assert '总权 12' in data['kruskal']['steps'][-1]['action'], label
+        assert data['kruskal']['steps'][7]['candidate'] == 1, (label, 'AC candidate')
+        assert data['kruskal']['steps'][8]['rejected'] == 1, (label, 'AC rejected')
     print('browser-mst-check: PASS')
-    print('1280x720, 1440x900: cover single line; 33 pages no vertical overflow')
+    print('1280x720, 1440x900: cover single line; 41 pages no vertical overflow')
     print('Prim 9 states; Kruskal 16 states; prev/next/reset/boundary OK')
     print('Kruskal AC candidate/reject classes OK')
 

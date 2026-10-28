@@ -11,7 +11,8 @@ from tree_trace import player as step_player
 from mst_trace import (MAIN_NODES, MAIN_EDGES, MAIN_LABELS, MAIN_LABEL_POS,
                        TRIANGLE_NODES, TRIANGLE_EDGES, TRIANGLE_LABEL_POS, EXCHANGE_NODES, EXCHANGE_EDGES,
                        EXERCISE_NODES, EXERCISE_EDGES, prim_player, kruskal_player,
-                       kruskal_states, dsu_diagram, path_compression_demo)
+                       prim_states, kruskal_states, dsu_diagram, path_compression_demo,
+                       input_row_html, matrix_row, edge_preparation_views)
 
 
 def answer(html, title='核对答案与理由'):
@@ -52,8 +53,8 @@ def relation_player(panels, label):
                                             'class="tree-player relation-player"', 1)
 
 
-def answer_workspace(diagram, prompt, solution, title='核对答案与理由'):
-    return ('<div class="graph-layout answer-workspace">' + diagram +
+def answer_workspace(diagram, prompt, solution, title='核对答案与理由', class_name=''):
+    return ('<div class="graph-layout answer-workspace ' + class_name + '">' + diagram +
             '<div><div class="answer-prompt">' + prompt + '</div>' +
             answer(solution, title) + '</div></div>')
 
@@ -93,6 +94,7 @@ _KRUSKAL = kruskal_states()
 # Real snapshot: after AB, BC, CD were accepted and AC was checked and rejected.
 _THREE = next(state for state in _KRUSKAL if state['decision'] == 'reject')
 _DSU_DEMO = path_compression_demo()
+_PRIM_A = prim_states()[0]
 _STAR_POS = {'A': (260, 45), 'B': (80, 140), 'C': (180, 140), 'D': (300, 140), 'E': (420, 140)}
 _CHAIN_POS = {'A': (260, 40), 'B': (80, 125), 'C': (300, 125), 'D': (420, 200)}
 _CUT_AB = {'points': ((20, 5), (330, 5), (330, 100), (20, 100)),
@@ -103,9 +105,9 @@ _CUT_ABC = {'points': ((20, 5), (330, 5), (330, 100), (180, 270), (85, 265), (20
 
 _OVERVIEW = ['本讲要解决哪四个问题？', r'''<table><thead><tr><th>部分</th><th>要解决的问题</th><th>页码</th><th>分钟</th></tr></thead><tbody>
 <tr><td>第一部分</td><td>怎样定义连接全网的最低成本问题？</td><td>1–9</td><td>20</td></tr>
-<tr><td>第二部分</td><td>怎样从一个顶点出发，逐步扩张连接区域？</td><td>10–15</td><td>17</td></tr>
-<tr><td>第三部分</td><td>怎样按照边的成本顺序，逐步合并不同分组？</td><td>16–23</td><td>22</td></tr>
-<tr><td>第四部分</td><td>怎样检查结果、分析计算代价并解决新问题？</td><td>24–33</td><td>26</td></tr>
+<tr><td>第二部分</td><td>怎样从存储信息出发，逐步扩大连接区域？</td><td>10–17</td><td>17</td></tr>
+<tr><td>第三部分</td><td>怎样组织边，并维护不断合并的分组？</td><td>18–29</td><td>25</td></tr>
+<tr><td>第四部分</td><td>怎样检查代价、联系其他课程并判断适用性？</td><td>30–41</td><td>23</td></tr>
 </tbody></table>''', '课程路线']
 
 _PART1 = part('第一部分：问题与数学依据',
@@ -190,16 +192,45 @@ _EXCHANGE = ['为什么这次局部选择不损失最优解？',
  ], '安全边交换论证'),
  '第一部分 · 问题与数学依据']
 
-_PART2 = part('第二部分：怎样让已连接区域逐步扩大？',
-              '从一个顶点出发，每次只接受连接当前区域与外部的一条边。',
-              '先说明构造规则与辅助状态，再观察每一步怎样更新。',
-              '第二部分 · 逐步扩大已连接区域')
+_PART2 = ['输入图、工作状态与结果分别保存什么？',
+ r'''<p class="compact-text">回到 D011 的图 ADT 与 D012 的访问标记：保存关系与记录计算进度，职责不同。</p>
+<table><thead><tr><th>职责</th><th>要回答什么</th><th>本讲中的表示</th></tr></thead><tbody>
+<tr><td>输入图</td><td>哪些边存在，权值多少？</td><td>矩阵、邻接表或完整边数组</td></tr>
+<tr><td>工作状态</td><td>当前已知什么，下一步怎样决定？</td><td>纳入标记、候选入口、分组</td></tr>
+<tr><td>结果</td><td>哪些边已正式接受？</td><td>已选边集合 \(F\) 与总权</td></tr>
+</tbody></table><p class="compact-text">同一输入图可以支持不同算法；算法还需组织自己的工作状态。</p>''',
+ '第二部分 · 逐步扩大已连接区域']
 
 _PRIM = ['普里姆算法：怎样逐步接入新顶点？',
  r'''<div class="quote compact-quote"><strong>普里姆算法（Prim's Algorithm）数学规则</strong><br>从任一顶点 \(u_0\) 开始，令 \(U=\{u_0\}\)、\(F=\varnothing\)。每次在 \(u\in U,\ v\in V-U\) 的边中取最轻边 \(e=(u,v)\)，接受 \(e\) 并把 \(v\) 加入 \(U\)，直到 \(U=V\)。</div>
 <ol class="compact-list"><li>初始时，\(U\) 只含起点。</li><li>维护已纳入顶点集合 \(U\) 与已接受边集 \(F\)。</li><li>比较连接 \(U\) 与 \(V-U\) 的边，接受最轻边和外部顶点。</li></ol>
 <p>已选边都在 \(U\) 内。用前面的交换理由，每步加入最轻连接边时仍可保留已选边，并包含于某棵 MST。</p>
 <p class="small">前提：本页讨论连通图。选择的是连接 \(U\) 的一条边，不是离起点最近的顶点。</p>''',
+ '第二部分 · 逐步扩大已连接区域']
+
+_ENTRY_MOTIVE = ['已有的最佳入口，还要每次重找吗？',
+ beside(main_graph(states={'A': 'visited'}, candidate=(('A', 'B'),),
+                   caption='当前只纳入 A；候选入口来自 A 的邻接信息。'),
+        '<p>朴素做法：每次重新比较已纳入区域与外部之间的所有边。</p>' +
+        '<table class="compact-table"><thead><tr><th>外部点</th><th>当前最佳入口</th></tr></thead><tbody>' +
+        ''.join('<tr><td>' + v + '</td><td>' +
+                (f'{_PRIM_A["parent"][v]}{v}:{_PRIM_A["key"][v]}' if v in _PRIM_A['key'] else '无入口') +
+                '</td></tr>' for v in MAIN_NODES if v != 'A') +
+        r'''</tbody></table><p>纳入 B 后，C 的旧最佳入口 AC=4 不必丢弃：只需与新边 BC=2 比较。</p>
+<p class="small">保存每个外部点的最好入口，可以复用此前的比较结果。</p>'''),
+ '第二部分 · 逐步扩大已连接区域']
+
+_INPUT_UPDATE = ['接入 B 后，怎样从存储记录更新候选？',
+ answer_workspace(
+ '<div><h3>矩阵 B 行（列 A–E）</h3>' + input_row_html('B') +
+ r'''<p class="small">— 表示无边，存在性由 present 判定；零权边仍然存在。</p>
+<h3>B 的全部邻接项</h3><p>''' + '、'.join(f'{v}:{w}' for v, w in matrix_row('B') if w is not None) + r'''</p>
+<p class="compact-text">已接受 AB，\(U=\{A,B\}\)。本轮跳过已纳入点 A、B。</p></div>''',
+ r'''<p><strong>独立预测（1 分钟）</strong></p><table class="compact-table"><thead><tr><th>外部点</th><th>更新前入口</th></tr></thead><tbody><tr><td>C</td><td>AC:4</td></tr><tr><td>D</td><td>无入口</td></tr><tr><td>E</td><td>无入口</td></tr></tbody></table>
+<p>补全三个新入口，并说明每次改变或不变的依据。矩阵与邻接表分别检查多少位置或邻接项？</p>''',
+ r'''<table class="compact-table"><thead><tr><th>顶点</th><th>旧 → 新</th><th>依据</th></tr></thead><tbody><tr><td>C</td><td>AC:4 → BC:2</td><td>新边更轻</td></tr><tr><td>D</td><td>无 → BD:5</td><td>首次有入口</td></tr><tr><td>E</td><td>无 → 无</td><td>没有 BE</td></tr></tbody></table>
+<p>矩阵循环检查 5 个顶点位置；邻接表枚举 3 项。已纳入点先跳过，不把它们重新接入。</p>''',
+ class_name='source-workspace'),
  '第二部分 · 逐步扩大已连接区域']
 
 _AUX = ['计算机执行 Prim，需要保存哪些辅助信息？',
@@ -210,7 +241,7 @@ _AUX = ['计算机执行 Prim，需要保存哪些辅助信息？',
 <table class="compact-table"><thead><tr><th>\(v\in V-U\)</th><th>parent[v]</th><th>key[v]</th><th>has_key</th></tr></thead><tbody><tr class="matrix-focus"><td>C</td><td>B</td><td>2</td><td>1</td></tr><tr><td>D</td><td>B</td><td>5</td><td>1</td></tr><tr><td>E</td><td>—</td><td>—</td><td>0</td></tr></tbody></table>
 <p class="compact-text">key[v] 是接入 \(U\) 的一条边权，<strong>不是从起点到 v 的路径长度</strong>。没有入口时，key 不取值。</p>''') +
  r'''<p class="compact-text">纳入 u 后，已有入口且 uv 存在时：\(\mathrm{key}_{新}[v]=\min(\mathrm{key}_{旧}[v],w(u,v))\)；更小时同时改 parent。首次出现入口直接赋值，无边则不更新。</p>
-<p class="small">程序对应：used[v] 表示 \(v\in U\)，selected[] 保存 \(F\)；候选 parent 只记来源，顶点被接受后入口边才进入 \(F\)。输入图另用矩阵或邻接表保存。</p></div>''',
+<p class="small">教材 lowcost/adjvex 对应 key/parent；used[v] 表示 \(v\in U\)，has_key 区分有无入口。候选 parent 只记来源；接受顶点时入口边才进入 \(F\)。</p></div>''',
  '第二部分 · 逐步扩大已连接区域']
 
 _PRIM_PLAYER = ['从 A 开始，观察顶点集合、候选入口与已选边',
@@ -227,13 +258,21 @@ _MSF = ['没有跨界候选，就把剩余点忽略吗？',
  beside(disconnected_graph(), r'''<p>删除 CE、DE 后，E 与 A–D 不连通。图中红边 AB、BC、CD 连接 A–D，E 单独构成一个分量。</p><p>此图不存在覆盖所有顶点的生成树。对每个连通分量分别求最小生成树，得到<strong>最小生成森林（Minimum Spanning Forest，MSF）</strong>。</p><p class="small">结果：2 个连通分量、3 条选边、总权 6；孤立顶点也是一棵树。</p>'''),
  '第二部分 · 逐步扩大已连接区域']
 
-_PART3 = part('第三部分：怎样依次合并不同连通分组？',
-              '从最便宜的边开始，判断两端是否已经连通。',
-              '排序、接受/拒绝、动态分组，以及分组的内部表示与维护。',
-              '第三部分 · 合并连通分组')
+_PART3 = ['换一种组织：怎样从全部边中依次选择？',
+ r'''<p>前一种方法按新接入的顶点读取邻接信息。现在改为先整理全部边，再按成本依次判断。</p>
+<table><thead><tr><th>已有输入</th><th>需要的操作</th><th>准备得到什么</th></tr></thead><tbody>
+<tr><td>邻接矩阵</td><td>枚举存在的无向边</td><td rowspan="2">每条边只保留一次的边数组</td></tr>
+<tr><td>邻接表</td><td>枚举并去掉双份记录</td></tr>
+</tbody></table><p>图的存储不变，访问次序可以重组。得到边数组后再按权排序。</p>''',
+ '第三部分 · 合并连通分组']
 
-_KRUSKAL = ['克鲁斯卡尔算法（Kruskal\'s Algorithm）：按边的成本顺序合并分组',
- r'''<div class="quote compact-quote"><strong>算法规则（数学描述）</strong><br>把所有边按权值非递减排列；每个顶点自成一组。扫描边 (u,v)：不同组则接受并合并，同组则拒绝。边用完返回森林；接受 n−1 条边时已得到 MST，可提前停止。</div>
+_EDGE_PREP = ['同一张图，怎样提取出同一份边数组？',
+ relation_player(edge_preparation_views(), '矩阵与邻接表提取无向边') +
+ r'''<p class="compact-text">条件：无向简单图，邻接表每边两份对称记录。字母按 A–E 编号；排序后的副本用于扫描，不改变输入图。</p>''',
+ '第三部分 · 合并连通分组']
+
+_KRUSKAL = ['克鲁斯卡尔算法：按边的成本顺序合并分组',
+ r'''<div class="quote compact-quote"><strong>克鲁斯卡尔算法（Kruskal's Algorithm）数学规则</strong><br>把所有边按权值非递减排列；每个顶点自成一组。扫描边 (u,v)：不同组则接受并合并，同组则拒绝。边用完返回森林；接受 n−1 条边时已得到 MST，可提前停止。</div>
 <p class="compact-text"><strong>无环：</strong>只合并不同分组。<strong>本讲演示与 C 程序：</strong>扫描全部边；MST 完成后，仅核对剩余边。</p>
 <p class="compact-text"><strong>为何可以选：</strong>令 \(U\) 是包含 u 的当前分量，其余顶点为 \(V-U\)，已选边不连接这两组。更轻的连接边若已处理，原本应被接受，端点现在就不可能分属两组；早先拒绝的边也不会重新连接两组，因为分组只合并。</p>
 <p class="compact-text">所以当前边是连接两组的最轻边，可用前面的 MST 性质与交换理由。平局按端点编号处理，只为输出可复现。</p>''',
@@ -243,13 +282,45 @@ _KRUSKAL_PLAYER = ['从最便宜的边开始，观察分组怎样合并',
  kruskal_player(),
  '第三部分 · 合并连通分组']
 
-_DSU = ['怎样高效维护不断合并的分组？',
- r'''<div class="quote compact-quote"><strong>课程补充模型（不是教材逐字定义）</strong><br><strong>并查集（Disjoint Set Union，DSU；又称 Union-Find）</strong>维护一族互不相交的动态集合：find(x) 返回 x 所属集合的代表，union(a,b) 合并两个不同集合。</div>
-<p>它服务于 Kruskal 的两件事：判断候选边两端是否同组；接受边后把两组并成一组。</p>
-<p>这里的分组由“当前已经接受的边”诱导，不是原输入图的全部连通关系。</p>
-<p><strong>边界</strong>：DSU 只负责维护分组和判环，不能单独保证 MST 的全局最优；最优性还依赖按权扫描与教材 MST 性质。</p>''',
+_CONNECTIVITY = ['能否用已学的搜索，判断下一条边会不会成环？',
+ beside(graph(MAIN_NODES, [('A', 'B'), ('B', 'C'), ('C', 'D'), ('A', 'C')],
+              marked=(('A', 'B'), ('B', 'C'), ('C', 'D')), candidate=(('A', 'C'),),
+              caption=r'红边是当前 \(F=\{AB,BC,CD\}\)；橙虚线 AC 尚未接受；E 单独一组。', legend=''),
+        r'''<p>只沿当前已选边做 DFS/BFS，可以找到 A—B—C。加入 AC 会闭环，因此拒绝。</p>
+<p><strong>查的是当前选边中的路径。</strong>不能用原输入图的连通性，也不能只查有无直接边。</p>
+<p>搜索能够完成判断。但下一条边到来，还要从头搜索吗？</p>
+<p class="small">分组只合并、不拆分；能否保存已经得到的连通信息？</p>'''),
  '第三部分 · 合并连通分组']
 
+_GROUP_IDS = ['把已经知道的连通分组保存下来',
+ r'''<p>教材 Vexset 保存所属组的编号。回看接受 CD 的一步：把 ABC 与 D 合并。</p>
+<table><thead><tr><th>Vexset</th><th>A(0)</th><th>B(1)</th><th>C(2)</th><th>D(3)</th><th>E(4)</th></tr></thead><tbody>
+<tr><th>合并前</th><td>0</td><td>0</td><td>0</td><td>3</td><td>4</td></tr>
+<tr><th>合并后</th><td>0</td><td>0</td><td>0</td><td class="matrix-focus">0</td><td>4</td></tr></tbody></table>
+<p>查询：比较两个编号。合并：扫描全表，把编号 3 改为 0。</p>
+<p><strong>问题转移了：</strong>不用每次重新搜索，但合并两大组时，是否必须逐个改写成员？</p>
+<p class="small">本页数字是分组编号，不是父结点。教材 6.6.1，算法 6.9。</p>''',
+ '第三部分 · 合并连通分组']
+
+_DSU = ['怎样高效维护不断合并的分组？',
+ r'''<div class="quote compact-quote"><strong>课程补充模型（不是教材逐字定义）</strong><br><strong>并查集（Disjoint Set Union，DSU；又称 Union-Find）</strong>维护一族互不相交的动态集合：find(x) 返回 x 所属集合的代表，union(a,b) 合并两个不同集合。</div>
+<table class="compact-table"><thead><tr><th>同一组操作</th><th>分组编号实现</th><th>父指针实现</th></tr></thead><tbody><tr><td>find / 判断同组</td><td>读取编号</td><td>沿父指针找到根</td></tr><tr><td>union / 合并</td><td>全表改号</td><td>找到两根后连接根</td></tr></tbody></table>
+<p>分组编号和父指针，是同一 ADT 的不同表示。回收 D004：先明确操作，再比较实现。</p>
+<p>这里的分组由“当前已经接受的边”诱导，不是原输入图的全部连通关系。</p>
+<p><strong>边界</strong>：DSU 不能单独保证 MST 的全局最优；还需按权扫描与教材 MST 性质。</p>''',
+ '第三部分 · 合并连通分组']
+
+_ROOT_MERGE = ['合并两组，能否只修改代表之间的连接？',
+ '<div class="dsu-workspace"><p class="small">独立辅助例：先合并 AB、CD，再处理 union(B,C)。</p><div class="graph-pair">' +
+ dsu_diagram(_DSU_DEMO['before_union']['parent'], _CHAIN_POS,
+             caption='合并前：find(B)=A，find(C)=C；两组各有自己的根。',
+             view_box=(35, 5, 440, 260)) +
+ dsu_diagram(_DSU_DEMO['before']['parent'], _CHAIN_POS,
+             caption='合并后：只令 p[C]=A；D 仍指向 C，find(D) 也能到 A。',
+             root='A', view_box=(35, 5, 440, 260)) +
+ r'''</div><p class="compact-text">连接的是两组的根，不能只把 B 随意接到 C。成员不必逐个改号；代价转为沿父指针找根。</p>
+<p class="compact-text">任意连接可能形成长链。按大小合并，把小树的根接到大树的根下；相同大小时本例选 A。</p></div>''',
+ '第三部分 · 合并连通分组']
 _THREE_OBJECTS = ['选中的森林、当前分组与父指针：三者是什么关系？',
  '<div class="dsu-workspace"><div class="graph-pair">' +
  main_graph(marked=tuple(e[:2] for e in _THREE['selected_edges']),
@@ -302,11 +373,6 @@ _FEASIBLE = ['不成环，为什么还不足以保证最优？',
         r'''<p>AB:10、AC:1、BC:1 中，先选 AB 再选 BC 也不成环，成本 11；但最小生成树是 AC、BC，成本 2。</p><ul><li>分组维护保证：已选结构保持森林。</li><li>排序与教材 MST 性质保证：接受的边仍可扩展到某个最优解。</li></ul>'''),
  '第三部分 · 合并连通分组']
 
-_PART4 = part('第四部分：验证与应用',
-              '把结构可行性、选择安全性与任务边界分开检查。',
-              '等权与实现代价、C 状态、独立练习、MST 与最短路径。',
-              '第四部分 · 验证与应用')
-
 _TIE_LABELS = {**MAIN_LABELS, ('C', 'E'): 7}
 _TIES = ['同样便宜的边，可以得到不同答案吗？',
  r'''<p class="compact-text"><strong>主例只改 CE：6 → 7</strong>，DE 仍为 7，其余边权不变。红粗边表示各方案选中的边。</p>''' +
@@ -320,11 +386,22 @@ _TIES = ['同样便宜的边，可以得到不同答案吗？',
  r'''</div><p class="compact-text">两棵树都覆盖全网且无环，总权同为 13。等权时最优边集可能不唯一；检查结构与总权，不能只比较边集。</p>''',
  '第四部分 · 验证与应用']
 
-_COST = ['图的规模和已有表示如何影响选择？',
- r'''<p class="small">\(n=|V|\)，\(m=|E|\)；教材用 e 表示边数。下表比较<strong>已有相应输入表示</strong>上的算法阶段。</p>
-<table><thead><tr><th>实现</th><th>主要工作</th><th>时间</th></tr></thead><tbody><tr><td>矩阵 Prim</td><td>每轮找最小入口、更新一行</td><td>\(O(n^2)\)</td></tr><tr><td>边表 Kruskal</td><td>排序 m 条边，再查代表与合并</td><td>\(O(n+m\log(m+1))\)</td></tr></tbody></table>
-<p class="compact-text">稠密图已有矩阵时 Prim 自然；稀疏图已有边表时 Kruskal 自然。DSU 采用按大小合并与路径压缩，操作序列摊还高效，不等于每次 find 保证 O(1)。</p>
-<p class="small">完整任务还需计输入准备和空间：演示 Graph 同时保存矩阵与边表；矩阵占用 O(n²) 空间，不能从 Kruskal 的时间表推成整个程序只用线性空间。</p>''',
+_COST = ['算法代价来自哪些读取、查询与更新？',
+ r'''<p class="small">\(n=|V|\)，\(m=|E|\)；教材用 e 表示边数。先计已有表示上的算法阶段。</p>
+<table class="compact-table"><thead><tr><th>实现</th><th>主要工作</th><th>时间</th></tr></thead><tbody>
+<tr><td>矩阵 Prim</td><td>n 轮：线性选最小＋扫描一行</td><td>\(O(n^2)\)</td></tr>
+<tr><td>Kruskal＋全表改号</td><td>排序；至多 n−1 次全表合并</td><td>\(O(n^2+m\log(m+1))\)</td></tr>
+<tr><td>Kruskal＋优化父指针</td><td>排序；按大小合并＋路径压缩</td><td>\(O(n+m\log(m+1))\)</td></tr>
+</tbody></table>
+<p class="compact-text">查询与维护要一起计。父指针的高效性依赖实现及操作序列，不是每次 find 保证 O(1)。</p>
+<p class="small">完整任务还要计输入准备和空间。当前 C 同时保存矩阵与边数组，矩阵占用 O(n²) 空间；不能由 Kruskal 的扫描代价推出整个程序只用线性空间。</p>''',
+ '第四部分 · 验证与应用']
+
+_COST_CHECK = ['换成邻接表，就一定能更快地选出下一项吗？',
+ answer_workspace(
+ r'''<div><h3>同一份输入，改变邻居访问方式</h3><table class="compact-table"><thead><tr><th>工作</th><th>矩阵</th><th>邻接表</th></tr></thead><tbody><tr><td>枚举 u 的邻居</td><td>扫描一行</td><td>只访问邻接项</td></tr><tr><td>找最小候选</td><td>扫描候选数组</td><td>仍扫描候选数组</td></tr></tbody></table><p class="small">题设保留线性选最小，没有加入其他优先级结构。</p></div>''',
+ r'''<p><strong>独立判断（1 分钟）</strong></p><p>某实现只把矩阵换成邻接表，每轮仍扫描所有候选找最小值。</p><p>它是否自然变成 \(O(m\log n)\)？指出减少的工作和仍然存在的工作。</p>''',
+ r'''<p>没有。全部邻居更新可按邻接项进行，总量 \(O(n+m)\)；但 n 轮线性选最小，仍有 \(O(n^2)\) 工作。</p><p>合计 \(O(n^2+m)\)，在简单图中仍为平方量级。后续优先队列要解决的是高效取最小与更新候选。</p>'''),
  '第四部分 · 验证与应用']
 
 _C_STATE = ['教材字段与课堂程序，怎样一一对应？',
@@ -335,7 +412,7 @@ _C_STATE = ['教材字段与课堂程序，怎样一一对应？',
 <tr><td>Vexset[v] 分组编号</td><td>find(v) 返回代表</td><td>不同 parent 仍可能同组</td></tr>
 </tbody></table>
 <p class="compact-text">has_key 区分有无入口；结果森林另存。Prim 的 parent 是入口来源，DSU 的 parent 是集合父指针。</p>
-<p class="small">阅读：find / unite → kruskal → prim。教材 Vexset 合并时改写全表，其代价不能套用当前 DSU 的摊还结论。</p>''',
+<p class="small">课后对照阅读：find / unite → kruskal → prim。当前 Graph 同时保存矩阵和边数组，尚未实现邻接链表；两算法不与两种存储一一绑定。</p>''',
  '第四部分 · 验证与应用']
 
 _VERIFY = ['检查一棵结果树，哪些证据缺一不可？',
@@ -348,7 +425,7 @@ _VERIFY = ['检查一棵结果树，哪些证据缺一不可？',
 _EXERCISE = ['新网络：你能说明每一次合并吗？',
  answer_workspace(exercise_graph(),
         r'''<p>四站点 P、Q、R、S；PQ=3、PR=1、QR=2、QS=4、RS=5。</p><div class="exercise-grid"><p>1. 按 Kruskal 扫描全部边。</p><p>2. 写接受/拒绝及原因。</p><p>3. 写接受后的分组。</p><p>4. 解释 PQ 为何被拒绝。</p><p>5. 任选接受边，说明依据。</p><p>6. 标完成时刻、算总权。</p></div>''',
-        r'''<p class="small"><strong>过程</strong>：接受 PR1、QR2；PQ3 同组拒绝，此时 MST 未完成；接受 QS4 后 MST 已完成，总权 7。继续核对 RS5：同组拒绝。</p><p class="small"><strong>分组/依据</strong>：{P,R}→{P,Q,R}→{P,Q,R,S}；接受 QS 时 \(U=\{P,Q,R\}\)，\(V-U=\{S\}\)，连接两组的边有 QS4、RS5，QS 最轻。</p><p class="small">若采用提前终止，RS 是未处理，不是已拒绝。</p>''', '核对答案与理由（7+2 分钟）'),
+        r'''<p class="small"><strong>过程</strong>：接受 PR1、QR2；PQ3 同组拒绝，此时 MST 未完成；接受 QS4 后 MST 已完成，总权 7。继续核对 RS5：同组拒绝。</p><p class="small"><strong>分组/依据</strong>：{P,R}→{P,Q,R}→{P,Q,R,S}；接受 QS 时 \(U=\{P,Q,R\}\)，\(V-U=\{S\}\)，连接两组的边有 QS4、RS5，QS 最轻。</p><p class="small">若采用提前终止，RS 是未处理，不是已拒绝。</p>''', '核对答案与理由（7+2 分钟）', class_name='independent-network'),
  '第四部分 · 验证与应用']
 
 _SHORTEST = ['总边权最小，两点间路径就最短吗？',
@@ -364,8 +441,36 @@ _SHORTEST = ['总边权最小，两点间路径就最短吗？',
 <p class="small">最小生成树优化全部已选边的总权；最短路径优化从起点到目标的路径权。目标不同，树上路径未必最短。</p>'''),
  '第四部分 · 验证与应用']
 
+_SPARSE_LINK = ['按实际需要的项访问，怎样联系数值计算？',
+ '<div class="answer-workspace course-link"><div class="answer-prompt">' +
+ r'''<p class="compact-text">独立数值例：矩阵的 B 行为下表。计算这一行与向量的内积，需要哪些信息？</p>
+<table><thead><tr><th>列</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead><tbody><tr><th>系数</th><td>2</td><td>0</td><td>−1</td><td>0</td><td>3</td></tr></tbody></table>
+<p>按行只保存有贡献的项：(A,2)、(C,−1)、(E,3)。</p>
+<p>\(y_B=2x_A-x_C+3x_E\)。邻接表也按顶点组织要访问的记录。</p>
+<p class="compact-text"><strong>共同机制：</strong>用结构减少无关位置的存储和扫描。<strong>语义差异：</strong>零系数可省略而不改变线性算子；图的零权边仍须保留连接关系。</p></div>''' +
+ answer(beside(graph(TRIANGLE_NODES, [('A', 'B'), ('B', 'C'), ('A', 'C')],
+                     view_box=(40, 10, 330, 250),
+                     caption='独立三角形：边的参考方向仅用于构造列向量。'),
+ r'''<p>若已学线性相关，取顶点对应的标准基向量，定义 \(b_{AB}=e_B-e_A\)、\(b_{BC}=e_C-e_B\)、\(b_{AC}=e_C-e_A\)。</p>
+<p>\(b_{AB}+b_{BC}=b_{AC}\)。闭环的三条边对应线性相关的列；无环边集对应这些关联矩阵列的线性无关。</p>
+<p class="small">这里是顶点—边关联矩阵，区别于邻接矩阵。参考方向不改变无向图。可对照<a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/resources/lecture-12-graphs-networks-incidence-matrices/">MIT 线性代数专题</a>阅读。</p>'''),
+ '课后探索：环与线性相关（先修：线性相关）') + '</div>',
+ '第四部分 · 验证与应用']
+
+_MODEL_LIMIT = ['若一条线路故障后仍须连通，目标要怎样改变？',
+ answer_workspace(
+ graph(MAIN_NODES, [('A', 'B'), ('B', 'C'), ('C', 'D'), ('C', 'E')],
+       labels={e[:2]: e[2] for e in MAIN_EDGES}, label_positions=MAIN_LABEL_POS,
+       marked=(('A', 'B'), ('B', 'C'), ('C', 'D')), rejected=(('C', 'E'),),
+       caption='原 MST 的 CE 线路故障（灰虚线）；只剩红色 AB、BC、CD，E 断开。', legend=''),
+ r'''<p>最低建设成本的树没有冗余连接。现在新增要求：任意一条线路故障后，所有站点仍须互通。</p><p>仅把原 MST 算得更快，能满足新要求吗？需要重新考虑哪些约束？</p>''',
+ r'''<p>不能。树上任意一条边删除都会断开。抗故障要求需要冗余线路，必须重新定义可行方案与成本目标。</p>
+<p><strong>先判断目标和条件，再选择方法。</strong>数学最优依赖给定模型，不能直接代替真实用途判断。</p>
+<p class="small">课后选做（不新增正式提交）：先记录自己的预测，再让程序或 AI 给出候选网络，核对输入、连通、总权与最优依据；增加故障要求后重新判断。</p>''', '核对模型边界与实践方法'),
+ '第四部分 · 验证与应用']
+
 _SUMMARY = ['把选择、约束和维护机制放在一起',
- r'''<table><thead><tr><th>算法/结构</th><th>维护什么</th><th>为何有用</th></tr></thead><tbody><tr><td>Prim</td><td>已连接区域与最便宜入口</td><td>最轻跨界边逐步扩展</td></tr><tr><td>Kruskal</td><td>按权排序、当前连通分组</td><td>以安全边合并森林</td></tr><tr><td>并查集</td><td>同属一个集合的关系</td><td>快速判断合并还是成环</td></tr></tbody></table><p>能连接、不会成环、成本最优，是三个需要分别解释的判断。</p>''',
+ r'''<table><thead><tr><th>对象/方法</th><th>利用什么</th><th>支持什么判断</th></tr></thead><tbody><tr><td>图的表示</td><td>输入关系与访问机制</td><td>怎样获得邻居或全部边</td></tr><tr><td>Prim</td><td>保存最佳入口，比较新邻边</td><td>怎样安全扩大已接入区域</td></tr><tr><td>Kruskal</td><td>按权组织边，维护当前分组</td><td>何时接受或拒绝候选边</td></tr><tr><td>并查集</td><td>分组编号或父指针</td><td>怎样查询并维护同组关系</td></tr></tbody></table><p>表示服务于操作；保存有用信息减少重复工作。能连接、不会成环、成本最优与用途适合，仍须分别检查。</p>''',
  '第四部分 · 验证与应用']
 
 _HOMEWORK = ['课后：教材导航与正式作业',
@@ -373,7 +478,7 @@ _HOMEWORK = ['课后：教材导航与正式作业',
  '第四部分 · 验证与应用']
 
 _NEXT = ['下一讲：从一个起点出发，距离如何更新？',
- r'''<p>Prim 的 key[v] 是接入当前区域的一条边。<br>若任务变成“从 A 到 v 的最少总代价”，状态应保存什么？</p><p class="lead">D014：最短路径。</p>''',
+ r'''<p>Prim 的 key[v] 是接入当前区域的一条边。<br>若任务变成“从 A 到 v 的最少总代价”，状态应保存什么？</p><p class="lead">D014：最短路径。</p><p class="small">另一个留下的问题：候选很多时，怎样高效取最小并更新优先级？后续优先队列继续回答。</p>''',
  '第四部分 · 验证与应用']
 
 
@@ -391,25 +496,33 @@ SLIDES = [
     _EXCHANGE,
     _PART2,
     _PRIM,
+    _ENTRY_MOTIVE,
+    _INPUT_UPDATE,
     _AUX,
     _PRIM_PLAYER,
     _FROM_C,
     _MSF,
     _PART3,
+    _EDGE_PREP,
     _KRUSKAL,
     _KRUSKAL_PLAYER,
+    _CONNECTIVITY,
+    _GROUP_IDS,
     _DSU,
+    _ROOT_MERGE,
     _THREE_OBJECTS,
     _COMPRESS,
     _DSU_CHECK,
     _FEASIBLE,
-    _PART4,
     _TIES,
     _COST,
+    _COST_CHECK,
     _C_STATE,
     _VERIFY,
     _EXERCISE,
     _SHORTEST,
+    _SPARSE_LINK,
+    _MODEL_LIMIT,
     _SUMMARY,
     _HOMEWORK,
     _NEXT,

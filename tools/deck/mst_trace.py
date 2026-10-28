@@ -39,6 +39,52 @@ def _edge_text(edges):
     return '、'.join(f'{a}{b}:{w}' for a, b, w in edges) or '无'
 
 
+def matrix_row(vertex, edges=MAIN_EDGES, nodes=MAIN_NODES):
+    """Logical input row; None means no edge, never zero weight."""
+    neighbors = dict(_adj(edges, nodes)[vertex])
+    return tuple((v, neighbors.get(v)) for v in nodes)
+
+
+def input_row_html(vertex, edges=MAIN_EDGES, nodes=MAIN_NODES):
+    row = matrix_row(vertex, edges, nodes)
+    return ('<table class="compact-table input-row"><thead><tr><th>' + vertex + ' 行</th>' +
+            ''.join('<th>' + v + '</th>' for v, _ in row) +
+            '</tr></thead><tbody><tr><th>权值</th>' +
+            ''.join('<td>' + ('—' if w is None else str(w)) + '</td>' for _, w in row) +
+            '</tr></tbody></table>')
+
+
+def edge_preparation_views():
+    """Two input representations produce the same undirected edge array."""
+    vertices = tuple(MAIN_NODES)
+    weights = {_edge(a, b, w)[:2]: w for a, b, w in MAIN_EDGES}
+    header = ''.join('<th>' + v + '</th>' for v in vertices)
+    matrix = '<table class="compact-table"><thead><tr><th>行/列</th>' + header + '</tr></thead><tbody>'
+    for i, u in enumerate(vertices):
+        matrix += '<tr><th>' + u + '</th>'
+        for j, v in enumerate(vertices):
+            w = weights.get(tuple(sorted((u, v))))
+            retained = ' class="matrix-focus"' if i < j and w is not None else ''
+            matrix += '<td' + retained + '>' + (str(w) if w is not None else '—') + '</td>'
+        matrix += '</tr>'
+    matrix += '</tbody></table>'
+    adjacency = '<table class="compact-table"><thead><tr><th>表头</th><th>全部邻接项</th></tr></thead><tbody>'
+    for u, neighbors in _adj(MAIN_EDGES).items():
+        items = '、'.join(('<strong>' if u < v else '') + f'{v}:{w}' +
+                         ('</strong>' if u < v else '') for v, w in sorted(neighbors))
+        adjacency += '<tr><th>' + u + '</th><td>' + items + '</td></tr>'
+    adjacency += '</tbody></table>'
+    output = '<p class="compact-text"><strong>同一份边数组：</strong>' + _edge_text(MAIN_EDGES) + '</p>'
+    return [
+        '<div class="columns"><div><h3>矩阵：粗体上三角项保留一次</h3>' + matrix +
+        '</div><div><p>无向边在矩阵中对称出现两次。只取行编号小于列编号的位置，每条边恰好保留一次。</p>' +
+        output + r'<p class="small">先检查存在性，再读权值；提取需 \(O(n^2)\)。</p></div></div>',
+        '<div class="columns"><div><h3>邻接表：粗体项保留一次</h3>' + adjacency +
+        '</div><div><p>同一条无向边有两份邻接记录。只保留表头编号小于邻居编号的项。</p>' +
+        output + r'<p class="small">枚举表头和邻接项，提取需 \(O(n+m)\)。</p></div></div>',
+    ]
+
+
 def prim_states(start='A', edges=MAIN_EDGES, nodes=MAIN_NODES):
     if start not in nodes:
         raise ValueError('start must be a vertex')
@@ -69,6 +115,7 @@ def prim_states(start='A', edges=MAIN_EDGES, nodes=MAIN_NODES):
             'current_edge': current_edge, 'current_vertex': current_vertex,
             'total_weight': total, 'components': len(component_roots), 'action': action,
             'key_changes': dict(changes or {}),
+            'input_row': matrix_row(current_vertex, edges, nodes) if current_vertex else (),
         })
 
     add(r'准备：\(U=\{' + start + r'\}\)；先预测最轻跨界边。', current_vertex=start,
@@ -209,13 +256,15 @@ def path_compression_demo():
     read-only partition that must stay unchanged.
     """
     dsu = _DSU(('A', 'B', 'C', 'D'))
-    for a, b in (('A', 'B'), ('C', 'D'), ('B', 'C')):
+    for a, b in (('A', 'B'), ('C', 'D')):
         dsu.union(a, b)
+    before_union = {'parent': dsu.parents(), 'components': dsu.components()}
+    dsu.union('B', 'C')
     before = {'parent': dsu.parents(), 'components': dsu.components()}
     representative = dsu.find('D')
     after = {'parent': dsu.parents(), 'components': dsu.components()}
     return {'query': 'D', 'before': before, 'after': after,
-            'representative': representative}
+            'representative': representative, 'before_union': before_union}
 
 
 def _graph(state, nodes, edges, labels, prim=False):
@@ -280,13 +329,20 @@ def _prim_content(state):
     table = ('<table class="compact-table candidate-table"><thead><tr><th>外部点</th>'
              '<th>parent:key</th><th>本步更新</th></tr></thead><tbody>' + ''.join(rows) +
              '</tbody></table>') if rows else '<p class="trace-detail">外部顶点为空，构造完成。</p>'
+    if state['input_row']:
+        source = ('纳入 ' + state['current_vertex'] + ' 后的输入行（A–E）：' +
+                  '／'.join('—' if w is None else str(w) for _, w in state['input_row']) +
+                  '。已纳入点先跳过；— 表示无边。')
+    else:
+        source = '本步只从已有候选中取最小入口；接受新顶点后才扫描其输入行。'
     return ('<p class="trace-action">' + escape(state['action']) + '</p>' +
             r'<p class="trace-detail"><strong>已纳入 \(U\)</strong>：' +
             escape('、'.join(state['selected_vertices'])) + '</p>' +
             '<p class="trace-detail"><strong>候选入口</strong>（高亮行有更新）</p>' + table +
             '<p class="trace-detail"><strong>已选边集合</strong>：' + selected +
             '；<strong>总权</strong>：' + str(total) + '</p>' +
-            r'<p class="trace-legend">key 是接入 \(U\) 的一条边权；接受该顶点后，入口边才进入 \(F\)。</p>')
+            '<p class="trace-legend" data-input-vertex="' + escape(state['current_vertex'] or '') + '">' +
+            escape(source) + '</p>')
 
 
 def _kruskal_content(state):

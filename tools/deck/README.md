@@ -113,8 +113,8 @@ node --test tools/deck/tests/check_browser.test.cjs
 
 `mst_trace.py` 提供 D013 主例的 `prim_states()`（9 状态：U（对应 selected_vertices）、selected_edges、key、parent、has_key、current_edge、components、总权）和 `kruskal_states()`（16 状态：排序边、当前边、接受/拒绝、selected/rejected、components、真实 DSU parent、总权）。`prim_player()`、`kruskal_player()` 复用 `tree_trace.player` 控件；图用红粗已接受、橙虚线当前检查、灰细虚线已拒绝，并注明虚线只表示处理状态。Prim 侧栏以 LaTeX 显示 U，另列候选入口与 F；Kruskal 侧栏只显示 F、当前分组、拒绝边与总权，不提前显示 DSU 父指针。
 
-Prim 快照的 `key_changes` 保存外部点入口的旧值/新值，表格保留无入口行，候选检查步骤不产生更新。Kruskal 的 `result_complete` 标识已连为一个分量：本讲和 C 使用全扫描变式，MST 完成后只核对剩余边。排序条突出当前扫描位置，完成状态与扫描末态分开解释；非连通末态标为 MSF。第 8–9 页的 MST 性质与交换也复用同一播放器，分别为 2/3 个状态，采用共享 `.relation-player` 大图布局。
+Prim 快照的 `key_changes` 保存外部点入口的旧值/新值，表格保留无入口行，候选检查步骤不产生更新。`input_row` 仅在纳入或重启顶点时保存对应的逻辑矩阵行，选择候选阶段为空；None 表示无边，零权保留。`input_row_html` 与 `edge_preparation_views` 从主例输入生成矩阵行、去重视图和同一边数组，后者用于 D013 第 19 页的两状态关系演示。Kruskal 的 `result_complete` 标识已连为一个分量：本讲和 C 使用全扫描变式，MST 完成后只核对剩余边。排序条突出当前扫描位置，完成状态与扫描末态分开解释；非连通末态标为 MSF。第 8–9 页的 MST 性质与交换也复用同一播放器，分别为 2/3 个状态，采用共享 `.relation-player` 大图布局。
 
-共享 `.answer-workspace` 将输入图和提问/答案并置。原生 details 展开时只替换 `.answer-prompt`，图和权值保持可见，收起后恢复提问；第 14、22、29 页用于预测与独立诊断。目标投影尺寸须同时检查两种状态。打印仍显示提问，完整分页与静态步骤取舍需按使用场景人工核对。
+共享 `.answer-workspace` 将输入图和提问/答案并置。原生 details 展开时只替换 `.answer-prompt`，图和权值保持可见，收起后恢复提问；D013 第 13、16、28、32、35、38 页用于预测与独立诊断，跨课程探索也复用答案替换行为。`.independent-network` 按任务语义设置独立练习图示尺寸，不依赖页号。目标投影尺寸须同时检查两种状态。打印仍显示提问，完整分页与静态步骤取舍需按使用场景人工核对。
 
-`kruskal_states()` 内部的 `dsu_parent` 是真实父指针的只读复制：`parents()` 不再调用带路径压缩的 `find()`，`components()` 使用无副作用的 `root()`；真实 Kruskal 的 `find()` 仍会压缩，并作为算法操作记录在后续快照中。`tests/test_mst_trace.py` 覆盖候选连接已选与未选顶点、key/parent、接受/拒绝前后分组、递归父指针与分组一致性、路径压缩、等权/零权/负权、非连通 MSF 与练习；`tests/test_d013_slides.py` 校验术语首次定义页、Prim/Kruskal/DSU 的知识依赖与练习答案折叠。`browser_mst_check.py` 在 Chrome 下检查 9/16 状态、next/prev/reset/边界、封面单行与 33 页无纵向溢出。播放器仅覆盖 D013 数据，不扩展为任意图算法平台；无 JS 时首个状态静态可见。
+`kruskal_states()` 内部的 `dsu_parent` 是真实父指针的只读复制：`parents()` 不再调用带路径压缩的 `find()`，`components()` 使用无副作用的 `root()`；真实 Kruskal 的 `find()` 仍会压缩，并作为算法操作记录在后续快照中。`tests/test_mst_trace.py` 覆盖候选连接已选与未选顶点、key/parent、接受/拒绝前后分组、递归父指针与分组一致性、路径压缩、等权/零权/负权、非连通 MSF 与练习；`tests/test_d013_slides.py` 校验术语首次定义页、Prim/Kruskal/DSU 的知识依赖与练习答案折叠。`browser_mst_check.py` 在 Chrome 下检查 9/16 状态、next/prev/reset/边界、封面单行与 41 页无纵向溢出。播放器仅覆盖 D013 数据，不扩展为任意图算法平台；无 JS 时首个状态静态可见。

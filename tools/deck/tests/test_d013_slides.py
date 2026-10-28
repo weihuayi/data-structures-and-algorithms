@@ -25,48 +25,48 @@ class D013ContentTests(unittest.TestCase):
         return next(i for i in range(1, len(self.slides) + 1) if term in self.text(i))
 
     def test_page_count_and_no_legacy_page_definitions(self):
-        self.assertEqual(len(self.slides), 33)
+        self.assertEqual(len(self.slides), 41)
         self.assertFalse(hasattr(self.mod, '_LEGACY_SLIDES'))
 
     def test_acronyms_are_defined_at_first_visible_use(self):
         cases = [
             ('MST', 6, 'Minimum Spanning Tree'),
-            ('MSF', 15, 'Minimum Spanning Forest'),
+            ('MSF', 17, 'Minimum Spanning Forest'),
             ('Prim', 11, "Prim's Algorithm"),
-            ('Kruskal', 17, "Kruskal's Algorithm"),
-            ('DSU', 19, 'Disjoint Set Union'),
-            ('Union-Find', 19, 'Union-Find'),
+            ('Kruskal', 20, "Kruskal's Algorithm"),
+            ('DSU', 24, 'Disjoint Set Union'),
+            ('Union-Find', 24, 'Union-Find'),
         ]
         for term, page, definition in cases:
             self.assertEqual(self.first_page(term), page, term)
             self.assertIn(definition, self.text(page), term)
 
     def test_outline_and_part_titles_avoid_unintroduced_names(self):
-        for page in (2, 10, 16):
+        for page in (2, 10, 18):
             text = self.text(page)
             for term in ('MST', 'MSF', 'Prim', 'Kruskal', 'DSU', '并查集'):
                 self.assertNotIn(term, text, (page, term))
         self.assertIn('怎样定义连接全网的最低成本问题？', self.text(2))
-        self.assertIn('怎样从一个顶点出发，逐步扩张连接区域？', self.text(2))
-        self.assertIn('怎样按照边的成本顺序，逐步合并不同分组？', self.text(2))
-        self.assertIn('怎样检查结果、分析计算代价并解决新问题？', self.text(2))
+        self.assertIn('怎样从存储信息出发，逐步扩大连接区域？', self.text(2))
+        self.assertIn('怎样组织边，并维护不断合并的分组？', self.text(2))
+        self.assertIn('怎样检查代价、联系其他课程并判断适用性？', self.text(2))
 
     def test_prim_auxiliary_state_precedes_player(self):
-        aux = self.text(12)
+        aux = self.text(14)
         self.assertIn('辅助信息', aux)
         for term in ('U', 'F', 'key[v]', 'parent[v]', 'has_key', 'used'):
             self.assertIn(term, aux)
         self.assertIn('不是从起点到 v 的路径长度', aux)
         self.assertNotIn('data-tree-player', aux)
-        self.assertIn('data-tree-player', self.text(13))
+        self.assertIn('data-tree-player', self.text(15))
 
     def test_kruskal_player_precedes_dsu_definition_and_hides_parent_pointers(self):
-        player = self.text(18)
+        player = self.text(21)
         self.assertIn('当前分组', player)
         self.assertIn('data-tree-player', player)
         self.assertNotIn('DSU', player)
         self.assertNotIn('父指针', player)
-        dsu = self.text(19)
+        dsu = self.text(24)
         self.assertIn('Disjoint Set Union', dsu)
         self.assertIn('不能单独保证 MST 的全局最优', dsu)
         self.assertIn('当前已经接受的边', dsu)
@@ -112,19 +112,19 @@ class D013ContentTests(unittest.TestCase):
         self.assertIn('教材 MST 性质', page)
         for title, body, _ in self.slides:
             self.assertNotIn('割', title + body)
-        for number in (8, 9, 11, 12, 13, 17):
+        for number in (8, 9, 11, 12, 13, 14, 15, 20, 21):
             for old in ('S=', 'S′=', 'V∖S', '已纳入 S', '接入 S'):
                 self.assertNotIn(old, self.text(number))
 
     def test_dsu_static_figures_use_real_snapshots_and_are_labeled(self):
-        objects = self.text(20)
+        objects = self.text(26)
         self.assertIn('真实快照', objects)
         self.assertIn('p[D]=A', objects)
         self.assertIn('已拒绝的 AC', objects)
         self.assertIn('已选边集合', objects)
         self.assertIn(r'\(F=\{AB,BC,CD\}\)', objects)
         self.assertIn('E 单独成树', objects)
-        compress = self.text(21)
+        compress = self.text(27)
         self.assertIn('独立辅助例（不是主例）', compress)
         self.assertIn('压缩前', compress)
         self.assertIn('压缩后', compress)
@@ -132,7 +132,7 @@ class D013ContentTests(unittest.TestCase):
         self.assertNotIn('data-tree-player', compress)
 
     def test_exercise_input_visible_and_answer_collapsed(self):
-        exercise = self.text(29)
+        exercise = self.text(35)
         self.assertIn('PQ=3', exercise)
         self.assertIn('PR=1', exercise)
         self.assertIn('QR=2', exercise)
@@ -145,7 +145,7 @@ class D013ContentTests(unittest.TestCase):
         self.assertNotIn('<details open', exercise)
 
     def test_independent_dsu_diagnostic_keeps_input_outside_answer(self):
-        page = self.text(22)
+        page = self.text(28)
         visible, solution = page.split('<details>', 1)
         for edge in ('A-B', 'C-D', 'D-B'):
             self.assertIn(f'data-edge="{edge}"', visible)
@@ -154,6 +154,36 @@ class D013ContentTests(unittest.TestCase):
         self.assertIn('p[C] 从 D 改为 B', solution)
         self.assertIn(r'\(F\) 不变', solution)
         self.assertNotIn('<details open', page)
+
+    def test_input_update_keeps_source_and_old_candidates_visible(self):
+        page = self.text(13)
+        visible, solution = page.split('<details>', 1)
+        table = ET.fromstring(re.search(r'<table class="compact-table input-row">.*?</table>', visible).group())
+        self.assertEqual([c.text for c in table.findall('./tbody/tr/td')], ['1', '—', '2', '5', '—'])
+        self.assertIn('AC:4', visible)
+        self.assertIn('没有 BE', solution)
+        self.assertIn('AC:4 → BC:2', solution)
+        self.assertIn('5 个顶点位置', solution)
+        self.assertIn('3 项', solution)
+        self.assertNotIn('<details open', page)
+
+    def test_connectivity_uses_selected_edges_not_original_graph(self):
+        svg = ET.fromstring(re.search(r'<svg.*?</svg>', self.text(22)).group())
+        selected = {g.attrib['data-edge'] for g in svg.findall('.//g[@data-edge]')
+                    if 'marked' in g.find('path').attrib['class'].split()}
+        self.assertEqual(selected, {'A-B', 'B-C', 'C-D'})
+        self.assertIsNotNone(svg.find('.//g[@data-vertex="E"]'))
+        self.assertNotIn('C-E', {g.attrib['data-edge'] for g in svg.findall('.//g[@data-edge]')})
+        self.assertLess(self.first_page('DFS/BFS'), self.first_page('Vexset'))
+        self.assertLess(self.first_page('Vexset'), self.first_page('Disjoint Set Union'))
+
+    def test_complexity_diagnostic_preserves_the_linear_selection_assumption(self):
+        visible, solution = self.text(32).split('<details>', 1)
+        self.assertIn('仍扫描候选数组', visible)
+        self.assertIn('没有加入其他优先级结构', visible)
+        self.assertIn(r'\(O(n^2+m)\)', solution)
+        self.assertIn('n 轮线性选最小', solution)
+        self.assertNotIn('<details open', self.text(32))
 
 
 if __name__ == '__main__':

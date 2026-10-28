@@ -15,7 +15,7 @@ class D013PresentationTests(unittest.TestCase):
         cls.slides = cls.deck.SLIDES
 
     def test_no_teacher_notes_anywhere(self):
-        self.assertEqual(len(self.slides), 33)
+        self.assertEqual(len(self.slides), 41)
         for title, body, _ in self.slides:
             with self.subTest(slide=title):
                 self.assertNotIn('class="teacher-note"', body)
@@ -38,32 +38,32 @@ class D013PresentationTests(unittest.TestCase):
             self.assertIn(marker, page)
 
     def test_start_at_c_has_graph_and_hidden_answer(self):
-        page = self.slides[13][1]
+        page = self.slides[15][1]
         self.assertIn('data-vertex="C"', page)
         self.assertIn("graph-figure", page)
         self.assertIn("<details><summary>核对答案与理由</summary>", page)
         self.assertIn("BA:1", page)
 
     def test_disconnected_graph_removes_both_edges(self):
-        page = self.slides[14][1]
+        page = self.slides[16][1]
         self.assertIn('data-vertex="E"', page)
         self.assertNotIn('data-edge="C-E"', page)
         self.assertNotIn('data-edge="D-E"', page)
         self.assertIn("最小生成森林", page)
 
     def test_complexity_uses_big_o(self):
-        self.assertIn(r"\(O(n^2)\)", self.slides[25][1])
+        self.assertIn(r"\(O(n^2)\)", self.slides[30][1])
 
     def test_textbook_mapping_and_full_scan_contract_are_visible(self):
-        mapping = self.slides[26][1]
+        mapping = self.slides[32][1]
         for term in ('lowcost', 'adjvex', 'Vexset', 'present', 'weight', 'find(v)'):
             self.assertIn(term, mapping)
-        self.assertIn('扫描全部边', self.slides[16][1])
-        self.assertIn('未处理', self.slides[28][1])
+        self.assertIn('扫描全部边', self.slides[19][1])
+        self.assertIn('未处理', self.slides[34][1])
 
     def test_generated_html_matches_source(self):
         expected, count = render_document(DECK_DIR)
-        self.assertEqual(count, 33)
+        self.assertEqual(count, 41)
         self.assertEqual((DECK_DIR / "index.html").read_text(encoding="utf-8"), expected)
 
 

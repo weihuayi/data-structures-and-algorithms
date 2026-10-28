@@ -2,11 +2,13 @@
 import sys
 import unittest
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from mst_trace import (EXERCISE_EDGES, EXERCISE_NODES, MAIN_EDGES, MAIN_NODES, _DSU,
                        dsu_diagram, kruskal_player, kruskal_states, path_compression_demo,
-                       prim_player, prim_states)
+                       prim_player, prim_states, matrix_row, input_row_html,
+                       edge_preparation_views)
 
 
 def norm(a, b, w):
@@ -32,6 +34,59 @@ def deep_dsu():
 
 
 class PrimTests(unittest.TestCase):
+    def test_input_row_is_present_only_when_reading_new_vertex(self):
+        states = prim_states()
+        for state in states:
+            vertex = state['current_vertex']
+            if vertex:
+                expected = {v: None for v in MAIN_NODES}
+                for a, b, w in MAIN_EDGES:
+                    if vertex == a:
+                        expected[b] = w
+                    elif vertex == b:
+                        expected[a] = w
+                self.assertEqual(dict(state['input_row']), expected)
+            else:
+                self.assertEqual(state['input_row'], ())
+                self.assertEqual(state['key_changes'], {})
+        self.assertEqual(states[2]['current_vertex'], 'B')
+        self.assertEqual(states[2]['input_row'],
+                         (('A', 1), ('B', None), ('C', 2), ('D', 5), ('E', None)))
+
+    def test_input_row_preserves_zero_negative_absence_and_vertex_order(self):
+        nodes = {'C': (0, 0), 'A': (1, 1), 'B': (2, 2)}
+        edges = [('B', 'A', 0), ('C', 'A', -2)]
+        self.assertEqual(matrix_row('A', edges, nodes),
+                         (('C', -2), ('A', None), ('B', 0)))
+        table = ET.fromstring(input_row_html('A', edges, nodes))
+        self.assertEqual([c.text for c in table.findall('./tbody/tr/td')], ['-2', '—', '0'])
+
+    def test_matrix_and_adjacency_preparation_keep_each_input_edge_once(self):
+        matrix, adjacency = map(ET.fromstring, edge_preparation_views())
+        rows = matrix.findall('.//table/tbody/tr')
+        extracted = []
+        logical_matrix = {}
+        for row in rows:
+            u = row.find('th').text
+            for v, cell in zip(MAIN_NODES, row.findall('td')):
+                logical_matrix[u, v] = cell.text
+                if cell.attrib.get('class') == 'matrix-focus':
+                    self.assertLess(u, v)
+                    extracted.append((u, v, int(cell.text)))
+        for (u, v), weight in logical_matrix.items():
+            self.assertEqual(weight, logical_matrix[v, u], 'input matrix must remain symmetric')
+        for a, b, w in MAIN_EDGES:
+            self.assertEqual(logical_matrix[a, b], str(w))
+        retained = []
+        for row in adjacency.findall('.//table/tbody/tr'):
+            u = row.find('th').text
+            for item in row.findall('./td/strong'):
+                v, weight = item.text.split(':')
+                self.assertLess(u, v)
+                retained.append((u, v, int(weight)))
+        self.assertCountEqual(extracted, MAIN_EDGES)
+        self.assertCountEqual(retained, MAIN_EDGES)
+
     def test_main_prim_state_and_total(self):
         states = prim_states()
         final = states[-1]
@@ -242,6 +297,17 @@ class DSUSnapshotTests(unittest.TestCase):
         self.assertEqual(demo['before']['components'], demo['after']['components'])
         self.assertEqual(demo['before']['components'], (('A', 'B', 'C', 'D'),))
         self.assertEqual(demo['representative'], 'A')
+
+    def test_union_demo_connects_roots_without_relabeling_members(self):
+        demo = path_compression_demo()
+        before, after = demo['before_union'], demo['before']
+        self.assertEqual(before['components'], (('A', 'B'), ('C', 'D')))
+        self.assertEqual(after['components'], (('A', 'B', 'C', 'D'),))
+        changed = {v for v in before['parent'] if before['parent'][v] != after['parent'][v]}
+        self.assertEqual(changed, {'C'})
+        self.assertEqual(before['parent']['D'], 'C')
+        self.assertEqual(after['parent']['D'], 'C')
+        self.assertEqual(walk_root(after['parent'], 'D'), 'A')
 
     def test_dsu_diagram_draws_real_parent_links(self):
         parent = {'A': 'A', 'B': 'A', 'C': 'A', 'D': 'C'}
