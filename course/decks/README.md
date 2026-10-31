@@ -18,5 +18,6 @@ Deck 是为真实课堂组织的一条相对完整的教学叙事。Deck ID 表�
 | D012 | 图的遍历：怎样组织待处理工作 | [`d012-graph-traversal/`](d012-graph-traversal/) |
 | D013 | 最小生成树与并查集 | [`d013-mst-and-union-find/`](d013-mst-and-union-find/) |
 | D014 | 最短路径：距离怎样更新，何时确定？ | [`d014-shortest-path/`](d014-shortest-path/) |
+| D015 | 拓扑排序与关键路径：依赖关系怎样决定顺序与工期？ | [`d015-topological-and-critical-path/`](d015-topological-and-critical-path/) |
 
-当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007 → D008 → D009 → D010 → D011 → D012 → D013 → D014。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。
+当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007 → D008 → D009 → D010 → D011 → D012 → D013 → D014 → D015。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。

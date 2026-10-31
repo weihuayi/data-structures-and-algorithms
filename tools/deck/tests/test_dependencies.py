@@ -6,6 +6,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from dependencies import dependency_manifest
 from impact import analyze
+from build import DECKS
 
 
 class DependencyTests(unittest.TestCase):
@@ -64,7 +65,9 @@ class DependencyTests(unittest.TestCase):
         self.assertEqual(impact['full'],['D014'])
         self.assertEqual(impact['defaults'],[])
         expanded=analyze(['tools/deck/new-shared-module.py'])
-        self.assertEqual(len(expanded['full'])+len(expanded['defaults']),14)
+        actual={p.name.split('-',1)[0].upper() for p in DECKS.iterdir() if (p/'slides.py').is_file()}
+        self.assertEqual(set(expanded['full']) | set(expanded['defaults']),actual)
+        self.assertFalse(set(expanded['full']) & set(expanded['defaults']))
 
 
 if __name__ == '__main__':
