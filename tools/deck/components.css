@@ -16,3 +16,35 @@
  .deck .course-workspace .course-answer>:not(summary){display:none!important}
  .deck .course-section .lead,.deck .course-section .course-section-scope,.deck .course-outline td,.deck .course-outline th{font-size:20px}
 }
+
+/* D015: dependency graphs, ordering and time constraints. */
+.deck .dependency-lesson p,.deck .dependency-lesson li{font-size:clamp(23px,1.85vw,30px);line-height:1.47;margin:12px 0}
+.deck .dependency-lesson .lead{font-size:clamp(29px,2.5vw,40px);line-height:1.4}
+.deck .dependency-lesson .dag-note{font-size:clamp(18px,1.42vw,23px);line-height:1.45;color:var(--muted)}
+.deck .dependency-lesson .dag-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:28px;align-items:center}
+.deck .dependency-lesson .dag-two>*{min-width:0}
+.deck .dependency-lesson figure{margin:0}
+.deck .dependency-lesson .graph-figure svg{display:block;width:100%;height:auto;max-height:310px}
+.deck .dependency-lesson .graph-figure figcaption{font-size:19px;line-height:1.4;margin:8px 0 0}
+.deck .dependency-lesson .graph-arrow.marked{stroke:#c62828;stroke-width:4}
+.deck .dependency-lesson .dag-table th,.deck .dependency-lesson .dag-table td{font-size:clamp(21px,1.65vw,26px);line-height:1.4;padding:7px 10px;vertical-align:top}
+.deck .dependency-lesson .dag-table th{white-space:nowrap}
+.deck .dependency-lesson .dag-table{margin:8px 0}
+.deck .dependency-lesson .dag-task-table td{font-size:21px}
+.deck .dependency-lesson .dag-definition{border-left:5px solid var(--blue);background:#f2f7fb;padding:12px 18px;font-size:24px;line-height:1.45;margin:0 0 14px}
+.deck .dependency-lesson .dag-definition strong{font-size:20px;color:var(--blue)}
+.deck .dependency-lesson .dag-formula{font-size:clamp(24px,2vw,32px);text-align:center}
+.deck .dependency-lesson pre{font-size:clamp(19px,1.5vw,24px);line-height:1.4;margin:10px 0;padding:16px 18px}
+.deck .dependency-lesson summary{font-size:21px;line-height:1.4}
+.deck .dependency-lesson .dag-player .toolbar{margin:0 0 8px}
+.deck .dependency-lesson .dag-action{font-size:23px;line-height:1.42;border-left:4px solid var(--accent);padding-left:12px;margin:0 0 12px}
+.deck .dependency-lesson .dag-state th,.deck .dependency-lesson .dag-state td{font-size:20px;line-height:1.35;padding:5px 7px;text-align:center;white-space:nowrap}
+.deck .dependency-lesson .dag-player .dag-note{font-size:19px;margin:8px 0}
+.deck .dependency-lesson .dag-comparison{align-items:start}
+.deck .dependency-lesson .dag-comparison .graph-figure svg{max-height:215px}
+.deck .dependency-lesson .dag-tight p{margin:8px 0}
+@media(max-width:900px){.deck .dependency-lesson .dag-two{grid-template-columns:1fr}}
+@media print{
+ .deck .dependency-lesson .dag-two{grid-template-columns:1fr 1.12fr}
+ .deck .dependency-lesson details>:not(summary){display:none!important}
+}

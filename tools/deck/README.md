@@ -51,6 +51,8 @@ python3 tools/deck/check.py patterns single-task --screenshots pages
 
 样例服务作者，不登记为正式课程课件。单任务、不同部分数量、紧凑组织都有正例；错配导航、重复 ID、无归属页面、输入隐藏和失效按钮有失败夹具。共享组件的变更应同时审阅这些样例。
 
+D015 使用 `dependency_trace.py` 的依赖状态与图视图，复用公共导航、任务区及播放器。拓扑输出表示排位，`read/release/boundary` 区分未更新和更新完成；时间传播区分待汇总值与确定值。适用范围是教学用简单依赖图和一源一汇、固定非负整数时长的 AOE DAG，不是通用资源排程 API。其状态、C 演示和独立路径枚举的交叉核对见 `tests/test_dependency_trace.py` 与 [D015 设计卡](../../course/decks/d015-topological-and-critical-path/README.md)。布局样式按 `.dependency-lesson` 限定，放在共享 `components.css`。
+
 ## 统一验证入口与影响范围
 
 ```bash
