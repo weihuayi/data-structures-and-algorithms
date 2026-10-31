@@ -1,0 +1,8 @@
+{
+  "name": "course-deck-checks",
+  "private": true,
+  "description": "Pinned browser driver for local and CI course checks",
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

@@ -16,6 +16,7 @@ function fixture(body, after = '') {
   <script src="${asset('deck.js')}"></script>${after}</body>`;
 }
 const player = `<div class="tree-player" data-tree-player><div class="toolbar"><button data-step="prev">Back</button><button data-step="next">Forward</button><button data-step="reset">Reset</button><span class="tree-step"></span></div><div class="tree-step-panel">One</div><div class="tree-step-panel" hidden>Two</div><div class="tree-step-panel" hidden>Three</div></div>`;
+const task = `<div class="course-workspace" data-course-component="task-workspace"><div data-task-input>Required input</div><div class="course-task"><div class="course-prompt" data-task-prompt>Predict</div><details class="course-answer" data-task-answer><summary>Answer</summary><div>Result</div></details></div></div>`;
 test('browser checker distinguishes good pages, failures and uncovered interactions', async () => {
   const output = fs.mkdtempSync(path.join(os.tmpdir(), 'deck-check-test-'));
   try {
@@ -27,12 +28,20 @@ test('browser checker distinguishes good pages, failures and uncovered interacti
       ['combination', fixture('<div class="columns"><details><summary>A</summary><p>A</p></details><details><summary>B</summary><p>B</p></details></div>'), 'pass', null],
       ['unknown', fixture('<button>New component</button>'), 'incomplete', 'interaction-coverage'],
       ['resource', fixture('<img src="missing-image.png">'), 'fail', 'runtime-and-resources'],
+      ['task', fixture(`<link rel="stylesheet" href="${asset('components.css')}">${task}`), 'pass', null],
+      ['hidden-input', fixture(`<link rel="stylesheet" href="${asset('components.css')}">${task}<style>.course-workspace:has(details[open]) [data-task-input]{display:none}</style>`), 'fail', 'task-input-visible'],
+      ['missing-cjk-glyphs', fixture('<p>数据结构</p>', '<script>HTMLCanvasElement.prototype.toDataURL=()=>"same-tofu";</script>'), 'fail', 'cjk-glyphs'],
     ];
     for (const [id, html, status, check] of cases) {
       const file = path.join(output, id + '.html'); fs.writeFileSync(file, html);
       const result = await run({decks: [{id, url: pathToFileURL(file).href, slides: 1}], viewports: [[1280,720]], output, screenshots: 'none', playwrightModule: process.env.DECK_PLAYWRIGHT_MODULE, executablePath: process.env.DECK_BROWSER_EXECUTABLE});
       assert.equal(result.status, status, `${id}: ${JSON.stringify(result)}`);
-      if (check) assert.ok(result.checks.some(c => c.check === check && c.status !== 'pass' && c.page === 1), id);
+      if (check) assert.ok(result.checks.some(c => c.check === check && c.status !== 'pass' && c.page === (check === 'cjk-glyphs' ? 0 : 1)), id);
     }
+    const file = path.join(output, 'defaults.html'); fs.writeFileSync(file, fixture('<button>Unadapted interaction</button>'));
+    const defaults = await run({decks:[{id:'defaults',url:pathToFileURL(file).href,slides:1}],viewports:[[1280,720]],output,screenshots:'none',scope:'default-pages',playwrightModule:process.env.DECK_PLAYWRIGHT_MODULE,executablePath:process.env.DECK_BROWSER_EXECUTABLE});
+    assert.equal(defaults.status, 'pass');
+    assert.equal(defaults.scope, 'default-pages');
+    assert.ok(!defaults.checks.some(c => c.check === 'step-state' || c.check === 'interaction-coverage' || c.check === 'reading-mode'));
   } finally { fs.rmSync(output, {recursive:true, force:true}); }
 });
