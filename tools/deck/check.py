@@ -14,6 +14,7 @@ import tempfile
 from build import DECKS, EXAMPLES, ROOT, PLAN_START, PLAN_END, load_deck, render_document
 from components import contract_checks
 from dependencies import dependency_manifest
+from headers import header_checks
 
 LEGACY_FILE = Path(__file__).with_name('legacy.json')
 
@@ -46,6 +47,7 @@ def check_source(deck):
         result.update(slides=count, htmlSha256=hashlib.sha256(current).hexdigest())
         result['checks'].append({'check': 'build-consistency', 'status': 'pass' if matches else 'fail',
                                  'detail': 'index.html matches source' if matches else 'index.html is stale; run tools/deck/build.py for this Deck'})
+        result['checks'].extend(header_checks(current.decode('utf-8')))
         mod = load_deck(deck)
         course = getattr(mod, 'COURSE', None)
         legacy = json.loads(LEGACY_FILE.read_text())['legacy']
@@ -87,7 +89,7 @@ def check_source(deck):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('decks', nargs='*', help='D008 D009 / directory names / all (default)')
-    parser.add_argument('--static-only', action='store_true', help='Only compare generated HTML; explicitly excludes browser checks')
+    parser.add_argument('--static-only', action='store_true', help='Check source, structure and HTML page frames; excludes browser checks')
     parser.add_argument('--default-pages', action='store_true', help='Browser checks only initial pages; excludes all interaction coverage')
     parser.add_argument('--output', type=Path, help='New report directory (default: a new temporary directory)')
     parser.add_argument('--node', default=os.environ.get('DECK_NODE') or shutil.which('node'))
@@ -104,7 +106,7 @@ def main(argv=None):
         parser.error(str(exc))
     if args.static_only and args.default_pages:
         parser.error('--static-only and --default-pages are different scopes; choose one')
-    validators = ['check.py', 'check-browser.cjs', 'components.py', 'dependencies.py', 'legacy.json',
+    validators = ['check.py', 'check-browser.cjs', 'headers.py', 'components.py', 'dependencies.py', 'legacy.json',
                   'impact.py', 'verify.py', 'legacy_baseline.py', 'package-lock.json']
     report = {'schemaVersion': 2, 'createdAt': datetime.now(timezone.utc).isoformat(),
               'mode': 'static-only' if args.static_only else 'default-pages' if args.default_pages else 'full', 'python': sys.version.split()[0],

@@ -4,6 +4,7 @@ import html
 import importlib.util
 import os
 import sys
+from headers import render_header
 
 sys.dont_write_bytecode = True
 
@@ -31,14 +32,16 @@ def render_document(deck_dir: Path):
     course = getattr(mod, 'COURSE', None)
     for i, (name, body, part) in enumerate(mod.SLIDES, 1):
         metadata = ''
+        role = None
         if course is not None and i <= len(course.pages):
             page = course.pages[i - 1]
+            role = page['role']
             metadata = ''.join(f' data-{key}="{html.escape(str(value), quote=True)}"'
                                for key, value in (('page-id', page['id']), ('role', page['role']),
                                                   ('section-id', page['section'])) if value is not None)
         blocks.append(
             f'<section class="slide" id="slide-{i}" data-title="{html.escape(name, quote=True)}"{metadata}>'
-            f'<div class="slide-inner"><p class="kicker">{html.escape(part)}</p><h2>{name}</h2>{body}'
+            f'<div class="slide-inner">{render_header(name, part, role=role)}{body}'
             f'</div></section>'
         )
     nav = (
