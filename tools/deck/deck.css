@@ -543,13 +543,9 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .shortest-lesson .graph-arrow.marked{stroke:#c62828;stroke-width:4}
 .deck .shortest-lesson .sp-table th,.deck .shortest-lesson .sp-table td{font-size:clamp(21px,1.7vw,27px);line-height:1.4;padding:8px 10px;vertical-align:top}
 .deck .shortest-lesson .sp-table th{white-space:nowrap}
-.deck .shortest-lesson .sp-roadmap th,.deck .shortest-lesson .sp-roadmap td{font-size:clamp(23px,1.9vw,31px);padding:14px 16px}
 .deck .shortest-lesson .sp-definition{border-left:5px solid var(--blue);background:#f2f7fb;padding:14px 20px;font-size:24px;line-height:1.5;margin:0 0 16px}
 .deck .shortest-lesson .sp-definition strong{font-size:20px;color:var(--blue)}
 .deck .shortest-lesson .sp-text-pair{align-items:start;gap:40px}
-.deck .shortest-lesson .sp-part{display:flex;gap:40px;align-items:center;min-height:320px;max-width:1100px}
-.deck .shortest-lesson .sp-part-number{font-size:clamp(88px,9vw,144px);font-weight:750;line-height:1;color:var(--blue);flex:none}
-.deck .shortest-lesson .sp-part .lead{max-width:22em;margin-bottom:20px}
 .deck .shortest-lesson .sp-cover{gap:40px}
 .deck .shortest-lesson .sp-cover .graph-figure svg{max-height:350px}
 .deck .shortest-lesson .sp-formula{font-size:clamp(24px,2vw,32px);text-align:center}
@@ -560,10 +556,8 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .shortest-lesson .sp-code-pair{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:30px;align-items:center}
 .deck .shortest-lesson pre{font-size:clamp(19px,1.52vw,24px);line-height:1.4;margin:10px 0;padding:16px 20px}
 .deck .shortest-lesson .sp-command{font-size:clamp(18px,1.45vw,23px)}
-.deck .shortest-lesson .sp-workspace details{padding:10px 14px;margin:12px 0 0}
+.deck .shortest-lesson .sp-code-workspace:has(details[open])>.sp-code-preview{display:none}
 .deck .shortest-lesson summary{font-size:21px;line-height:1.4}
-.deck .shortest-lesson .sp-workspace:has(details[open]) .sp-prompt{display:none}
-.deck .shortest-lesson .sp-workspace details p{font-size:clamp(22px,1.78vw,28px)}
 .deck .shortest-lesson .sp-matrix th,.deck .shortest-lesson .sp-matrix td{font-size:23px;padding:5px 9px;text-align:center;line-height:1.35}
 .deck .shortest-lesson .sp-matrix{margin:8px 0}
 .deck .shortest-lesson .sp-input-row th,.deck .shortest-lesson .sp-input-row td{text-align:center;padding:4px 8px;font-size:22px}
@@ -578,13 +572,10 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .shortest-lesson .sp-player .graph-edge.marked{stroke:#c62828;stroke-width:7;stroke-dasharray:none}
 @media(max-width:900px){
  .deck .shortest-lesson .sp-two,.deck .shortest-lesson .sp-code-pair{grid-template-columns:1fr}
- .deck .shortest-lesson .sp-part{min-height:220px;gap:22px}
- .deck .shortest-lesson .sp-part-number{font-size:80px}
  .deck .shortest-lesson .sp-player .sp-two{grid-template-columns:1fr}
 }
 @media print{
- .deck .shortest-lesson .sp-prompt{display:block!important}
+ .deck .shortest-lesson .sp-code-preview{display:block!important}
  .deck .shortest-lesson details>:not(summary){display:none!important}
  .deck .shortest-lesson .sp-two{grid-template-columns:1fr 1.16fr}
- .deck .shortest-lesson .sp-part{min-height:0}
 }

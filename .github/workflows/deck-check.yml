@@ -1,0 +1,54 @@
+name: Course deck checks
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'course/decks/**'
+      - 'tools/deck/**'
+      - 'docs/design/deck-*.md'
+      - '.github/workflows/deck-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'AGENTS.md'
+      - 'course/decks/**'
+      - 'tools/deck/**'
+      - 'docs/design/deck-*.md'
+      - '.github/workflows/deck-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  course-deck-verification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install pinned driver and browser
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Verify all lessons within the declared scope
+        # Legacy lessons receive default-page coverage, not a full-interaction claim.
+        env:
+          DECK_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python3 tools/deck/verify.py --all --base "$DECK_BASE_SHA" --output /tmp/course-verification
+      - name: Preserve reports, logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: course-verification
+          path: /tmp/course-verification
+          retention-days: 14

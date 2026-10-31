@@ -1,9 +1,10 @@
 /* Browser checks for repository Decks. Does not build or install dependencies. */
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 
 async function run(config) {
-  const report = {status: 'pending', node: process.version, checks: []};
+  const report = {status: 'pending', scope: config.scope || 'full', node: process.version, checks: []};
   let browser;
   try {
     const {chromium} = require(config.playwrightModule || 'playwright');
@@ -37,9 +38,30 @@ async function run(config) {
         add('projection-layout', ok, `overflow x=${size.x}, y=${size.y}${allowVertical ? '; teacher-note vertical scroll allowed' : ''}`);
         await capture(!ok, initial);
       }
+      async function taskInputs(slide) {
+        const tasks = slide.locator('[data-course-component="task-workspace"]');
+        for (let t = 0; t < await tasks.count(); t++) {
+          const task = tasks.nth(t), input = task.locator(':scope > [data-task-input]');
+          add('task-input-visible', await input.count() === 1 && await input.isVisible(),
+              `task ${t + 1}: required input remains visible`);
+        }
+      }
       try {
         await page.goto(deck.url, {waitUntil: 'load'});
         await page.evaluate(() => document.fonts.ready);
+        const glyphs = await page.evaluate(() => {
+          if (!/[\u4e00-\u9fff]/.test(document.body.innerText)) return null;
+          const canvas = document.createElement('canvas'); canvas.width = 96; canvas.height = 64;
+          const context = canvas.getContext('2d');
+          const family = getComputedStyle(document.body).fontFamily;
+          context.font = '32px ' + family;
+          const images = [...'数据结构'].map(char => {
+            context.clearRect(0, 0, 96, 64); context.fillText(char, 8, 48); return canvas.toDataURL();
+          });
+          return {family, distinct: new Set(images).size};
+        });
+        if (glyphs) add('cjk-glyphs', glyphs.distinct >= 3,
+                       `Chinese glyph probe: ${glyphs.distinct} distinct glyphs; ${glyphs.family}; install a CJK font if tofu is shown`);
         const slides = page.locator('.slide');
         const count = await slides.count();
         add('slide-count', count > 0 && (!deck.slides || deck.slides === count), `${count} slides`);
@@ -48,6 +70,9 @@ async function run(config) {
           await page.locator('#slide-select').selectOption(String(i));
           const slide = slides.nth(i);
           location.title = await slide.locator('h1,h2').first().innerText();
+          location.pageId = await slide.getAttribute('data-page-id');
+          location.role = await slide.getAttribute('data-role');
+          location.pageFingerprint = crypto.createHash('sha256').update(await slide.evaluate(el => el.outerHTML)).digest('hex');
           const math = await slide.evaluate(el => {
             const raw = [];
             const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -60,6 +85,8 @@ async function run(config) {
           add('math-rendering', !math.errors && !math.raw.length, JSON.stringify(math));
           add('disclosures-initially-closed', await slide.locator('details[open]').count() === 0, 'Answers and notes start collapsed');
           await layout(false, true);
+          await taskInputs(slide);
+          if (config.scope === 'default-pages') continue;
           const unsupported = await slide.evaluate(el => [...el.querySelectorAll('button,select,input,[data-pair],[data-map],[data-maze],[data-mem],[data-link],[data-stack],[data-queue],[data-recur],[data-hanoi],[data-match]')].filter(n => !n.closest('[data-tree-player]')).map(n => n.tagName + ':' + [...n.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name).join(',')));
           if (unsupported.length) report.checks.push({...location, check: 'interaction-coverage', status: 'uncovered', detail: [...new Set(unsupported)].join(', ')});
           const players = slide.locator('[data-tree-player]');
@@ -104,13 +131,24 @@ async function run(config) {
             }
             await summary.click();
             add('disclosure-open', await detail.getAttribute('open') !== null, await summary.innerText());
+            await taskInputs(slide);
             const teacher = await detail.evaluate(el => el.classList.contains('teacher-note'));
+            const taskAnswer = await detail.getAttribute('data-task-answer') !== null;
+            if (taskAnswer) {
+              const prompt = detail.locator('..').locator(':scope > [data-task-prompt]');
+              add('task-answer-replaces-prompt', !await prompt.isVisible(), 'Answer replaces the prompt while input stays in place');
+            }
             await layout(teacher);
             const name = await detail.getAttribute('name');
             if (name) add('disclosure-exclusive', await slide.locator('details[open]').evaluateAll((ns, name) => ns.filter(n => n.getAttribute('name') === name).length, name) === 1, name);
-            if (teacher) {
+            if (teacher || taskAnswer) {
               await page.emulateMedia({media: 'print'});
-              add('teacher-note-print', await detail.evaluate(el => [...el.children].filter(n => n.tagName !== 'SUMMARY').every(n => getComputedStyle(n).display === 'none')), 'Teacher content remains hidden in print');
+              add(teacher ? 'teacher-note-print' : 'task-answer-print', await detail.evaluate(el => [...el.children].filter(n => n.tagName !== 'SUMMARY').every(n => getComputedStyle(n).display === 'none')), 'Disclosure content remains hidden in print');
+              if (taskAnswer) {
+                const prompt = detail.locator('..').locator(':scope > [data-task-prompt]');
+                add('task-prompt-print', await prompt.isVisible(), 'Question is restored in print even if the answer was opened');
+                await taskInputs(slide);
+              }
               await page.emulateMedia({media: 'screen'});
             }
             await summary.click();
@@ -157,6 +195,7 @@ async function run(config) {
             }
           } else if (independent > 1) report.checks.push({...location, state: 'disclosure-combinations', check: 'disclosure-coverage', status: 'uncovered', detail: 'More than six independent disclosures or mixed named groups require manual verification'});
         }
+        if (config.scope !== 'default-pages') {
         location.state = 'reading';
         await page.locator('#read').click();
         add('reading-mode', await slides.evaluateAll(ns => ns.every(n => getComputedStyle(n).display !== 'none')), 'All slides displayed');
@@ -165,6 +204,7 @@ async function run(config) {
         location.state = 'print';
         add('hidden-steps-print', await page.locator('.tree-step-panel[hidden]').evaluateAll(ns => ns.every(n => getComputedStyle(n).display === 'none')), 'Hidden snapshots remain hidden in print');
         await page.emulateMedia({media: 'screen'});
+        }
         location.state = 'resources';
         add('runtime-and-resources', errors.length === 0, errors.join('\n') || 'No failed resources or JavaScript errors; external network blocked');
       } catch (error) {

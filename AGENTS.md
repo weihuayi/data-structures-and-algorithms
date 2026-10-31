@@ -28,8 +28,10 @@ Deck（`course/decks/dNNN-slug/`）是为真实课堂组织的一条相对完整
 
 ## 三、新 Deck 生产流程
 
+当前共性以 [课程课件共性约定](docs/design/deck-contract.md) 为入口，分为必须满足、默认采用、按需选择；不要从某份旧课件复制出新的全局要求。先读本讲设计卡及所需公共模式说明，不依赖此前聊天记忆。
+
 1. 在 `course/decks/` 下新建 `dNNN-slug/` 目录，NNN 接续现有编号，slug 用英文短横线命名；
-2. 编写 `slides.py`（参照既有 Deck 的三元组格式与语义化 CSS class 用法）；
+2. 编写 `slides.py`：新课件使用 `tools/deck/components.py` 的公共模式与结构信息；保留三元组接口，旧课件可渐进接入，部分数与页数由认知任务决定；
 3. 执行构建生成 `index.html`（见第四节），核对生成页数与源一致；
 4. 补齐 `README.md`（含课堂时间预算），按需添加 `code/` 演示代码；
 5. 在 `course/decks/README.md` 表格中登记，并更新建议顺序；

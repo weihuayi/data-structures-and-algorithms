@@ -2,14 +2,16 @@ from pathlib import Path
 import argparse
 import html
 import importlib.util
+import os
 import sys
 
 sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[2]
 DECKS = ROOT / "course" / "decks"
-CSS_REL = "../../../tools/deck/deck.css"
-JS_REL = "../../../tools/deck/deck.js"
+EXAMPLES = Path(__file__).resolve().parent / 'examples'
+PLAN_START = '<!-- page-plan:start -->'
+PLAN_END = '<!-- page-plan:end -->'
 
 
 def load_deck(deck_dir: Path):
@@ -24,10 +26,18 @@ def load_deck(deck_dir: Path):
 def render_document(deck_dir: Path):
     """Return the controlled derivative without changing the working tree."""
     mod = load_deck(deck_dir)
+    assets = Path(os.path.relpath(ROOT / 'tools' / 'deck', deck_dir)).as_posix()
     blocks = []
+    course = getattr(mod, 'COURSE', None)
     for i, (name, body, part) in enumerate(mod.SLIDES, 1):
+        metadata = ''
+        if course is not None and i <= len(course.pages):
+            page = course.pages[i - 1]
+            metadata = ''.join(f' data-{key}="{html.escape(str(value), quote=True)}"'
+                               for key, value in (('page-id', page['id']), ('role', page['role']),
+                                                  ('section-id', page['section'])) if value is not None)
         blocks.append(
-            f'<section class="slide" id="slide-{i}" data-title="{html.escape(name, quote=True)}">'
+            f'<section class="slide" id="slide-{i}" data-title="{html.escape(name, quote=True)}"{metadata}>'
             f'<div class="slide-inner"><p class="kicker">{html.escape(part)}</p><h2>{name}</h2>{body}'
             f'</div></section>'
         )
@@ -44,18 +54,20 @@ def render_document(deck_dir: Path):
     math_assets = ''
     if getattr(mod, "MATH", False):
         math_assets = (
-            '<link rel="stylesheet" href="../../../tools/deck/vendor/katex/katex.min.css">'
-            '<script defer src="../../../tools/deck/vendor/katex/katex.min.js"></script>'
-            '<script defer src="../../../tools/deck/vendor/katex/contrib/auto-render.min.js"></script>'
-            '<script defer src="../../../tools/deck/math.js"></script>'
+            f'<link rel="stylesheet" href="{assets}/vendor/katex/katex.min.css">'
+            f'<script defer src="{assets}/vendor/katex/katex.min.js"></script>'
+            f'<script defer src="{assets}/vendor/katex/contrib/auto-render.min.js"></script>'
+            f'<script defer src="{assets}/math.js"></script>'
         )
+    component_assets = f'<link rel="stylesheet" href="{assets}/components.css">' if course is not None else ''
     doc = (
         '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         f'<title>{html.escape(mod.DECK_ID)}｜{html.escape(mod.TITLE)}</title>'
-        f'{math_assets}<link rel="stylesheet" href="{CSS_REL}"></head>'
+        f'{math_assets}<link rel="stylesheet" href="{assets}/deck.css">'
+        f'{component_assets}</head>'
         f'<body class="deck">{nav}<noscript>请启用浏览器 JavaScript 以使用翻页与演示功能。</noscript>'
-        f'<main>{"".join(blocks)}</main>{foot}<script src="{JS_REL}"></script></body></html>'
+        f'<main>{"".join(blocks)}</main>{foot}<script src="{assets}/deck.js"></script></body></html>'
     )
     return doc, len(mod.SLIDES)
 
@@ -63,6 +75,16 @@ def render_document(deck_dir: Path):
 def render(deck_dir: Path):
     doc, count = render_document(deck_dir)
     (deck_dir / "index.html").write_text(doc, encoding="utf-8")
+    readme = deck_dir / 'README.md'
+    if readme.exists() and PLAN_START in readme.read_text(encoding='utf-8'):
+        text = readme.read_text(encoding='utf-8')
+        if text.count(PLAN_START) != 1 or text.count(PLAN_END) != 1:
+            raise ValueError('Design-card page-plan markers must occur exactly once')
+        course = load_deck(deck_dir).COURSE
+        before, rest = text.split(PLAN_START)
+        _, after = rest.split(PLAN_END)
+        readme.write_text(before + PLAN_START + '\n' + course.page_plan_markdown() + '\n' + PLAN_END + after,
+                          encoding='utf-8')
     return count
 
 
@@ -75,6 +97,7 @@ def main():
     wanted = args.deck or ["all"]
     if "all" not in [x.lower() for x in wanted]:
         keys = {x.lower() for x in wanted}
+        dirs += [p for p in EXAMPLES.iterdir() if p.is_dir() and (p / 'slides.py').exists()] if EXAMPLES.exists() else []
         dirs = [p for p in dirs if p.name.lower() in keys or p.name.split("-", 1)[0].lower() in keys]
     if not dirs:
         raise SystemExit("No matching Deck.")

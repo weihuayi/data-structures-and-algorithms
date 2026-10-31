@@ -1,6 +1,79 @@
-# Deck Build Tool
+# 课件构建与验证工具
 
 本目录承载课程 HTML Deck 的共享构建与交互能力。具体教学内容由各 Deck 的 `slides.py` 维护。
+
+当前共同约定见 [课程课件共性约定](../../docs/design/deck-contract.md)，实施与证据见 [实施计划](../../docs/design/deck-consistency-plan.md)。新任务从 `AGENTS.md` → 共同约定 → 所需组件与本讲设计卡进入，历史课件是参考，不是自动生效的规范。
+
+## 课程公共模式
+
+`components.py` 提供 `CourseDeck`、`Section`、`task_workspace`；`components.css` 只在采用 `COURSE` 的课件加载，不改变旧课件的页面形式。调用公共模式即可获得导航与任务展开规则，部分数、案例、图示、证明及算法状态仍由本讲确定。
+
+最小多部分课件：
+
+```python
+from components import CourseDeck, Section, task_workspace
+
+DECK_ID = 'D015'  # 示例；实际使用对应资产身份
+TITLE = '本讲主题'
+COURSE = CourseDeck([
+    Section('task', '明确任务', '需要解决什么？', '明确对象、输入和输出。'),
+    Section('method', '组织计算', '怎样利用已有信息？', '解释操作、条件和检查。'),
+])
+COURSE.outline()
+COURSE.start_section('task')
+COURSE.add('input', '需要保留哪些信息？', '<p>具体输入及问题</p>',
+           section='task', goal='识别完成任务所需的信息')
+COURSE.start_section('method')
+COURSE.add('predict', '下一步会发生什么？',
+           task_workspace('<p>必要输入</p>', '<p>先预测</p>', '<p>答案及理由</p>'),
+           section='method', role='exercise', goal='独立解释一次操作', activity='作答与反馈')
+COURSE.add('after-class', '课后怎样核对？', '<p>教材导航及实践任务</p>',
+           role='closing', label='课后衔接', goal='明确课后任务')
+SLIDES = COURSE.finalize()
+```
+
+实际 `slides.py` 需按既有课件将 `tools/deck` 加入 Python 搜索路径，或通过仓库加载环境导入。可直接运行的 [多部分源码](examples/patterns/slides.py) 和 [单任务源码](examples/single-task/slides.py) 包含完整导入；D014 是课程接入实例。
+
+- 页面 ID 使用稳定英文标识，不使用页码；`role` 为 `cover/outline/section/content/exercise/closing`。角色只声明职责，不能证明教学内容充分。
+- 部分定义维护标题、问题、展开范围；大纲页码由实际页面归属生成。`start_section` 与大纲共用定义，不手写复制导航 HTML。
+- `CourseDeck()` 无部分时支持单任务课件，不强制大纲。多个部分默认有大纲；需紧凑组织时使用 `navigation='compact', navigation_reason='具体教学理由'`，记录一次即可。
+- `task_workspace` 的 HTML 参数是可信仓库内容；不是外部 HTML 清洗器。输入置于折叠区之外，答案展开替换提问，打印恢复提问并隐藏答案。默认可见标题、图注及摘要是否泄漏答案需人工审阅。
+- `COURSE.page_plan()` 从相同注册信息生成逐页职责行；不要另行维护页码与标题副本。设计卡可用 `<!-- page-plan:start -->` 和 `<!-- page-plan:end -->` 包住派生表格，构建时同步该区域，检查器只读核对；区域外的教学设计、活动预算与证据仍人工维护。没有部分归属的课后/衔接页用 `closing`，位于部分内容之后。
+- `SLIDES` 仍为三元组。`build.py` 给已接入页面附加稳定 ID、角色与部分属性，保留既有翻页接口。`legacy.json` 明确列出 D001–D013 的初始迁移范围；新课件缺少 `COURSE` 会失败，不能通过删除元数据静默退回旧模式。
+
+```bash
+python3 tools/deck/build.py patterns single-task
+python3 tools/deck/check.py patterns single-task --static-only
+python3 tools/deck/check.py patterns single-task --screenshots pages
+```
+
+样例服务作者，不登记为正式课程课件。单任务、不同部分数量、紧凑组织都有正例；错配导航、重复 ID、无归属页面、输入隐藏和失效按钮有失败夹具。共享组件的变更应同时审阅这些样例。
+
+## 统一验证入口与影响范围
+
+```bash
+# 全课程静态与语义测试，以及已接入课件/样例的完整操作、旧课件默认页
+python3 tools/deck/verify.py --all --output /tmp/course-review
+
+# 依据与 main 的差异缩小浏览器回归；静态和语义检查仍覆盖全课程
+python3 tools/deck/verify.py --base origin/main --output /tmp/course-change-review
+
+# 不运行浏览器，状态明确为 static-only-pass
+python3 tools/deck/verify.py --all --static-only
+
+# 只读查看影响对象与原因（包含未提交及未跟踪文件）
+python3 tools/deck/impact.py --base origin/main
+```
+
+运行完整检查需 Python 3.12+、C11 编译器、Node 20+、Playwright、Chromium/Chrome 和中文字库。浏览器驱动由本目录 `package.json` 与 lock 文件固定，可用 `npm ci --prefix tools/deck --ignore-scripts` 安装；已有运行环境可继续用 `DECK_NODE`、`DECK_PLAYWRIGHT_MODULE`、`DECK_BROWSER_EXECUTABLE`，避免重复下载。安装浏览器可在本目录运行 `npx playwright install chromium`；Linux 安装 Noto CJK 等字体。检查命令本身不安装依赖。
+
+`verify.py` 汇总静态、语义、检查器回归、完整操作和旧课件默认页日志及报告，输出目录必须新建。`scoped-pass` 只表示声明范围通过，不是所有旧交互都已验证。`--static-only`、`check.py --default-pages` 分别得到 `static-only-pass`、`default-pages-pass`，不得转述为完整通过。旧课件溢出会与明确基线在相同环境对照；仅页面 DOM 与溢出完全相同的布局失败可分类为既有发现，汇总为 `scoped-pass-with-legacy-findings`，原始报告仍保留失败。新/加重、内容变更、字体或资源失败继续阻断。失败返回 1，未完成返回 2；人工补查另留页 ID、尺寸、操作和发现，不改机器原始状态。
+
+影响分析使用本地 Python 静态导入闭包、HTML/CSS 本地资源、课件代码及源码 `DEPENDENCIES` 列出的仓库相对路径。动态加载/数据依赖需显式补充；无法判断的共享代码变更保守扩大范围。全局 CSS/脚本与构建器影响旧课件，公共组件只影响采用者。报告保存依赖文件哈希、约定哈希与检查工具哈希；哈希能绑定版本，不能证明推导正确。
+
+`.github/workflows/deck-check.yml` 在 PR、main 更新或手动触发时运行相同入口并保留报告。它提供检查结果；是否设为 main 必需检查由维护者在稳定运行后决定。本轮不修改仓库保护设置，也不新增审批人数。
+
+字体检查用常用汉字的不同字形识别整组缺字方框，报告字体栈；不能保证所有字符、字体缩放或后排可读性。当前公共样例保留截图并人工审阅，尚未建立跨环境的逐像素截图基准；结构、操作和布局检查分别报告。
 
 ```bash
 python3 tools/deck/build.py all
