@@ -34,6 +34,16 @@ class LegacyComparisonTests(unittest.TestCase):
     def test_fixed_findings_do_not_count_as_current_failures(self):
         self.assertEqual(compare({'checks':[finding(status='pass')]},{'checks':[finding()]})['status'],'pass')
 
+    def test_fixed_baseline_header_is_recorded_but_current_header_failure_blocks(self):
+        old=finding(check='header-redundancy')
+        fixed=finding(check='header-redundancy',status='pass',pageFingerprint='fixed-page')
+        result=compare({'checks':[fixed]},{'checks':[old]})
+        self.assertEqual(result['status'],'pass')
+        self.assertEqual(result['resolvedBaselineHeaders'],[old])
+        broken=compare({'checks':[old]},{'checks':[old]})
+        self.assertEqual(broken['status'],'regressions')
+        self.assertEqual(broken['resolvedBaselineHeaders'],[])
+
 
 if __name__=='__main__':
     unittest.main()

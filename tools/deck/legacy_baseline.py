@@ -4,6 +4,9 @@
 Only unchanged default-page DOM with exactly matching layout failures can be
 classified as existing. Missing resources, font failures, incomplete checks and
 new/changed layout failures remain blocking. No report is edited in place.
+Baseline header defects are listed separately only when the same current check
+passes; this never exempts a current header failure or a baseline resource/font
+failure.
 """
 import argparse
 import io
@@ -16,6 +19,8 @@ import tarfile
 import tempfile
 
 from build import ROOT
+
+HEADER_CHECKS = {'heading-structure', 'header-redundancy'}
 
 
 def finding_key(check):
@@ -33,8 +38,12 @@ def compare(current, baseline):
                      and c.get('pageFingerprint') and c['pageFingerprint'] == prior.get('pageFingerprint')
                      and c['detail'] == prior['detail'])
         (existing if unchanged else regressions).append(c)
+    now = {finding_key(c): c for c in current['checks']}
+    resolved_headers = [c for c in baseline['checks'] if c['status']=='fail' and c['check'] in HEADER_CHECKS
+                        and now.get(finding_key(c), {}).get('status')=='pass']
     return dict(status='regressions' if regressions else 'existing-findings' if existing else 'pass',
                 existing=existing, regressions=regressions,
+                resolvedBaselineHeaders=resolved_headers,
                 limits=['Raw current and baseline reports remain unchanged and may both contain failures.',
                         'Comparison covers default-page layout only, not local overlap or legacy interactions.',
                         'Changed page HTML, new/increased overflow and non-layout failures are not accepted as existing.'])
@@ -71,11 +80,14 @@ def main():
             if result.returncode not in (0,1) or not (args.output/'browser-report.json').exists():
                 raise RuntimeError('Baseline browser check is incomplete; inspect browser.log')
             baseline = json.loads((args.output/'browser-report.json').read_text())
-            if any(c['status'] != 'pass' and c['check'] != 'projection-layout' for c in baseline['checks']):
+            comparison = compare(current, baseline)
+            resolved = {finding_key(c) for c in comparison['resolvedBaselineHeaders']}
+            if any(c['status'] != 'pass' and c['check'] != 'projection-layout' and finding_key(c) not in resolved
+                   for c in baseline['checks']):
                 raise ValueError('Baseline has non-layout failures; comparison is not usable')
             if baseline.get('browserVersion') != current.get('browserVersion') or baseline.get('node') != current.get('node'):
                 raise ValueError('Current and baseline must use the same browser and Node versions')
-            report = compare(current, baseline)
+            report = comparison
             report.update(baseSha=sha, currentReport=str(args.current.resolve()),
                           baselineReport=str((args.output/'browser-report.json').resolve()))
         code = 1 if report['regressions'] else 0

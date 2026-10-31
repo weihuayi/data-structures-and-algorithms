@@ -3,6 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
+function headerKey(text) {
+  return text.replace(/[\uFF01-\uFF5E]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    .replace(/\u3000/g, ' ').trim().replace(/\s+/g, ' ')
+    .replace(/^(第[0-9零〇一二三四五六七八九十百两]+(?:部分|节|章)|补充)\s*[·:]\s*/, '$1:');
+}
+
 async function run(config) {
   const report = {status: 'pending', scope: config.scope || 'full', node: process.version, checks: []};
   let browser;
@@ -73,6 +79,17 @@ async function run(config) {
           location.pageId = await slide.getAttribute('data-page-id');
           location.role = await slide.getAttribute('data-role');
           location.pageFingerprint = crypto.createHash('sha256').update(await slide.evaluate(el => el.outerHTML)).digest('hex');
+          const frame = await slide.evaluate(el => {
+            const inner = el.querySelector(':scope > .slide-inner');
+            const text = selector => inner ? [...inner.querySelectorAll(selector)].map(n => n.textContent) : [];
+            return {titles:text(':scope > h2'), kickers:text(':scope > p.kicker')};
+          });
+          add('heading-structure', frame.titles.length === 1 && Boolean(frame.titles[0].trim()) &&
+              frame.kickers.length <= 1 && frame.kickers.every(k => k.trim()) &&
+              (location.role !== 'section' || frame.kickers.length === 0),
+              'One main heading; section frames have no duplicate, empty or CSS-hidden kicker node');
+          add('header-redundancy', !frame.kickers.some(k => headerKey(k) && frame.titles.some(t => headerKey(k) === headerKey(t))),
+              'Context and main heading have distinct information responsibilities');
           const math = await slide.evaluate(el => {
             const raw = [];
             const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -220,7 +237,7 @@ async function run(config) {
   report.status = report.checks.some(c => c.status === 'fail') ? 'fail' : report.checks.some(c => c.status === 'uncovered') ? 'incomplete' : 'pass';
   return report;
 }
-module.exports = {run};
+module.exports = {run, headerKey};
 if (require.main === module) {
   const config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
   run(config).catch(error => ({status: 'unavailable', error: String(error)})).then(report => {
