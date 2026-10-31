@@ -41,6 +41,14 @@ SLIDES=COURSE.finalize()
                 result = check.check_source(deck)
             self.assertEqual(result['contract']['status'], 'required-but-missing')
             self.assertTrue(any(c['check']=='contract-adoption' and c['status']=='fail' for c in result['checks']))
+            # Copying a legacy source and forgetting its identity cannot opt out.
+            source=deck/'slides.py'
+            source.write_text(source.read_text().replace("DECK_ID='D999'", "DECK_ID='D001'"))
+            build.render(deck)
+            with patch.object(check, 'ROOT', root), patch.object(check, 'DECKS', root):
+                copied=check.check_source(deck)
+            self.assertEqual(copied['contract']['status'],'required-but-missing')
+            self.assertTrue(any(c['check']=='deck-identity' and c['status']=='fail' for c in copied['checks']))
 
     def test_source_nav_mismatch_fails_even_when_generated_html_matches(self):
         with tempfile.TemporaryDirectory() as name:

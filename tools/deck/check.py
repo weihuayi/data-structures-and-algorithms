@@ -49,7 +49,12 @@ def check_source(deck):
         mod = load_deck(deck)
         course = getattr(mod, 'COURSE', None)
         legacy = json.loads(LEGACY_FILE.read_text())['legacy']
-        required = deck.is_relative_to(ROOT) and deck.parent == DECKS and mod.DECK_ID not in legacy
+        repo_deck = deck.is_relative_to(ROOT) and deck.parent == DECKS
+        folder_id = deck.name.split('-', 1)[0].upper()
+        if repo_deck:
+            result['checks'].append({'check': 'deck-identity', 'status': 'pass' if mod.DECK_ID == folder_id else 'fail',
+                                     'detail': f'DECK_ID={mod.DECK_ID}; directory identity={folder_id}; update copied source identity'})
+        required = repo_deck and folder_id not in legacy
         result['contract'] = {'status': 'required-but-missing' if required and course is None else 'legacy' if course is None else 'adopted',
                               'version': getattr(course, 'version', None)}
         if required:

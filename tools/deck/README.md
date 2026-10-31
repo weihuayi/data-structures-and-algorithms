@@ -39,7 +39,7 @@ SLIDES = COURSE.finalize()
 - `CourseDeck()` 无部分时支持单任务课件，不强制大纲。多个部分默认有大纲；需紧凑组织时使用 `navigation='compact', navigation_reason='具体教学理由'`，记录一次即可。
 - `task_workspace` 的 HTML 参数是可信仓库内容；不是外部 HTML 清洗器。输入置于折叠区之外，答案展开替换提问，打印恢复提问并隐藏答案。默认可见标题、图注及摘要是否泄漏答案需人工审阅。
 - `COURSE.page_plan()` 从相同注册信息生成逐页职责行；不要另行维护页码与标题副本。设计卡可用 `<!-- page-plan:start -->` 和 `<!-- page-plan:end -->` 包住派生表格，构建时同步该区域，检查器只读核对；区域外的教学设计、活动预算与证据仍人工维护。没有部分归属的课后/衔接页用 `closing`，位于部分内容之后。
-- `SLIDES` 仍为三元组。`build.py` 给已接入页面附加稳定 ID、角色与部分属性，保留既有翻页接口。`legacy.json` 明确列出 D001–D013 的初始迁移范围；新课件缺少 `COURSE` 会失败，不能通过删除元数据静默退回旧模式。
+- `SLIDES` 仍为三元组。`build.py` 给已接入页面附加稳定 ID、角色与部分属性，保留既有翻页接口。`legacy.json` 明确列出 D001–D013 的初始迁移范围，接入时应同时移除对应 ID；新课件缺少 `COURSE` 会失败。目录身份与 `DECK_ID` 必须对应，复制旧源或删除元数据不能静默退回旧模式。
 
 ```bash
 python3 tools/deck/build.py patterns single-task

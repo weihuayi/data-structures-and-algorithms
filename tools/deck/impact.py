@@ -33,7 +33,7 @@ def analyze(changed, *, all_decks=False):
         why = []
         try:
             mod = load_deck(deck)
-            adopted = getattr(mod, 'COURSE', None) is not None or mod.DECK_ID not in legacy
+            adopted = getattr(mod, 'COURSE', None) is not None or key not in legacy
             doc, _ = render_document(deck)
             manifest = dependency_manifest(deck, document=doc, extra=getattr(mod, 'DEPENDENCIES', ()))
             intersection = changed & (set(manifest['files']) | set(manifest['missing']))
