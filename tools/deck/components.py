@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from html import escape
 import re
 
-CONTRACT_VERSION = 1
+CONTRACT_VERSION = 2
 ROLES = {'cover', 'outline', 'section', 'content', 'exercise', 'closing'}
 ID = re.compile(r'^[a-z][a-z0-9_-]*$')
 
@@ -38,13 +38,17 @@ def section_html(section):
             '<p class="course-section-scope">' + escape(section.scope) + '</p></div>')
 
 
-def task_workspace(input_html, prompt_html, answer_html, *, title='核对答案与理由'):
-    """Keep required input visible while replacing a prompt with its answer.
+def task_workspace(input_html, prompt_html, answer_html, *, title='核对答案与理由', layout='columns'):
+    """Retain required input and question while adding the answer for review.
 
     HTML arguments are trusted repository content, not sanitized user input.
-    The browser checker verifies the visibility contract, not answer correctness.
+    Use data-required-context on exceptional required subunits. The browser
+    checker tests known blocks, not whether the author identified all conditions.
     """
-    return ('<div class="course-workspace" data-course-component="task-workspace">'
+    if layout not in {'columns', 'stacked'}:
+        raise ValueError('Task layout must be columns or stacked')
+    style = ' course-workspace-stacked' if layout == 'stacked' else ''
+    return ('<div class="course-workspace' + style + '" data-course-component="task-workspace">'
             '<div class="course-input" data-task-input>' + input_html + '</div>'
             '<div class="course-task"><div class="course-prompt" data-task-prompt>' +
             prompt_html + '</div><details class="course-answer" data-task-answer>'

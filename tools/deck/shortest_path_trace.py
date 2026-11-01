@@ -151,12 +151,12 @@ def state_table(state, vertices=MAIN_NODES):
 
 def graph_view(nodes=MAIN_NODES, edges=MAIN_EDGES, *, directed=False,
                caption='带权无向主例；边权表示固定通行时间。', marked=(), states=None,
-               regions=(), legend='', notes=None):
+               regions=(), legend='', notes=None, details=None):
     return graph(nodes, [(a, b) for a, b, _ in edges], directed=directed,
                  labels={(a, b): w for a, b, w in edges},
                  label_positions=MAIN_LABEL_POS if nodes is MAIN_NODES else EXERCISE_LABEL_POS,
                  marked=marked, states=states, caption=caption, legend=legend,
-                 regions=regions, edge_notes=notes, view_box=(0, 10, 520, 285))
+                 regions=regions, edge_notes=notes, node_details=details, view_box=(0, 10, 520, 285))
 
 
 def dijkstra_player():

@@ -59,6 +59,15 @@ class ReviewTests(unittest.TestCase):
             record = copy.deepcopy(self.record); mutation(record)
             self.assertIn(expected, self.failures(record))
 
+    def test_targeted_legacy_review_cannot_be_omitted(self):
+        self.report['scope']['review'] = ['D013']; self.write_report()
+        record = new_review(self.path)
+        self.assertEqual(set(record['targets']), {'D001','patterns','D013'})
+        self.record['verificationSha256'] = sha256(self.path)
+        self.assertIn('review-targets', self.failures())
+        self.record['targets']['D013'] = dict(status='reviewed',pages=['13'],states=['expanded'],evidence=['browser.log'])
+        self.assertEqual(self.failures(),set())
+
     def test_null_judgments_or_omitted_findings_are_not_completed_reviews(self):
         record = copy.deepcopy(self.record)
         record['dimensions']['goals']['notes'] = None

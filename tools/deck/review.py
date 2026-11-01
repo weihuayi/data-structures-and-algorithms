@@ -45,7 +45,7 @@ def new_review(verification_path):
                 contentSha256=report['revision']['contentSha256'],
                 dimensions={key: dict(status='pending', notes='', evidence=[]) for key in DIMENSIONS},
                 targets={key: dict(status='pending', pages=[], states=[], evidence=[])
-                         for key in report['scope']['full'] + report['scope']['examples']},
+                         for key in report['scope']['full'] + report['scope']['examples'] + report['scope'].get('review', [])},
                 findings=[],
                 limits=['Completeness and freshness do not prove the AI review is correct.',
                         'Teacher review, classroom use and learning evidence are separate.'])
@@ -84,7 +84,7 @@ def review_checks(record, report, verification_path, *, root=ROOT):
                  text(entry.get('notes')) and evidence(entry.get('evidence')))
         add('review-dimension/' + key, valid, 'Record judgment or applicability reason and bound evidence')
     targets = record.get('targets', {})
-    required = set(report.get('scope', {}).get('full', []) + report.get('scope', {}).get('examples', []))
+    required = set(report.get('scope', {}).get('full', []) + report.get('scope', {}).get('examples', []) + report.get('scope', {}).get('review', []))
     add('review-targets', isinstance(targets, dict) and set(targets) == required,
         'Review explicitly covers the selected full-scope lessons and examples')
     for key in sorted(required):

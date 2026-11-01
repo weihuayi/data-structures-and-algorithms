@@ -367,7 +367,7 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .tree-player .trace-action{min-height:2.5em}
 .deck .tree-player .trace-legend{margin-top:4px}
 .deck .trace-compact td,.deck .trace-compact th{font-size:20px;padding:7px 10px}
-.deck .tree-swap:has(>details[open])>.tree-preview{display:none}
+.deck .tree-swap:has(>details:not(.teacher-note)[open])>.tree-preview[data-review-replaceable]{display:none}
 .deck .tree-answer .tree-diagram{max-height:190px}
 .deck .tree-answer details{margin-top:10px}
 .deck .tree-answer .tree-figure figcaption{font-size:16px}
@@ -411,8 +411,7 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .learning-task details .tree-diagram{max-height:155px}
 .deck .learning-task details .tree-answer .tree-diagram{max-height:185px}
 
-/* Optional trace checks replace the player with a complete static check view. */
-.deck .tree-swap:has(>.learning-task .support-options details:not(.teacher-note)[open])>.tree-preview{display:none}
+/* Review retains the task and its inputs; optional complete views add context. */
 .deck .learning-task .support-options details{margin-top:2px}
 .deck .learning-task .tree-explain>.tree-figure .tree-diagram{max-height:245px}
 
@@ -499,7 +498,6 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .graph-lesson .small{font-size:18px}
 .deck .graph-lesson>p:last-child,.deck .dsu-workspace>p:last-child{margin-bottom:0}
 .deck .answer-workspace{align-items:center}
-.deck .answer-workspace:has(details[open]) .answer-prompt{display:none}
 .deck .answer-workspace details{margin-top:12px;padding:10px 14px}
 .deck .answer-workspace details p{font-size:21px;line-height:1.45;margin:10px 0}
 .deck .answer-workspace .compact-table td,.deck .answer-workspace .compact-table th{font-size:21px}
@@ -529,6 +527,10 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .run-command{font-size:19px;line-height:1.4;padding:14px 18px;margin:12px 0}
 @media(max-width:760px){.deck .relation-player .graph-layout,.deck .mst-player .graph-layout{grid-template-columns:1fr}}
 @media print{.deck .answer-workspace:has(details[open]) .answer-prompt{display:block}}
+@media print{
+ .deck .answer-workspace details>:not(summary),.deck .tree-swap details>:not(summary){display:none!important}
+ .deck .tree-preview{display:block!important}
+}
 
 /* D014: route information, confirmation and restricted intermediates.
    Scoped by content identity so other Decks retain their existing layout. */
@@ -552,11 +554,11 @@ body.deck{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
 .deck .shortest-lesson .sp-proof>p{margin:10px 0}
 .deck .shortest-lesson .sp-proof .sp-table th{width:10em}
 .deck .shortest-lesson .sp-proof .sp-two .sp-table th{width:auto}
+.deck .shortest-lesson .graph-detail{paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
 .deck .shortest-lesson .sp-proof .sp-table td{line-height:1.45}
 .deck .shortest-lesson .sp-code-pair{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:30px;align-items:center}
 .deck .shortest-lesson pre{font-size:clamp(19px,1.52vw,24px);line-height:1.4;margin:10px 0;padding:16px 20px}
 .deck .shortest-lesson .sp-command{font-size:clamp(18px,1.45vw,23px)}
-.deck .shortest-lesson .sp-code-workspace:has(details[open])>.sp-code-preview{display:none}
 .deck .shortest-lesson summary{font-size:21px;line-height:1.4}
 .deck .shortest-lesson .sp-matrix th,.deck .shortest-lesson .sp-matrix td{font-size:23px;padding:5px 9px;text-align:center;line-height:1.35}
 .deck .shortest-lesson .sp-matrix{margin:8px 0}

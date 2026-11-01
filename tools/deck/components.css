@@ -14,7 +14,9 @@
 .deck .course-workspace{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.16fr);gap:28px;align-items:center}
 .deck .course-workspace>*{min-width:0}
 .deck .course-workspace details{margin:12px 0 0;padding:10px 14px}
-.deck .course-workspace:has(>.course-task>.course-answer[open])>.course-task>.course-prompt{display:none}
+.deck .course-workspace-stacked{grid-template-columns:1fr;gap:6px;align-items:start}
+.deck .course-workspace-stacked .course-prompt>p{margin:6px 0}
+.deck .course-workspace-stacked .course-answer{margin-top:8px;padding:8px 14px}
 .deck .course-workspace .course-input figure{margin:0}
 @media(max-width:900px){.deck .course-workspace{grid-template-columns:1fr;gap:20px}.deck .course-outline>li{gap:10px}.deck .course-outline-topic strong{font-size:24px}.deck .course-outline-topic p{font-size:20px}}
 @media print{

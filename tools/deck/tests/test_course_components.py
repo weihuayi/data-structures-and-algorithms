@@ -97,6 +97,14 @@ class CourseComponentTests(unittest.TestCase):
         c.slides[0][1] = task_workspace('<p>输入</p>', '<p>问题</p>', '<p>答案</p>')
         self.assertEqual(self.failures(c), [])
 
+    def test_stacked_task_keeps_three_distinct_roles_and_rejects_unknown_layout(self):
+        html = task_workspace('<pre>Code</pre>','<p>Compare fields</p>','<table>Mapping</table>',layout='stacked')
+        self.assertIn('course-workspace-stacked',html)
+        for role in ['data-task-input','data-task-prompt','data-task-answer']:
+            self.assertEqual(html.count(role),1)
+        with self.assertRaises(ValueError):
+            task_workspace('Input','Question','Answer',layout='replace-question')
+
     def test_closing_pages_need_no_artificial_section(self):
         c = lesson()
         c.add('homework', '课后练习', '<p>阅读与任务</p>', role='closing', goal='明确课后实践')

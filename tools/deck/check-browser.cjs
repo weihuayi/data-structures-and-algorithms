@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {AREAS, OPEN, inspect, outsideSizes} = require('./review-context.cjs');
 
 function headerKey(text) {
   return text.replace(/[\uFF01-\uFF5E]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
@@ -10,7 +11,9 @@ function headerKey(text) {
 }
 
 async function run(config) {
+  const reviewOnly = config.scope === 'review-context';
   const report = {status: 'pending', scope: config.scope || 'full', node: process.version, checks: []};
+  if (reviewOnly) report.limits = ['Known review workspaces and disclosures only; excludes player steps, general default-page layout and reading/navigation coverage.'];
   let browser;
   try {
     const {chromium} = require(config.playwrightModule || 'playwright');
@@ -28,6 +31,8 @@ async function run(config) {
       let location = {deck: deck.id, viewport: `${width}x${height}`, page: 0, state: 'load'};
       const add = (check, ok, detail) => report.checks.push({...location, check, status: ok ? 'pass' : 'fail', detail});
       const errors = [];
+      let outsideBaseline = [];
+      let reviewPages = 0, reviewDisclosures = 0;
       page.on('pageerror', e => errors.push(String(e)));
       page.on('requestfailed', r => errors.push(`${r.url()}: ${r.failure()?.errorText}`));
       await page.route(/^https?:/, route => route.abort());
@@ -39,17 +44,51 @@ async function run(config) {
         report.checks[report.checks.length - 1].screenshot = name;
       }
       async function layout(allowVertical = false, initial = false) {
+        const reviewOpen = await page.locator('.slide.active').locator(OPEN).count() > 0;
+        const reason = allowVertical ? 'teacher-note' : reviewOpen ? 'answer-review' : '';
         const size = await page.locator('main').evaluate(el => ({x: el.scrollWidth - el.clientWidth, y: el.scrollHeight - el.clientHeight}));
-        const ok = size.x <= 3 && (allowVertical || size.y <= 3);
-        add('projection-layout', ok, `overflow x=${size.x}, y=${size.y}${allowVertical ? '; teacher-note vertical scroll allowed' : ''}`);
+        if (reviewOpen) {
+          const outside = await page.locator('.slide.active').evaluate(outsideSizes);
+          const grown = outside.filter(n => {
+            const before = outsideBaseline.find(b => b.id === n.id);
+            return before && (n.height > before.height+3 || n.width > before.width+3);
+          });
+          add('review-scroll-boundary', !grown.length, JSON.stringify({unrelatedBlocksGrown:grown}));
+        }
+        const ok = size.x <= 3 && (Boolean(reason) || size.y <= 3);
+        add('projection-layout', ok, `overflow x=${size.x}, y=${size.y}${reason ? '; '+reason+' vertical scroll allowed' : ''}`);
+        await page.locator('main').evaluate(el => el.scrollTo({top:0,left:0,behavior:'instant'}));
         await capture(!ok, initial);
+        const item = report.checks[report.checks.length-1];
+        if (reviewOpen && size.y > 3 && item.screenshot) {
+          const name = item.screenshot.replace('.png','-end.png');
+          await page.locator('main').evaluate(el => el.scrollTo({top:el.scrollHeight,behavior:'instant'}));
+          await page.screenshot({path:path.join(config.output,name)});
+          item.scrollScreenshot = name;
+          await page.locator('main').evaluate(el => el.scrollTo({top:0,behavior:'instant'}));
+        }
       }
-      async function taskInputs(slide) {
+      async function taskInputs(slide, print = false) {
+        const replacements = await slide.locator('[data-review-replaceable]').evaluateAll(ns => ns.map(n => ({
+          reason:n.getAttribute('data-review-replaceable').trim(),preview:n.classList.contains('tree-preview'),
+          alternative:Boolean(n.parentElement?.querySelector('details:not(.teacher-note)')),
+          required:n.hasAttribute('data-required-context') || Boolean(n.querySelector('[data-required-context]'))
+        })));
+        if (replacements.length) add('review-replacement-declaration', replacements.every(n => n.reason && n.preview && n.alternative && !n.required),
+                                      JSON.stringify(replacements));
         const tasks = slide.locator('[data-course-component="task-workspace"]');
         for (let t = 0; t < await tasks.count(); t++) {
           const task = tasks.nth(t), input = task.locator(':scope > [data-task-input]');
           add('task-input-visible', await input.count() === 1 && await input.isVisible(),
               `task ${t + 1}: required input remains visible`);
+          const prompt = task.locator(':scope > .course-task > [data-task-prompt]');
+          add('task-prompt-visible', await prompt.count() === 1 && await prompt.isVisible(),
+              `task ${t + 1}: question remains available before, during and after review`);
+        }
+        const result = await slide.evaluate(inspect, {print});
+        if (result.checked) {
+          add('review-context-visible', !result.visibleFailures.length, JSON.stringify(result));
+          if (!print) add('review-context-reachable', !result.reachFailures.length, JSON.stringify(result));
         }
       }
       try {
@@ -75,10 +114,14 @@ async function run(config) {
           location = {...location, page: i + 1, state: 'initial'};
           await page.locator('#slide-select').selectOption(String(i));
           const slide = slides.nth(i);
+          if (reviewOnly && await slide.locator(AREAS).count() === 0) continue;
+          if (reviewOnly) reviewPages++;
           location.title = await slide.locator('h1,h2').first().innerText();
           location.pageId = await slide.getAttribute('data-page-id');
           location.role = await slide.getAttribute('data-role');
           location.pageFingerprint = crypto.createHash('sha256').update(await slide.evaluate(el => el.outerHTML)).digest('hex');
+          outsideBaseline = await slide.evaluate(outsideSizes);
+          if (!reviewOnly) {
           const frame = await slide.evaluate(el => {
             const inner = el.querySelector(':scope > .slide-inner');
             const text = selector => inner ? [...inner.querySelectorAll(selector)].map(n => n.textContent) : [];
@@ -120,8 +163,11 @@ async function run(config) {
           add('math-rendering', !math.errors && !math.raw.length, JSON.stringify(math));
           add('disclosures-initially-closed', await slide.locator('details[open]').count() === 0, 'Answers and notes start collapsed');
           await layout(false, true);
+          }
           await taskInputs(slide);
+          if (reviewOnly) await capture(false,true);
           if (config.scope === 'default-pages') continue;
+          if (!reviewOnly) {
           const unsupported = await slide.evaluate(el => [...el.querySelectorAll('button,select,input,[data-pair],[data-map],[data-maze],[data-mem],[data-link],[data-stack],[data-queue],[data-recur],[data-hanoi],[data-match]')].filter(n => !n.closest('[data-tree-player]')).map(n => n.tagName + ':' + [...n.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name).join(',')));
           if (unsupported.length) report.checks.push({...location, check: 'interaction-coverage', status: 'uncovered', detail: [...new Set(unsupported)].join(', ')});
           const players = slide.locator('[data-tree-player]');
@@ -156,7 +202,8 @@ async function run(config) {
             location.state = `player-${p + 1}/reset`;
             await reset.click(); await state(0);
           }
-          const disclosures = slide.locator('details');
+          }
+          const disclosures = reviewOnly ? slide.locator('[data-task-answer],.answer-workspace details,.tree-swap details') : slide.locator('details');
           for (let d = 0; d < await disclosures.count(); d++) {
             const detail = disclosures.nth(d), summary = detail.locator(':scope > summary');
             location.state = `disclosure-${d + 1}`;
@@ -165,29 +212,28 @@ async function run(config) {
               continue;
             }
             await summary.click();
+            if (reviewOnly) reviewDisclosures++;
             add('disclosure-open', await detail.getAttribute('open') !== null, await summary.innerText());
             await taskInputs(slide);
             const teacher = await detail.evaluate(el => el.classList.contains('teacher-note'));
             const taskAnswer = await detail.getAttribute('data-task-answer') !== null;
-            if (taskAnswer) {
-              const prompt = detail.locator('..').locator(':scope > [data-task-prompt]');
-              add('task-answer-replaces-prompt', !await prompt.isVisible(), 'Answer replaces the prompt while input stays in place');
-            }
+            const reviewDetail = await detail.evaluate((el,selector) => Boolean(el.closest(selector)), AREAS);
             await layout(teacher);
             const name = await detail.getAttribute('name');
             if (name) add('disclosure-exclusive', await slide.locator('details[open]').evaluateAll((ns, name) => ns.filter(n => n.getAttribute('name') === name).length, name) === 1, name);
-            if (teacher || taskAnswer) {
+            if (teacher || taskAnswer || reviewDetail) {
               await page.emulateMedia({media: 'print'});
               add(teacher ? 'teacher-note-print' : 'task-answer-print', await detail.evaluate(el => [...el.children].filter(n => n.tagName !== 'SUMMARY').every(n => getComputedStyle(n).display === 'none')), 'Disclosure content remains hidden in print');
               if (taskAnswer) {
                 const prompt = detail.locator('..').locator(':scope > [data-task-prompt]');
                 add('task-prompt-print', await prompt.isVisible(), 'Question is restored in print even if the answer was opened');
-                await taskInputs(slide);
               }
+              await taskInputs(slide,true);
               await page.emulateMedia({media: 'screen'});
             }
             await summary.click();
             add('disclosure-close', await detail.getAttribute('open') === null, 'Closed after inspection');
+            await taskInputs(slide);
           }
           const learner = slide.locator('details:not(.teacher-note)');
           const groups = await learner.evaluateAll(ns => [...new Set(ns.map(n => n.getAttribute('name')).filter(Boolean))]);
@@ -201,6 +247,7 @@ async function run(config) {
               if (!await summary.isVisible()) continue;
               await summary.click();
               add('disclosure-exclusive-transition', await learner.evaluateAll((ns, g) => ns.filter(n => n.open && n.getAttribute('name') === g).length, group) === 1, group);
+              await taskInputs(slide);
               await layout();
             }
             for (let d = 0; d < await learner.count(); d++) {
@@ -221,7 +268,7 @@ async function run(config) {
                   await summary.click();
                 }
               }
-              if (reachable) await layout();
+              if (reachable) { await taskInputs(slide); await layout(); }
               else report.checks.push({...location, check: 'disclosure-coverage', status: 'uncovered', detail: 'Combination not reachable via visible summaries'});
             }
             for (let d = 0; d < await learner.count(); d++) {
@@ -230,7 +277,12 @@ async function run(config) {
             }
           } else if (independent > 1) report.checks.push({...location, state: 'disclosure-combinations', check: 'disclosure-coverage', status: 'uncovered', detail: 'More than six independent disclosures or mixed named groups require manual verification'});
         }
-        if (config.scope !== 'default-pages') {
+        if (reviewOnly) {
+          location = {deck:deck.id,viewport:`${width}x${height}`,page:0,state:'review-summary'};
+          add('review-workspace-coverage', reviewPages > 0 && reviewDisclosures > 0,
+              `${reviewPages} known review pages; ${reviewDisclosures} disclosure operations; no player-step claim`);
+        }
+        if (!reviewOnly && config.scope !== 'default-pages') {
         location.state = 'reading';
         await page.locator('#read').click();
         add('reading-mode', await slides.evaluateAll(ns => ns.every(n => getComputedStyle(n).display !== 'none')), 'All slides displayed');
