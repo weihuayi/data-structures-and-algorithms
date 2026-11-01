@@ -90,6 +90,24 @@ async function run(config) {
               'One main heading; section frames have no duplicate, empty or CSS-hidden kicker node');
           add('header-redundancy', !frame.kickers.some(k => headerKey(k) && frame.titles.some(t => headerKey(k) === headerKey(t))),
               'Context and main heading have distinct information responsibilities');
+          const outlines = slide.locator('[data-course-component="outline"]');
+          for (let o = 0; o < await outlines.count(); o++) {
+            const outline = outlines.nth(o);
+            const anatomy = await outline.evaluate(el => ({tag:el.tagName, items:[...el.children].map((item, i) => {
+              const texts = selector => [...item.querySelectorAll(selector)].map(n => n.textContent.trim());
+              return item.tagName === 'LI' && Boolean(item.dataset.sectionId) &&
+                texts('.course-outline-number').join() === String(i + 1).padStart(2, '0') &&
+                texts('.course-outline-topic > strong').length === 1 && Boolean(texts('.course-outline-topic > strong')[0]) &&
+                texts('.course-outline-topic > p').length === 1 && Boolean(texts('.course-outline-topic > p')[0]) &&
+                texts('.course-outline-pages').length === 1 && /^(?:\d+(?:–\d+)?|—) 页$/.test(texts('.course-outline-pages')[0]);
+            })}));
+            add('outline-navigation', anatomy.tag === 'OL' && anatomy.items.length > 0 && anatomy.items.every(Boolean),
+                'Ordered stages show one number, theme, question and page range; static checks also compare declarations');
+            const fields = outline.locator('.course-outline-number,.course-outline-topic > strong,.course-outline-topic > p,.course-outline-pages');
+            let visible = true;
+            for (let f = 0; f < await fields.count(); f++) visible &&= await fields.nth(f).isVisible();
+            add('outline-fields-visible', visible, 'Navigation fields remain visible in the final browser DOM');
+          }
           const math = await slide.evaluate(el => {
             const raw = [];
             const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);

@@ -17,6 +17,7 @@ function fixture(body, after = '') {
 }
 const player = `<div class="tree-player" data-tree-player><div class="toolbar"><button data-step="prev">Back</button><button data-step="next">Forward</button><button data-step="reset">Reset</button><span class="tree-step"></span></div><div class="tree-step-panel">One</div><div class="tree-step-panel" hidden>Two</div><div class="tree-step-panel" hidden>Three</div></div>`;
 const task = `<div class="course-workspace" data-course-component="task-workspace"><div data-task-input>Required input</div><div class="course-task"><div class="course-prompt" data-task-prompt>Predict</div><details class="course-answer" data-task-answer><summary>Answer</summary><div>Result</div></details></div></div>`;
+const outline = `<ol class="course-outline" data-course-component="outline"><li data-section-id="one"><span class="course-outline-number">01</span><div class="course-outline-topic"><strong>主题</strong><p>核心问题？</p></div><span class="course-outline-pages">2–3 页</span></li></ol>`;
 test('header comparison preserves symbols, punctuation and word boundaries', () => {
   assert.equal(headerKey('第１节 · 任务'),headerKey('第1节：任务'));
   for(const [a,b] of [['x-y','xy'],['a/b','ab'],['ℝ','R'],['A B','AB'],['选择（条件一）','选择条件一']])
@@ -34,6 +35,9 @@ test('browser checker distinguishes good pages, failures and uncovered interacti
       ['unknown', fixture('<button>New component</button>'), 'incomplete', 'interaction-coverage'],
       ['resource', fixture('<img src="missing-image.png">'), 'fail', 'runtime-and-resources'],
       ['task', fixture(`<link rel="stylesheet" href="${asset('components.css')}">${task}`), 'pass', null],
+      ['outline', fixture(`<link rel="stylesheet" href="${asset('components.css')}">${outline}`), 'pass', null],
+      ['outline-drift', fixture(outline.replace('>01</span>', '>02</span>')), 'fail', 'outline-navigation'],
+      ['outline-hidden-topic', fixture(outline+'<style>.course-outline-topic{display:none}</style>'), 'fail', 'outline-fields-visible'],
       ['hidden-input', fixture(`<link rel="stylesheet" href="${asset('components.css')}">${task}<style>.course-workspace:has(details[open]) [data-task-input]{display:none}</style>`), 'fail', 'task-input-visible'],
       ['missing-cjk-glyphs', fixture('<p>数据结构</p>', '<script>HTMLCanvasElement.prototype.toDataURL=()=>"same-tofu";</script>'), 'fail', 'cjk-glyphs'],
       ['header-copy', fixture('<p>Input</p>').replace('<h2>Fixture</h2>', '<p class="kicker">第一部分 · 任务</p><h2>第一部分：任务</h2>'), 'fail', 'header-redundancy'],

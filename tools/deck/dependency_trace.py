@@ -164,6 +164,16 @@ def aov_view(*, marked=(), states=None, cycle=False, caption='活动 A–F；箭
     return result
 
 
+def completed_aov_view():
+    """D015 construction answer; retain all input nodes/arcs and add only C/E→G."""
+    added = (('C', 'G'), ('E', 'G'))
+    return graph({**AOV_NODES, 'G': (335, 135)}, AOV_EDGES + added,
+                 directed=True, marked=added,
+                 caption='补充后的 AOV 网。',
+                 legend='红色粗实线：新增 ' + '、'.join(a+'→'+b for a, b in added) + '。',
+                 view_box=(0, 15, 575, 260))
+
+
 def aoe_view(activities=MAIN_ACTIVITIES, *, exercise=False, marked=(), values=None, kind='ve', caption=None):
     nodes = EXERCISE_NODES if exercise else AOE_NODES
     positions = EXERCISE_LABELS if exercise else AOE_LABELS

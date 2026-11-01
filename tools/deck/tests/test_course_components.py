@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from components import CourseDeck, Section, contract_checks, task_workspace
 from build import EXAMPLES, load_deck, render_document
+from navigation import Outlines, outline_checks
 
 
 def lesson(count=2):
@@ -27,10 +28,26 @@ class CourseComponentTests(unittest.TestCase):
         for count in (1, 2, 5):
             c = lesson(count)
             self.assertEqual(self.failures(c), [])
-            self.assertIn('<td>2–3</td>', c.slides[0][1])
+            p = Outlines(); p.feed(c.slides[0][1])
+            self.assertEqual(p.outlines[0]['items'][0]['pages'], ['2–3 页'])
+            self.assertTrue(all(x['status'] == 'pass' for x in outline_checks(c.slides[0][1], c)))
         c.add('more-work', '进一步解释', '<p>输入</p>', section='s4', goal='解释边界')
         c.finalize()
-        self.assertIn('<td>10–12</td>', c.slides[0][1])
+        p = Outlines(); p.feed(c.slides[0][1])
+        self.assertEqual(p.outlines[0]['items'][-1]['pages'], ['10–12 页'])
+
+    def test_final_outline_semantics_reject_renderer_independent_defects(self):
+        c = lesson()
+        html = c.slides[0][1]
+        faults = [html.replace('<ol ', '<table ').replace('</ol>', '</table>'),
+                  html.replace('data-section-id="s0"', 'data-section-id="s1"'),
+                  html.replace('2–3 页', '2–4 页'),
+                  html.replace('<strong>任务0</strong>', '<strong>另一主题</strong>'),
+                  html.replace('怎样完成任务0？', '其他问题'),
+                  html.replace('>01</span>', '>02</span>'),
+                  html.replace('<strong>任务0</strong>', '<strong>任务0</strong><strong>任务0</strong>')]
+        for bad in faults:
+            self.assertTrue(any(x['status'] == 'fail' for x in outline_checks(bad, c)), bad)
 
     def test_single_task_has_no_required_outline(self):
         c = CourseDeck()
@@ -95,6 +112,7 @@ class CourseComponentTests(unittest.TestCase):
             self.assertIn('data-page-id=', html)
             self.assertIn('components.css', html)
             self.assertIn('data-task-input', html)
+            self.assertTrue(all(x['status'] == 'pass' for x in outline_checks(html, deck.COURSE)))
 
 
 if __name__ == '__main__':

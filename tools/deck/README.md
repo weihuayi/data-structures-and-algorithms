@@ -2,7 +2,7 @@
 
 本目录承载课程 HTML Deck 的共享构建与交互能力。具体教学内容由各 Deck 的 `slides.py` 维护。
 
-当前共同约定见 [课程课件共性约定](../../docs/design/deck-contract.md)，实施与证据见 [实施计划](../../docs/design/deck-consistency-plan.md)。新任务从 `AGENTS.md` → 共同约定 → 所需组件与本讲设计卡进入，历史课件是参考，不是自动生效的规范。
+当前共同约定见 [课程课件共性约定](../../docs/design/deck-contract.md)，实施与证据见 [实施计划](../../docs/design/deck-consistency-plan.md)。新任务从根及作用域 `AGENTS.md` → 共同约定 → 所需组件与本讲设计卡进入，历史课件是参考，不是自动生效的规范。规则入口与链接由 `instructions.py` 检查，并纳入依赖指纹与影响分析。
 
 ## 课程公共模式
 
@@ -35,11 +35,11 @@ SLIDES = COURSE.finalize()
 实际 `slides.py` 需按既有课件将 `tools/deck` 加入 Python 搜索路径，或通过仓库加载环境导入。可直接运行的 [多部分源码](examples/patterns/slides.py) 和 [单任务源码](examples/single-task/slides.py) 包含完整导入；D014 是课程接入实例。
 
 - 页面 ID 使用稳定英文标识，不使用页码；`role` 为 `cover/outline/section/content/exercise/closing`。角色只声明职责，不能证明教学内容充分。
-- 部分定义维护标题、问题、展开范围；大纲页码由实际页面归属生成。`start_section` 与大纲共用定义，不手写复制导航 HTML。
+- 部分定义维护标题、问题、展开范围；大纲默认生成 `<ol>` 有序导航，按行展示序号、主题、问题及实际页码，页码由页面归属生成。`start_section` 与大纲共用定义，不手写复制导航 HTML。`navigation.py` 独立核对最终 HTML 的顺序、字段和页码；浏览器再检查 DOM 与可见性。
 - 公共页头由 `headers.py` 与构建器组合：`section` 起始页只输出完整主标题，省略小号分节节点；普通页保留信息不同的上下文与本页标题。源码三元组中的分节标签保持完整，不用清空标签或 CSS 隐藏来去重。旧课件无需迁入 `COURSE` 也可受益于完全重复去重。
 - 页头比较保留词间边界、数学符号及有意义的标点，只合并 ASCII 全半角、空白格式和已知章节前缀的分隔差异。静态检查读取实际 HTML，浏览器再检查 DOM；自动规则不识别所有同义冗余，仍需人工看组合后的页面。
 - `CourseDeck()` 无部分时支持单任务课件，不强制大纲。多个部分默认有大纲；需紧凑组织时使用 `navigation='compact', navigation_reason='具体教学理由'`，记录一次即可。
-- `task_workspace` 的 HTML 参数是可信仓库内容；不是外部 HTML 清洗器。输入置于折叠区之外，答案展开替换提问，打印恢复提问并隐藏答案。默认可见标题、图注及摘要是否泄漏答案需人工审阅。
+- `task_workspace` 的 HTML 参数是可信仓库内容；不是外部 HTML 清洗器。输入置于折叠区之外，答案展开替换提问，打印恢复提问并隐藏答案。默认可见标题、图注及摘要是否泄漏答案需专业审阅。构造或转换任务默认提供完成产物并解释理由；题目特定结果由独立语义断言及内容审阅核对，不由任务区组件推断。
 - `COURSE.page_plan()` 从相同注册信息生成逐页职责行；不要另行维护页码与标题副本。设计卡可用 `<!-- page-plan:start -->` 和 `<!-- page-plan:end -->` 包住派生表格，构建时同步该区域，检查器只读核对；区域外的教学设计、活动预算与证据仍人工维护。没有部分归属的课后/衔接页用 `closing`，位于部分内容之后。
 - `SLIDES` 仍为三元组。`build.py` 给已接入页面附加稳定 ID、角色与部分属性，保留既有翻页接口。`legacy.json` 明确列出 D001–D013 的初始迁移范围，接入时应同时移除对应 ID；新课件缺少 `COURSE` 会失败。目录身份与 `DECK_ID` 必须对应，复制旧源或删除元数据不能静默退回旧模式。
 
@@ -65,6 +65,9 @@ python3 tools/deck/verify.py --base origin/main --output /tmp/course-change-revi
 # 不运行浏览器，状态明确为 static-only-pass
 python3 tools/deck/verify.py --all --static-only
 
+# 保留完整操作的展开/步骤截图，便于定向视觉自审
+python3 tools/deck/verify.py --base origin/main --screenshots all --output /tmp/course-visual-review
+
 # 只读查看影响对象与原因（包含未提交及未跟踪文件）
 python3 tools/deck/impact.py --base origin/main
 ```
@@ -75,9 +78,29 @@ python3 tools/deck/impact.py --base origin/main
 
 影响分析使用本地 Python 静态导入闭包、HTML/CSS 本地资源、课件代码及源码 `DEPENDENCIES` 列出的仓库相对路径。动态加载/数据依赖需显式补充；无法判断的共享代码变更保守扩大范围。全局 CSS/脚本与构建器影响旧课件，公共组件只影响采用者。报告保存依赖文件哈希、约定哈希与检查工具哈希；哈希能绑定版本，不能证明推导正确。
 
+作用域 AGENTS、当前契约、修订指南、工具说明和本讲设计卡也进入依赖指纹。改变规范入口时，CI 和影响分析选择相关回归；当前规范文件变化保守覆盖全课程的相应检查，不强迫旧课件迁移。
+
+### AI 交付审阅记录
+
+机器验证报告的 `status` 保留原有范围含义，`deliveryStatus` 为 `pending-review`。它另存当前内容指纹、运行期间是否变化，以及机器日志、报告和截图的哈希。验证中源码变化会使本次运行不完整。
+
+机器检查后，在最终页面进行实际的六方面内容与视觉自审，修订问题并复查；然后创建并填写记录：
+
+```bash
+python3 tools/deck/review.py init --verification /tmp/course-change-review/verification.json --review /tmp/course-ai-review.json
+# 完成实际自审后填写 JSON：审阅者、六方面判断、页面与操作、证据、发现处置。
+python3 tools/deck/review.py check --verification /tmp/course-change-review/verification.json --review /tmp/course-ai-review.json --output /tmp/course-review-closure.json
+```
+
+`dimensions` 的键为 `goals/continuity/organization/representation/interaction/verification`，对应契约六方面；每项记录 `reviewed` 或附理由的 `not-applicable`、判断说明和证据。`targets` 覆盖本次完整操作课件及样例，记录实际审阅的页面、状态和证据。证据使用验证输出中的相对路径，如 `full/report.json` 或具体截图。发现分 `blocking/advisory/legacy`；阻断项须为 `resolved`，所有发现记录具体位置、处置及复查证据。待填模板不能通过检查。
+
+记录与结果保存在仓库外的验证工作目录，PR 和受控设计文档留下简洁的结论与运行定位。内容指纹覆盖受控及非忽略的新课程、工具、设计与 CI 文件，生成记录不参与自身指纹。改变源码、设计、规则或共享依赖后须重跑必要验证并更新记录；提交元数据变化本身不使相同内容失效。
+
+`ready-for-teacher-review` 只表示记录完整、版本相符、机器范围完成且没有未决阻断声明。工具不证明判断正确，也不宣称教师已经审阅或课堂效果成立。缺失、过期或篡改的机器证据、未覆盖六方面、遗漏完整操作目标、未决阻断均使交付记录失败；静态检查不能独自闭合交付。
+
 `.github/workflows/deck-check.yml` 在 PR、main 更新或手动触发时运行相同入口并保留报告。它提供检查结果；是否设为 main 必需检查由维护者在稳定运行后决定。本轮不修改仓库保护设置，也不新增审批人数。
 
-字体检查用常用汉字的不同字形识别整组缺字方框，报告字体栈；不能保证所有字符、字体缩放或后排可读性。当前公共样例保留截图并人工审阅，尚未建立跨环境的逐像素截图基准；结构、操作和布局检查分别报告。
+字体检查用常用汉字的不同字形识别整组缺字方框，报告字体栈；不能保证所有字符、字体缩放或后排可读性。公共样例保留截图并进行 AI 视觉自审，教师审阅另留证据；尚未建立跨环境的逐像素截图基准，结构、操作和布局检查分别报告。
 
 ```bash
 python3 tools/deck/build.py all

@@ -7,11 +7,14 @@ import subprocess
 
 from build import ROOT, DECKS, EXAMPLES, load_deck, render_document
 from dependencies import dependency_manifest
+from instructions import CONTEXT_FILES
 
 VALIDATION = {'tools/deck/check.py', 'tools/deck/check-browser.cjs',
               'tools/deck/dependencies.py', 'tools/deck/impact.py', 'tools/deck/verify.py',
               'tools/deck/legacy_baseline.py', 'tools/deck/legacy.json'}
-POLICY = {'AGENTS.md', 'docs/design/deck-contract.md'}
+VALIDATION |= {'tools/deck/review.py', 'tools/deck/instructions.py', 'tools/deck/navigation.py',
+               '.github/workflows/deck-check.yml'}
+POLICY = set(CONTEXT_FILES)
 
 
 def git_changes(base, root=ROOT):
@@ -39,8 +42,7 @@ def analyze(changed, *, all_decks=False):
             intersection = changed & (set(manifest['files']) | set(manifest['missing']))
             covered |= intersection
             why += sorted(intersection)
-            if adopted:
-                why += sorted(changed & POLICY)
+            why += sorted(changed & POLICY)
         except Exception as error:
             # A broken dependency must expand coverage, never silently remove it.
             adopted = True
