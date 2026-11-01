@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from dependencies import dependency_manifest
 from impact import analyze
 from build import DECKS
+from instructions import AGENTS_FILES, CONTEXT_FILES, context_checks
 
 
 class DependencyTests(unittest.TestCase):
@@ -59,6 +60,27 @@ class DependencyTests(unittest.TestCase):
         global_change=analyze(['tools/deck/deck.css'])
         self.assertIn('D013',global_change['defaults'])
         self.assertIn('D014',global_change['full'])
+
+    def test_scoped_instructions_are_fingerprinted_and_select_regression(self):
+        files = dependency_manifest(DECKS/'d015-topological-and-critical-path')['files']
+        self.assertTrue(set(CONTEXT_FILES) <= set(files))
+        actual = {p.name.split('-',1)[0].upper() for p in DECKS.iterdir() if (p/'slides.py').is_file()}
+        for path in AGENTS_FILES:
+            result = analyze([path])
+            self.assertEqual(set(result['full']) | set(result['defaults']), actual, path)
+
+    def test_required_entries_links_and_ci_route(self):
+        self.assertTrue(all(c['status'] == 'pass' for c in context_checks()))
+        workflow = (DECKS.parents[1]/'.github/workflows/deck-check.yml').read_text()
+        self.assertEqual(workflow.count("- 'course/AGENTS.md'"), 2)
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            for path in CONTEXT_FILES:
+                target = root/path; target.parent.mkdir(parents=True, exist_ok=True); target.write_text('')
+            (root/'AGENTS.md').write_text('[Missing](course/not-there.md)')
+            self.assertTrue(any(c['status'] == 'fail' and c['check'].startswith('context-link/') for c in context_checks(root)))
+            (root/'course/AGENTS.md').unlink()
+            self.assertTrue(any(c['status'] == 'fail' and c['check']=='context-entry/course/AGENTS.md' for c in context_checks(root)))
 
     def test_local_revision_is_scoped_and_unknown_shared_changes_expand(self):
         impact=analyze(['course/decks/d014-shortest-path/README.md'])

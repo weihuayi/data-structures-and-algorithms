@@ -99,12 +99,16 @@ class CourseDeck:
                          if page['section'] == section.id]
             span = (str(positions[0]) if len(positions) == 1 else
                     f'{positions[0]}–{positions[-1]}') if positions else '—'
-            rows.append('<tr data-section-id="' + escape(section.id, quote=True) + '">'
-                        '<th scope="row">第' + number(index) + '部分</th><td>' +
-                        escape(section.question) + '</td><td>' + span + '</td></tr>')
-        return ('<table class="course-outline" data-course-component="outline">'
-                '<thead><tr><th>部分</th><th>要解决的问题</th><th>页码</th></tr></thead>'
-                '<tbody>' + ''.join(rows) + '</tbody></table>')
+            rows.append('<li data-section-id="' + escape(section.id, quote=True) + '">'
+                        '<span class="course-outline-number" aria-hidden="true">' +
+                        f'{index:02d}' + '</span><div class="course-outline-topic">'
+                        '<strong>' + escape(section.title) + '</strong>'
+                        '<p>' + escape(section.question) + '</p></div>'
+                        '<span class="course-outline-pages" aria-label="页码">' +
+                        span + ' 页</span></li>')
+        density = ' course-outline-dense' if len(self.sections) > 4 else ''
+        return ('<ol class="course-outline' + density + '" data-course-component="outline" role="list">' +
+                ''.join(rows) + '</ol>')
 
     def finalize(self):
         for slide, page in zip(self.slides, self.pages):

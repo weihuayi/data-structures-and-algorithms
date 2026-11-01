@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]/'tools/deck'))
 from components import CourseDeck, Section, task_workspace
 from dependency_trace import (TASKS, AOV_NODES, AOV_EDGES, MAIN_ACTIVITIES, EVENTS,
-    EXERCISE_ACTIVITIES, aov_view, aoe_view, table, task_table,
+    EXERCISE_ACTIVITIES, aov_view, completed_aov_view, aoe_view, table, task_table,
     topological_states, critical_path, topological_player, time_player)
 
 DECK_ID = 'D015'
@@ -31,10 +31,6 @@ def add(pid, title, body, section=None, goal='', activity='讲述、观察与追
 
 def pair(left, right, cls=''):
     return '<div class="dag-two '+cls+'"><div>'+left+'</div><div>'+right+'</div></div>'
-
-
-def note(body):
-    return '<details class="teacher-note"><summary>教学提示</summary>'+body+'</details>'
 
 
 def code(text):
@@ -69,10 +65,10 @@ add('project', '六项工作，哪些必须等待？', pair(task_table(),
     'dependency','从任务表识别直接前置条件')
 
 add('aov', '怎样把依赖画成 AOV 网？',
-    definition('AOV 网（Activity on Vertex Network）以顶点表示活动，以有向弧表示先后依赖。',inline=True)+
-    task_workspace(aov_view(caption='新增活动 G：必须等 C、E 完成才能开始。'),
+    task_workspace(definition('AOV 网（Activity on Vertex Network）以顶点表示活动，以有向弧表示先后依赖。',inline=True)+
+        aov_view(caption='新增活动 G：必须等 C、E 完成才能开始。'),
         '<p>请补画依赖边；G 也必须等待 D 吗？</p>',
-        '<p>补 C→G、E→G。</p><p>条件没有规定 G 依赖 D，不能额外添加 D→G。</p>'),
+        completed_aov_view()+'<p class="dag-note">未给定 D→G，不能额外增加这项依赖。</p>'),
     'dependency','把活动和依赖对应为顶点与弧，避免添加多余约束','1 分钟独立补边与反馈',role='exercise')
 
 add('legal-order', '合法顺序为什么可能不唯一？', pair(aov_view(),
@@ -189,8 +185,7 @@ add('activity-time', '事件时间怎样变成活动的开始时间？',
          r'<p>活动 C：事件 1→3，持续 2 小时。</p><p>\(ve(1)=3\)，\(vl(3)=8\)。</p>'
          r'<p>最早开始：\(e(C)=ve(1)=3\)。</p><p>最迟开始：\(l(C)=vl(3)-2=6\)。</p>'
          r'<p>时间余量：\(l(C)-e(C)=3\)。</p>'
-         '<p class="dag-note">这里的活动时间余量是总时差；不能把各项余量当成互不影响的独立额度。</p>')+
-    note('<p>A、E 的总时差各为 1。A 时长单独加 1 或 E 时长单独加 1，T 均为 10；两者同时加 1，T 为 11。活动改变后要重新计算。</p>'),
+         '<p class="dag-note">这里的余量是总时差，不能把各项余量视为独立额度。</p>'),
     'critical','对应事件最早/最迟时间与活动开始时间和总时差')
 
 add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=((0,2),(2,3),(3,4)))+

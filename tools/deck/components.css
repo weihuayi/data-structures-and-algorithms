@@ -1,7 +1,14 @@
 /* Course patterns: opt-in stylesheet, loaded after deck.css for adopted lessons. */
-.deck .course-outline th,.deck .course-outline td{font-size:clamp(22px,1.8vw,30px);line-height:1.5;padding:12px 14px}
-.deck .course-outline th:first-child,.deck .course-outline td:last-child{white-space:nowrap}
-.deck .course-outline td:last-child{font-variant-numeric:tabular-nums}
+.deck .course-outline{list-style:none;padding:0;margin:8px 0;display:grid;gap:15px}
+.deck .course-outline>li{display:grid;grid-template-columns:2.2em minmax(0,1fr) auto;gap:18px;align-items:center;margin:0;padding:9px 0;border-bottom:1px solid var(--line);line-height:1.35}
+.deck .course-outline-number{color:var(--blue);font-size:32px;font-weight:700;font-variant-numeric:tabular-nums}
+.deck .course-outline-topic strong{font-size:clamp(25px,2vw,32px);font-weight:650}
+.deck .course-outline-topic p{font-size:clamp(21px,1.65vw,26px);line-height:1.4;color:var(--muted);margin:5px 0 0}
+.deck .course-outline-pages{font-size:20px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.deck .course-outline-dense{gap:8px}
+.deck .course-outline-dense>li{padding:5px 0}
+.deck .course-outline-dense .course-outline-topic strong{font-size:25px}
+.deck .course-outline-dense .course-outline-topic p{font-size:22px;margin-top:3px}
 .deck .course-section .lead{font-size:clamp(28px,3vw,43px);line-height:1.5;max-width:25em;margin:16px 0 24px;text-wrap:balance}
 .deck .course-section .course-section-scope{font-size:clamp(24px,2.05vw,34px);line-height:1.55;max-width:36em}
 .deck .course-workspace{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.16fr);gap:28px;align-items:center}
@@ -9,12 +16,12 @@
 .deck .course-workspace details{margin:12px 0 0;padding:10px 14px}
 .deck .course-workspace:has(>.course-task>.course-answer[open])>.course-task>.course-prompt{display:none}
 .deck .course-workspace .course-input figure{margin:0}
-@media(max-width:900px){.deck .course-workspace{grid-template-columns:1fr;gap:20px}.deck .course-outline th,.deck .course-outline td{font-size:21px;padding:8px}}
+@media(max-width:900px){.deck .course-workspace{grid-template-columns:1fr;gap:20px}.deck .course-outline>li{gap:10px}.deck .course-outline-topic strong{font-size:24px}.deck .course-outline-topic p{font-size:20px}}
 @media print{
  .deck .course-workspace{grid-template-columns:1fr 1.16fr}
  .deck .course-workspace .course-prompt{display:block!important}
  .deck .course-workspace .course-answer>:not(summary){display:none!important}
- .deck .course-section .lead,.deck .course-section .course-section-scope,.deck .course-outline td,.deck .course-outline th{font-size:20px}
+ .deck .course-section .lead,.deck .course-section .course-section-scope,.deck .course-outline-topic strong,.deck .course-outline-topic p{font-size:20px}
 }
 
 /* D015: dependency graphs, ordering and time constraints. */

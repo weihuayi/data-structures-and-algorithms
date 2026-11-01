@@ -15,6 +15,8 @@ from build import DECKS, EXAMPLES, ROOT, PLAN_START, PLAN_END, load_deck, render
 from components import contract_checks
 from dependencies import dependency_manifest
 from headers import header_checks
+from instructions import context_checks
+from navigation import outline_checks
 
 LEGACY_FILE = Path(__file__).with_name('legacy.json')
 
@@ -50,6 +52,8 @@ def check_source(deck):
         result['checks'].extend(header_checks(current.decode('utf-8')))
         mod = load_deck(deck)
         course = getattr(mod, 'COURSE', None)
+        if course is not None:
+            result['checks'].extend(outline_checks(current.decode('utf-8'), course))
         legacy = json.loads(LEGACY_FILE.read_text())['legacy']
         repo_deck = deck.is_relative_to(ROOT) and deck.parent == DECKS
         folder_id = deck.name.split('-', 1)[0].upper()
@@ -107,11 +111,13 @@ def main(argv=None):
     if args.static_only and args.default_pages:
         parser.error('--static-only and --default-pages are different scopes; choose one')
     validators = ['check.py', 'check-browser.cjs', 'headers.py', 'components.py', 'dependencies.py', 'legacy.json',
-                  'impact.py', 'verify.py', 'legacy_baseline.py', 'package-lock.json']
+                  'impact.py', 'verify.py', 'legacy_baseline.py', 'package-lock.json',
+                  'instructions.py', 'navigation.py', 'review.py']
     report = {'schemaVersion': 2, 'createdAt': datetime.now(timezone.utc).isoformat(),
               'mode': 'static-only' if args.static_only else 'default-pages' if args.default_pages else 'full', 'python': sys.version.split()[0],
               'validationFiles': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in validators},
               'contractSha256': hashlib.sha256((ROOT / 'docs/design/deck-contract.md').read_bytes()).hexdigest(),
+              'contextChecks': context_checks(),
               'viewports': [[1280, 720], [1440, 900]], 'decks': [check_source(p) for p in decks],
               'browser': {'status': 'not-requested' if args.static_only else 'pending'},
               'limits': ['No proof of teaching effectiveness or mathematical correctness.',
@@ -142,7 +148,8 @@ def main(argv=None):
                 report['browser'] = {'status': 'unavailable', 'error': str(exc)}
         else:
             report['browser'] = {'status': 'skipped', 'reason': 'No Deck passed build consistency'}
-    failed = any(c['status'] == 'fail' for d in report['decks'] for c in d['checks'])
+    failed = (any(c['status'] == 'fail' for c in report['contextChecks']) or
+              any(c['status'] == 'fail' for d in report['decks'] for c in d['checks']))
     browser_status = report['browser']['status']
     if failed or browser_status == 'fail':
         report['status'], exit_code = 'fail', 1
@@ -153,6 +160,9 @@ def main(argv=None):
     report_path = output / 'report.json'
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f'{report["status"].upper()}: {len(decks)} Deck(s); report: {report_path}')
+    for c in report['contextChecks']:
+        if c['status'] != 'pass':
+            print(f'{c["check"]}: {c["detail"]}')
     for d in report['decks']:
         for c in d['checks']:
             if c['status'] != 'pass':
