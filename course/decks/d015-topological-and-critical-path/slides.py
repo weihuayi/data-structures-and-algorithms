@@ -149,7 +149,8 @@ add('aoe', '同一项目怎样表示成 AOE 网？',
     'earliest','明确 AOV 活动顶点与 AOE 事件、活动弧的对应')
 
 add('max', '为什么要等待最晚完成的前置工作？',
-    task_workspace(aoe_view(marked=((0,2),(1,2)))+'<p class="dag-note">事件 0 在时刻 0 发生；事件 1 在时刻 3 发生。</p>',
+    task_workspace(aoe_view(marked=((0,2),(1,2)))+'<p class="dag-note">事件 0 在时刻 0 发生；事件 1 在时刻 3 发生。</p>'+
+        '<p class="dag-note">本次目标事件 v=2，前驱事件 u 为 0 或 1；连接它们的活动为 B、E，w(u,v) 表示活动时长。</p>',
         '<p>B 完成需到 0+5；E 完成需到 3+1。</p><p>事件 2 最早何时发生？能取较小值吗？</p>',
         r'<p>必须等 B、E 都完成。</p><p>\(ve(2)=\max\{5,4\}=5\)。</p>'
         '<p>取 4 时 B 还没有完成，D 的开始条件不成立。</p>'),
@@ -157,7 +158,7 @@ add('max', '为什么要等待最晚完成的前置工作？',
 
 add('early-trace', '怎样按拓扑序计算最早时间？',
     time_player('forward')+
-    r'<p class="dag-note">\(ve(v)=\max_{(u,v)}\{ve(u)+w(u,v)\}\)。前驱全部传播后，事件值才完整。</p>',
+    r'<p class="dag-note">\(ve(v)=\max_{(u,v)}\{ve(u)+w(u,v)\}\)。u、v 是事件，w(u,v) 为活动时长；全部前驱传播后，ve(v) 才完整。</p>',
     'earliest','区分已收集约束的下界与已经完整的最早时间','正向分步演示，停顿比较两个前置约束')
 
 add('longest', '为什么最长依赖链决定最早工期？', pair(aoe_view(marked=((0,2),(2,3),(3,4))),
@@ -196,10 +197,10 @@ add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=(
     'critical','依据活动余量识别完整的源汇关键路径')
 
 add('multiple', '继续缩短 B，工期一定继续缩短吗？',
-    task_workspace(aoe_view(activities=B4)+'<p class="dag-note">只把 B 从 5 改为 4；其他活动不变。再考虑 B 改为 3。</p>',
-        '<p>先求 B=4 时的工期和关键路径。</p><p>再把 B 改为 3，工期还会缩短 1 小时吗？</p>',
-        '<p>B=4：T=9；B–D–F 和 A–E–D–F 都为 9。</p>'
-        '<p>B=3：T 仍为 9，由 A–E–D–F 约束。</p>'
+    task_workspace(aoe_view(activities=B4)+'<p class="dag-note">只把活动 B 的时长从 5 小时改为 4 小时；其他活动不变。</p>',
+        '<p>B 的持续时间为 4 小时，工期和关键路径是什么？</p><p>若再改为 3 小时，工期还会缩短 1 小时吗？</p>',
+        '<p>B 持续 4 小时：T=9；B–D–F、A–E–D–F 均长 9 小时。</p>'
+        '<p>B 持续 3 小时：T 仍为 9，由 A–E–D–F 约束。</p>'
         '<p>加快一条关键路径独有的活动，未必能缩短另一条关键路径；改变时长后重新计算。</p>'),
     'critical','用时长变化理解多关键路径及加速效果的条件','变式预测与反馈',role='exercise')
 
@@ -210,7 +211,7 @@ add('independent', '换一张编号不同的网，你能独立计算吗？',
         '<li>指出工期与关键路径，解释一处 max 或 min 的依据。</li></ol>',
         '<p>拓扑序：2、0、3、1；T=6。</p>'+
         table(('事件',2,0,3,1),[('ve',0,2,3,6),('vl',0,2,4,6)],'dag-state')+
-        '<p>c：e=2，l=4−1=3，余量 1。</p><p>关键路径：2→0→1，活动 a、d。</p>'),
+        r'<p>活动 c：\(e(c)=2\)，\(l(c)=4-1=3\)，余量 1。</p><p>关键路径：2→0→1，活动 a、d。</p>'),
     'critical','独立应用拓扑次序、两向约束和活动余量','8 分钟独立作答＋3 分钟反馈',role='exercise')
 
 add('predict-run', '预测与程序结果不同，先检查什么？', pair('<p class="dag-note">在本讲目录中运行：</p>'+

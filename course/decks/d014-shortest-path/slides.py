@@ -45,8 +45,8 @@ def solution(html, title='核对答案与理由'):
     return '<details><summary>' + title + '</summary>' + html + '</details>'
 
 
-def workspace(diagram, question, answer, title='核对答案与理由'):
-    return task_workspace(diagram, question, answer, title=title)
+def workspace(diagram, question, answer, title='核对答案与理由', *, layout='columns'):
+    return task_workspace(diagram, question, answer, title=title, layout=layout)
 
 
 def main(**kwargs):
@@ -72,6 +72,15 @@ AFTER_A = next(s for s in TRACE if s['phase'] == 'round-end' and s['current'] ==
 AFTER_C = next(s for s in TRACE if s['phase'] == 'round-end' and s['current'] == 'C')
 AFTER_B = next(s for s in TRACE if s['phase'] == 'round-end' and s['current'] == 'B')
 FLOYD = floyd_stages()
+
+
+def distance_value(state, vertex):
+    """Render classroom vertex indexing from the actual algorithm snapshot."""
+    value = state['distance'][vertex]
+    tex = r'\infty' if value is None else str(value)
+    return ('<span data-distance-vertex="' + escape(vertex, quote=True) +
+            '" data-distance-value="' + fmt(value) + '">' +
+            r'\(\mathrm{dist}[' + escape(vertex) + ']=' + tex + r'\)</span>')
 
 # 1–7: task meaning and the status of route information.
 add('cover', TITLE,
@@ -142,12 +151,14 @@ add('improve', '找到更好的路线，怎样修改已有记录？',
 add('relax', '一条输入记录怎样产生新的候选？',
     pair(main(marked=(('B', 'D'),)),
          r'''<table class="sp-table"><tbody>
-<tr><th>已有路径信息</th><td>到 B 的路线长 \(3\)</td></tr>
-<tr><th>读取的图记录</th><td>边 BD 存在，权为 \(1\)</td></tr>
+<tr><th>已有路径信息</th><td>到 B 的路线长 \(\mathrm{dist}[u]=3\)</td></tr>
+<tr><th>读取的图记录</th><td>边 BD 存在，权为 \(w(u,v)=1\)</td></tr>
 <tr><th>新候选路径</th><td>经 B 到 D，长度 \(3+1=4\)</td></tr>
-<tr><th>与旧值比较</th><td>\(4&lt;7\)，更新 D</td></tr></tbody></table>
+<tr><th>与旧值比较</th><td>旧记录 \(\mathrm{dist}[v]=7\)；\(4&lt;7\)，接受候选</td></tr></tbody></table>
 <p><strong>松弛（Relaxation）</strong>：用一条新候选路径尝试改进距离。</p>
-<p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>'''),
+<p class="sp-small">u 是本次延伸的出发顶点，v 是待改进顶点；本例 \(u=B,v=D\)。dist[v] 保存当前找到的最好距离。</p>
+<p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>
+<p class="sp-small">u 是新候选路径的前驱；仅在接受更短候选后，才写入 parent[v]=u。</p>'''),
     P2, '把输入边、已有距离与松弛公式逐项对应')
 
 add('state-fields', '图、距离、前驱和确认状态各保存什么？',
@@ -158,7 +169,8 @@ add('state-fields', '图、距离、前驱和确认状态各保存什么？',
 <tr><th>dist[v]</th><td>当前找到的最好路径的长度</td></tr>
 <tr><th>parent[v]</th><td>该路径上 v 的直接前驱</td></tr>
 <tr><th>settled[v]</th><td>最短距离是否已经确认</td></tr></tbody></table>
-<p>有限距离有实际路径支持；“见过”一个顶点，还不足以置为已确认。</p>'''),
+<p class="sp-small">dist[v] 是当前记录，真正最短距离记为 \(\delta(s,v)\)；确认后两者相等。
+dist[D] 是课堂按顶点名索引的记法；C 中 D 编号为 3，对应 dist[3]。</p>'''),
     P2, '区分输入图、暂定路径信息与确认状态')
 
 add('choose', '从 A 出发，下一步怎样选择？',
@@ -176,24 +188,26 @@ _REGION = {'points': ((18, 25), (247, 25), (247, 280), (18, 280)),
 add('first-exit', '一条更短的路线，必须先经过哪里？',
     pair(main(marked=(('A', 'B'), ('B', 'E'), ('D', 'E')),
               states={'A': 'visited', 'B': 'visited', 'C': 'visited'},
+              details={'A':'s','B':'x ∈ S','E':'y ∉ S','D':'u ∉ S'},
               regions=(_REGION,),
-              caption='示例路线 A→B→E→D 中，E 是第一个未确认顶点，B 是它的前驱。'),
+              caption='图中 s=A、u=D；示意路线的首次出界边为 B→E，即 x=B、y=E。'),
          r'''<p>在一般的一轮选择前，设集合 \(S\) 中的距离已正确确认，且邻居已完成更新。</p>
 <p>沿任意一条从源点到外部顶点的路线，找：</p>
 <p><strong>第一个未确认顶点 \(y\)</strong>，及它之前的顶点 \(x\in S\)。</p>
-<p>处理 \(x\) 时，边 \(x\to y\) 已经参与更新。</p>'''),
+<p>处理 \(x\) 时，边 \(x\to y\) 已经参与更新。</p>
+<p class="sp-small">x、y 由所讨论的路线决定；首次出界就到终点时，也可以 y=u。</p>'''),
     P2, '定位确认论证中的首次出界顶点及已发生的更新')
 
 add('confirmation-proof', '为什么边权非负，就能够确认当前最小者？',
-    r'''<div class="sp-proof"><p>选取最小有限候选 \(u\)，记 \(d(v)=\mathrm{dist}[v]\)。
-假设有路径 \(P\) 满足 \(\ell(P)&lt;d(u)\)。</p>''' +
+    r'''<div class="sp-proof"><p>选最小有限候选 \(u\)（图中 D）。假设从 \(s\) 到 \(u\) 的路径 \(P\) 满足 \(\ell(P)&lt;\mathrm{dist}[u]\)。</p>''' +
     pair(main(marked=(('A', 'B'), ('B', 'E'), ('D', 'E')),
               states={'A': 'visited', 'B': 'visited', 'C': 'visited'}, regions=(_REGION,),
-              caption='沿 P 首次离开 S 到达 y，前一顶点 x∈S。图示路线中 x=B、y=E。'),
+              details={'A':'s','B':'x ∈ S','E':'y ∉ S','D':'u ∉ S'},
+              caption='S={A,B,C}，dist[D]=' + fmt(AFTER_B['distance']['D']) + '。红路线长 13，只示意出界；不是假设中更短的路径 P。'),
          r'''<table class="sp-table"><tbody>
-<tr><th>已更新</th><td>\(d(y)\leq\ell(P_{s\leadsto y})\)<br><span class="sp-small">x 已确认，且处理过边 x→y。</span></td></tr>
+<tr><th>已更新</th><td>\(\mathrm{dist}[y]\leq\ell(P_{s\leadsto y})\)<br><span class="sp-small">dist[x] 已正确，且处理过边 x→y。</span></td></tr>
 <tr><th>非负权</th><td>\(\ell(P_{s\leadsto y})\leq\ell(P)\)<br><span class="sp-small">后续边权非负。</span></td></tr>
-<tr><th>矛盾</th><td>\(d(y)&lt;d(u)\)<br><span class="sp-small">与 u 是最小候选矛盾。</span></td></tr>
+<tr><th>矛盾</th><td>\(\mathrm{dist}[y]&lt;\mathrm{dist}[u]\)<br><span class="sp-small">选择规则却给出 dist[u]≤dist[y]。</span></td></tr>
 </tbody></table>''') +
     '<p><strong>因此可以确认 u。</strong> 哪一步用到了非负权？权为 0 时仍成立吗？</p></div>',
     P2, '说明确认理由，并指出非负权进入论证的位置', '图示论证与学生复述')
@@ -205,8 +219,8 @@ _NEG = graph(_NEG_NODES, [('s', 'p'), ('s', 'q'), ('q', 'p')], directed=True,
              caption='独立有向反例：没有环；q→p 的权为 −4。', view_box=(0, 20, 520, 260))
 add('negative', '出现负权边后，哪里会失效？',
     workspace(_NEG,
-              '<p>从 s 出发，先得到 p=2、q=5。</p>'
-              '<p>若按非负权的规则先确认 p=2，会遗漏什么？</p>'
+              r'<p>从 s 出发，先得到 \(\mathrm{dist}[p]=2\)、\(\mathrm{dist}[q]=5\)。</p>'
+              r'<p>若先把 \(\mathrm{dist}[p]=2\) 当成最短距离确认，会遗漏什么？</p>'
               '<p>请指出上一页论证中失去保证的那一步。</p>',
               '<p>s→q→p 的长度为 <strong>5−4=1</strong>。</p>'
               '<p>到 q 的前缀长 5，整条路径反而只长 1。</p>'
@@ -236,10 +250,10 @@ add('trace', '从初始化开始，每一轮发生什么？',
 add('early-stop', '已经找到到 E 的路线，能够提前结束吗？',
     workspace(main(marked=(('A', 'B'), ('B', 'E')),
                    states={'A': 'visited', 'B': 'visited', 'C': 'visited'}),
-              '<p>刚完成 B 的更新：D=4，E=10，二者均未确认。</p>'
+              '<p>刚完成 B 的更新：' + distance_value(AFTER_B,'D') + '，' + distance_value(AFTER_B,'E') + '；均未确认。</p>'
               '<p>只查询 A 到 E，能否现在返回 10？</p>'
               '<p>下一步处理 D 后，E 会怎样变化？</p>',
-              '<p>经 D 的新候选：4+3=<strong>7</strong>，改进 E。</p>'
+              r'<p>经 D 的新候选为 4+3=7，更新 \(\mathrm{dist}[E]\gets7\)，parent[E]=D。</p>'
               '<p>单目标查询可以在<strong>目标距离被确认时</strong>停止。</p>'
               '<p>首次找到到目标的路线，还可能继续改进。</p>'),
     P2, '区分首次发现与单目标查询的安全停止时机', '局部预测')
@@ -274,12 +288,14 @@ _B_INPUT = r'''<p><strong>输入矩阵 B 行</strong>（列 A–E）</p>
 <p><strong>B 的邻接项：</strong>A:3，C:2，D:1，E:7。</p>
 <p class="sp-small">— 表示无边；零权边仍需保留。主例没有自环。</p>'''
 add('input-row', '确认 B 后，怎样从存储记录更新距离？',
-    workspace('<div>' + main(states={'A': 'visited', 'B': 'current', 'C': 'visited'}) + '</div>',
-              _B_INPUT + '<p>更新前：dist[B]=3，D=7，E=∞。A、B、C 已确认。</p>'
+    workspace('<div class="sp-storage-input">' + pair(main(states={'A': 'visited', 'B': 'current', 'C': 'visited'}),
+              '<div data-required-context="B 行输入">' + _B_INPUT + '</div>' +
+              '<p class="sp-small" data-required-context="更新前状态">更新前：' + distance_value(AFTER_C,'B') + '，' +
+              distance_value(AFTER_C,'D') + '，' + distance_value(AFTER_C,'E') + '。A、B、C 已确认。</p>') + '</div>',
               '<p>补出 D、E 的新距离及前驱，并比较两种表示的枚举工作。</p>',
-              '<p><strong>D：</strong>min(7,3+1)=4，前驱 B。</p>'
-              '<p><strong>E：</strong>min(∞,3+7)=10，前驱 B。</p>'
-              '<p>矩阵检查 5 个位置；邻接表枚举 4 项。A、C 已确认，跳过更新。</p>'),
+              '<p>' + distance_value(AFTER_B,'D') + r'：\(\min(7,3+1)=4\)，parent[D]=B。</p>'
+              '<p>' + distance_value(AFTER_B,'E') + r'：\(\min(\infty,3+7)=10\)，parent[E]=B。</p>'
+              '<p>矩阵检查 5 个位置；邻接表枚举 4 项。A、C 已确认，跳过更新。</p>',layout='stacked'),
     P3, '从真实输入记录独立解释一次更新及枚举代价', '独立补全与反馈')
 
 add('cost', '算法的工作量主要花在哪里？',
@@ -294,7 +310,7 @@ add('cost', '算法的工作量主要花在哪里？',
     P3, '从实际访问与选择推导代价，区分输入与辅助空间')
 
 add('c-code', '怎样把选取、更新和停止写进程序？',
-    r'''<div class="sp-code-workspace"><div class="sp-code-preview"><pre><code>if (u == -1) break;          // 没有有限候选
+    workspace(r'''<pre data-required-context="待对照代码"><code>if (u == -1) break;          // 没有有限候选
 settled[u] = true;
 for (int v = 0; v &lt; n; ++v) {
     if (!present[u][v] || settled[v]) continue;
@@ -302,13 +318,15 @@ for (int v = 0; v &lt; n; ++v) {
     if (candidate &lt; dist[v]) {
         dist[v] = candidate; parent[v] = u;
     }
-}</code></pre><p class="sp-small">present 保存边的存在性；权值 0 仍参与计算。程序先校验非负权和整数范围。</p></div>''' +
-    solution(r'''<table class="sp-table"><thead><tr><th>教材字段</th><th>课堂字段</th><th>含义</th></tr></thead><tbody>
-<tr><td>D[v]</td><td>dist[v]</td><td>当前路径长度</td></tr>
+}</code></pre><p class="sp-small">u、v 是整数编号；顶点 D 对应 dist[3]。present 区分无边与零权边；程序先校验非负权和整数范围。</p>''',
+              '<p>对照教材：距离、前驱和确认信息，分别由哪个字段保存？</p>',
+              r'''<table class="sp-table"><thead><tr><th>教材字段</th><th>课堂字段</th><th>含义</th></tr></thead><tbody>
+<tr><td>D[v]</td><td>dist[v]</td><td>当前找到的最好路径长度</td></tr>
 <tr><td>Path[v]</td><td>parent[v]</td><td>直接前驱</td></tr>
 <tr><td>S[v]</td><td>settled[v]</td><td>是否已确认</td></tr></tbody></table>
-<p>代码中的 settled 数组，与论证中的已确认顶点集合 S 对应。</p>''', '展开教材字段与课堂字段对照') +
-    '<p class="sp-small"><a href="code/shortest_path_demo.c">完整 C11 演示源码</a>：支持主例、零权、不可达、有向练习及负权拒绝。</p></div>',
+<p>\(v\in S\iff\mathrm{settled}[v]=\mathrm{true}\)。教材数组 D 与顶点名 D 各有其含义。</p>
+<p class="sp-small"><a href="code/shortest_path_demo.c">完整 C11 演示源码</a>：主例、零权、不可达、有向练习及负权拒绝。</p>''',
+              title='展开教材字段与课堂字段对照',layout='stacked'),
     P3, '解释关键 C 条件及字段映射，保护零权和停止语义')
 
 add('independent', '换一张有向图，你能独立完成吗？',
@@ -318,8 +336,8 @@ add('independent', '换一张有向图，你能独立完成吗？',
               '<li>继续计算，恢复 P 到 S 的路径；用一句话解释为何可确认 Q。</li>'
               '<li>从 S 出发能否到达 P？依据箭头说明。</li></ol>'
               '<p class="sp-small">保留预测过程，再展开答案。编号 P=0，Q=1，R=2，S=3。</p>',
-              '<p>处理 R 后：Q=3，前驱 R；S=7，前驱 R。</p>'
-              '<p>随后确认 Q=3，经零权 Q→S 更新 S=3、前驱 Q；确认距离可以相等。</p>'
+              r'<p>处理 R 后：\(\mathrm{dist}[Q]=3\)，parent[Q]=R；\(\mathrm{dist}[S]=7\)，parent[S]=R。</p>'
+              r'<p>随后确认 Q 的距离 3，经零权 Q→S 更新 \(\mathrm{dist}[S]=3\)、parent[S]=Q；确认距离可以相等。</p>'
               '<p>最终 P→R→Q→S，权和 <strong>3</strong>。</p>'
               '<p>Q 为当前最小未确认候选，且边权非负。S 没有出边，所以不能到达 P。</p>'),
     P3, '检验有向读取、零权、确认、路径恢复与反向不可达', '7 分钟独立作答＋3 分钟反馈', role='exercise')

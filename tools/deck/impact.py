@@ -9,7 +9,7 @@ from build import ROOT, DECKS, EXAMPLES, load_deck, render_document
 from dependencies import dependency_manifest
 from instructions import CONTEXT_FILES
 
-VALIDATION = {'tools/deck/check.py', 'tools/deck/check-browser.cjs',
+VALIDATION = {'tools/deck/check.py', 'tools/deck/check-browser.cjs', 'tools/deck/review-context.cjs',
               'tools/deck/dependencies.py', 'tools/deck/impact.py', 'tools/deck/verify.py',
               'tools/deck/legacy_baseline.py', 'tools/deck/legacy.json'}
 VALIDATION |= {'tools/deck/review.py', 'tools/deck/instructions.py', 'tools/deck/navigation.py',
@@ -29,7 +29,7 @@ def git_changes(base, root=ROOT):
 def analyze(changed, *, all_decks=False):
     changed = set(changed)
     legacy = json.loads(Path(__file__).with_name('legacy.json').read_text())['legacy']
-    full, defaults, reasons, covered = [], [], {}, set()
+    full, defaults, review_candidates, reasons, covered = [], [], [], {}, set()
     for deck in sorted(p for p in DECKS.iterdir() if (p / 'slides.py').is_file()):
         key = deck.name.split('-', 1)[0].upper()
         prefix = deck.relative_to(ROOT).as_posix() + '/'
@@ -49,6 +49,8 @@ def analyze(changed, *, all_decks=False):
             why.append('Dependency inspection failed: ' + str(error))
         why += sorted(p for p in changed if p.startswith(prefix))
         why += sorted(changed & VALIDATION)
+        if not adopted and any(token in doc for token in ('answer-workspace','tree-swap')):
+            review_candidates.append(key)
         if all_decks:
             why.append('Requested all lessons')
         if why:
@@ -69,9 +71,10 @@ def analyze(changed, *, all_decks=False):
                 (full if adopted else defaults).append(key)
             reasons.setdefault(key, []).extend('Unresolved shared impact: ' + p for p in unknown_shared)
     return dict(changed=sorted(changed), full=sorted(full), defaults=sorted(defaults),
+                review=sorted(set(defaults) & set(review_candidates)),
                 examples=sorted(p.name for p in EXAMPLES.iterdir() if (p / 'slides.py').is_file()),
                 reasons=reasons,
-                limits=['Legacy defaults exclude interaction, reading and print verification.',
+                limits=['Legacy defaults exclude interaction, reading and print verification; known affected review areas receive separate targeted coverage.',
                         'Dynamic dependencies must be declared; unresolved shared changes expand scope.',
                         'Teaching content and default-visible answers require manual review.'])
 

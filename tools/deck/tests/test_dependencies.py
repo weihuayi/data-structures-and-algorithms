@@ -60,6 +60,7 @@ class DependencyTests(unittest.TestCase):
         global_change=analyze(['tools/deck/deck.css'])
         self.assertIn('D013',global_change['defaults'])
         self.assertIn('D014',global_change['full'])
+        self.assertEqual(global_change['review'],['D010','D013'])
 
     def test_scoped_instructions_are_fingerprinted_and_select_regression(self):
         files = dependency_manifest(DECKS/'d015-topological-and-critical-path')['files']
@@ -90,6 +91,7 @@ class DependencyTests(unittest.TestCase):
         actual={p.name.split('-',1)[0].upper() for p in DECKS.iterdir() if (p/'slides.py').is_file()}
         self.assertEqual(set(expanded['full']) | set(expanded['defaults']),actual)
         self.assertFalse(set(expanded['full']) & set(expanded['defaults']))
+        self.assertEqual(expanded['review'],['D010','D013'])
 
 
 if __name__ == '__main__':

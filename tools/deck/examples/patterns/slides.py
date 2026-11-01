@@ -19,6 +19,6 @@ for section in COURSE.sections:
 COURSE.add('practice', '先预测，再核对', task_workspace(
     '<p>输入序列：2，4，6。</p>',
     '<p>在每项都乘以 2 后，写出新序列并说明规则。</p>',
-    '<p>4，8，12。每个输出都来自对应输入项。</p>'),
-    section='transfer', role='exercise', goal='检查必要输入在答案展开后仍可读取')
+    '<p>4，8，12。每个输出都来自对应输入项。</p>',layout='stacked'),
+    section='transfer', role='exercise', goal='检查输入与题目在答案展开后仍可读取')
 SLIDES = COURSE.finalize()

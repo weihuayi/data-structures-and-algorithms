@@ -126,7 +126,7 @@ core='int binary_find'+core.replace(', Trace *t','')
 core=re.sub(r'^\s*probe\(t,low,high,mid,a\[mid\]\);\n','',core,flags=re.M)
 add('binary-code', '区间规则怎样进入 C 程序？',
     code(core.strip())+
-    '<p class="search-note">核心代码省略轨迹记录。演示仅存关键字，一般记录还需保持其他字段对应。前提：n≥0、存储有效且按同一关键字非递减；查询不现场排序。</p>',
+    '<p class="search-note">核心代码省略轨迹记录。键数组 a[i] 对应记录 A[i].key，一般记录还需保持其他字段对应。前提：n≥0、存储有效且按同一关键字非递减；查询不现场排序。</p>',
     'order','将区间约定、返回契约与实际 C 条件和更新对应','对照规则阅读代码')
 add('boundary-task', '只剩最后一个候选，还要比较吗？',
     '<div class="search-compact-task">'+task_workspace(array_view((5,16),caption='目标 16；初始 low=0、high=1，向下取中点。'),
@@ -155,7 +155,8 @@ add('decision-tree', '判定树怎样把不同路径画出来？',
 add('success-asl', '怎样从不同查询得到平均代价？',
     definition('平均查找长度（Average Search Length，ASL）是比较关键字个数的期望。教材首先定义成功时的 ASL；此时概率在成功记录之间归一。')+
     r'<p class="search-formula">\(ASL_{\mathrm{succ}}=\sum_{i=0}^{n-1}p_i c_i,\qquad \sum_i p_i=1\)</p>'+
-    r'<p class="search-note">\(p_i\)：成功时查第 \(i\) 项的概率；\(c_i\)：命中它所比较的关键字个数。</p>'+
+    r'<p class="search-note">\(p_i\)：成功时查第 \(i\) 项的概率；\(c_i\)：命中它所比较的关键字个数。<br>'
+    r'例：\(i=3\) 对应关键字 27；等概率时 \(p_3=1/11\)，顺序 \(c_3=4\)、折半 \(c_3=3\)。</p>'+
     table(('本例假设','顺序查找','折半查找'),[
         ('成功查询，11 个记录等概率',str(MEAN_SEQ),str(MEAN_BINARY))])+
     r'<p class="search-formula">折半：\(\dfrac{1+2\times2+3\times4+4\times4}{11}=3\)</p>'

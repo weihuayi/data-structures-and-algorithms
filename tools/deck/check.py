@@ -95,6 +95,7 @@ def main(argv=None):
     parser.add_argument('decks', nargs='*', help='D008 D009 / directory names / all (default)')
     parser.add_argument('--static-only', action='store_true', help='Check source, structure and HTML page frames; excludes browser checks')
     parser.add_argument('--default-pages', action='store_true', help='Browser checks only initial pages; excludes all interaction coverage')
+    parser.add_argument('--review-context-only', action='store_true', help='Known review areas and disclosures only; excludes player steps and general layout/navigation')
     parser.add_argument('--output', type=Path, help='New report directory (default: a new temporary directory)')
     parser.add_argument('--node', default=os.environ.get('DECK_NODE') or shutil.which('node'))
     parser.add_argument('--playwright-module', default=os.environ.get('DECK_PLAYWRIGHT_MODULE'), help='Path or module name, default: playwright')
@@ -108,13 +109,13 @@ def main(argv=None):
             output.mkdir(parents=True, exist_ok=False)
     except (ValueError, OSError) as exc:
         parser.error(str(exc))
-    if args.static_only and args.default_pages:
-        parser.error('--static-only and --default-pages are different scopes; choose one')
-    validators = ['check.py', 'check-browser.cjs', 'headers.py', 'components.py', 'dependencies.py', 'legacy.json',
+    if sum((args.static_only,args.default_pages,args.review_context_only)) > 1:
+        parser.error('--static-only, --default-pages and --review-context-only are different scopes; choose one')
+    validators = ['check.py', 'check-browser.cjs', 'review-context.cjs', 'headers.py', 'components.py', 'dependencies.py', 'legacy.json',
                   'impact.py', 'verify.py', 'legacy_baseline.py', 'package-lock.json',
                   'instructions.py', 'navigation.py', 'review.py']
     report = {'schemaVersion': 2, 'createdAt': datetime.now(timezone.utc).isoformat(),
-              'mode': 'static-only' if args.static_only else 'default-pages' if args.default_pages else 'full', 'python': sys.version.split()[0],
+              'mode': 'static-only' if args.static_only else 'default-pages' if args.default_pages else 'review-context' if args.review_context_only else 'full', 'python': sys.version.split()[0],
               'validationFiles': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in validators},
               'contractSha256': hashlib.sha256((ROOT / 'docs/design/deck-contract.md').read_bytes()).hexdigest(),
               'contextChecks': context_checks(),
@@ -122,16 +123,17 @@ def main(argv=None):
               'browser': {'status': 'not-requested' if args.static_only else 'pending'},
               'limits': ['No proof of teaching effectiveness or mathematical correctness.',
                          'Only data-tree-player has a step-control adapter; other interactions are reported uncovered.',
-                         'Teacher-note expansion may scroll vertically; learner disclosures are checked for viewport overflow.',
+                         'Known expanded review workspaces and teacher notes may scroll vertically; default and unclassified states retain viewport checks.',
                          'Page roles and input markers do not prove pedagogical adequacy or absence of answer leakage.',
-                         'Default-pages mode excludes all interaction, reading and print checks.']}
+                         'Default-pages mode excludes all interaction, reading and print checks.',
+                         'Review-context mode checks known review areas/disclosures/retained material/print, not full legacy interactions or general default layout.']}
     eligible = [p for p, r in zip(decks, report['decks']) if all(c['status'] == 'pass' for c in r['checks'])]
     if not args.static_only:
         if eligible:
             manifest = {'decks': [{'id': p.name, 'url': (p / 'index.html').as_uri(), 'slides': r['slides']} for p, r in zip(decks, report['decks']) if p in eligible],
                         'viewports': report['viewports'], 'output': str(output), 'screenshots': args.screenshots,
                         'playwrightModule': args.playwright_module or 'playwright', 'executablePath': args.browser_executable,
-                        'scope': 'default-pages' if args.default_pages else 'full'}
+                        'scope': 'default-pages' if args.default_pages else 'review-context' if args.review_context_only else 'full'}
             manifest_path = output / 'browser-input.json'
             manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
             try:
@@ -156,7 +158,7 @@ def main(argv=None):
     elif not args.static_only and browser_status != 'pass':
         report['status'], exit_code = 'incomplete', 2
     else:
-        report['status'], exit_code = ('static-only-pass' if args.static_only else 'default-pages-pass' if args.default_pages else 'pass'), 0
+        report['status'], exit_code = ('static-only-pass' if args.static_only else 'default-pages-pass' if args.default_pages else 'review-context-pass' if args.review_context_only else 'pass'), 0
     report_path = output / 'report.json'
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f'{report["status"].upper()}: {len(decks)} Deck(s); report: {report_path}')

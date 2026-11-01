@@ -141,3 +141,7 @@ python3 tools/deck/review.py init --verification /tmp/d016-review/verification.j
 ~~~
 
 完成实际 AI 内容/视觉自审、修订及复查后填写记录并执行 review.py check。源码、共享资源和规则变化后重新验证；机器范围、AI 自审、教师审阅与课堂证据分别记录。计划、发现和覆盖边界见 [建设审阅记录](../../../docs/design/d016-construction-review.md)。
+
+## 2026-11-02 核对与表征对应
+
+八个公共任务区追加答案并保留题干。第 13 页明确键数组 a[i] 与记录 A[i].key 的对应；第 19 页以 i=3/关键字27 将 p_i/c_i 落到实际记录，顺序与折半成本分别为4/3。概率和计数条件保持原定义；展开态可滚动，不压缩关键题目信息。最终检查和审阅见本次 PR 的当前内容证据。

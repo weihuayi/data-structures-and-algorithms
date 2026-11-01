@@ -54,6 +54,9 @@ def main():
         targets = impact['full'] + impact['examples']
         if targets:
             run('adopted-full', check + targets + ['--screenshots', args.screenshots, '--output', str(output / 'full')])
+        if impact['review']:
+            run('legacy-review-context', check + impact['review'] + ['--review-context-only', '--screenshots', args.screenshots,
+                                                                    '--output', str(output / 'review-context')])
         if impact['defaults']:
             legacy_code = run('legacy-defaults', check + impact['defaults'] + ['--default-pages', '--screenshots', 'failures',
                                                                              '--output', str(output / 'defaults')])

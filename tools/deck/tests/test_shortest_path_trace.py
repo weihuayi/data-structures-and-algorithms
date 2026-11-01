@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -14,6 +15,7 @@ from shortest_path_trace import (
     MAIN_NODES, MAIN_EDGES, EXERCISE_NODES, EXERCISE_EDGES,
     dijkstra_states, recover_path, floyd_stages,
 )
+from build import DECKS, load_deck
 
 
 def exact_distances(vertices, edges, source, directed=False):
@@ -37,6 +39,27 @@ def exact_distances(vertices, edges, source, directed=False):
 
 
 class ShortestPathSemanticsTests(unittest.TestCase):
+    def test_shown_distance_records_and_proof_roles_match_independent_case_values(self):
+        class Values(HTMLParser):
+            def __init__(self):
+                super().__init__(); self.values=[]
+            def handle_starttag(self,tag,attrs):
+                a=dict(attrs)
+                if 'data-distance-vertex' in a:self.values.append((a['data-distance-vertex'],a['data-distance-value']))
+        mod=load_deck(DECKS/'d014-shortest-path')
+        bodies={p['id']:s[1] for p,s in zip(mod.COURSE.pages,mod.SLIDES)}
+        p=Values();p.feed(bodies['early-stop']);self.assertEqual(p.values,[('D','4'),('E','10')])
+        p=Values();p.feed(bodies['input-row'])
+        self.assertEqual(p.values,[('B','3'),('D','7'),('E','∞'),('D','4'),('E','10')])
+        # The displayed red route is a concrete cut illustration, not a putative
+        # shorter path. Check its actual data rather than a renderer's output alone.
+        weights={frozenset((a,b)):w for a,b,w in MAIN_EDGES}
+        self.assertEqual(sum(weights[frozenset(e)] for e in [('A','B'),('B','E'),('E','D')]),13)
+        self.assertIn('不是假设中更短的路径 P',bodies['confirmation-proof'])
+        self.assertNotIn(r'd(v)=',bodies['confirmation-proof'])
+        self.assertIn('data-required-context="B 行输入"',bodies['input-row'])
+        self.assertIn('data-required-context="待对照代码"',bodies['c-code'])
+
     def test_main_distances_and_real_predecessor_path(self):
         end = dijkstra_states()[-1]
         self.assertEqual(end['distance'], dict(A=0, B=3, C=2, D=4, E=7))
