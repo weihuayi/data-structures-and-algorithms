@@ -228,3 +228,11 @@ Prim 快照的 `key_changes` 保存外部点入口的旧值/新值，表格保�
 D014 复用现有 `graph_diagram.graph` 与 `tree_trace.player`，没有增加独立 DOM 播放器或全局 JavaScript 分支。共享 `.shortest-lesson` 样式按内容身份作用，前驱用蓝实线、当前输入边用红粗实线，并辅以文字与表格。学生答案展开时替换提问，图与条件仍在场；打印保留问题，隐藏答案及非当前播放器状态。
 
 `tests/test_shortest_path_trace.py` 使用简单路径穷举作为独立小图参照，核对确认前提、实际路径、零权并列、有向反向不可达、负权拒绝与 Floyd 阶段含义；并编译 C11 课堂程序，对照路径、最终状态与各对距离。通用浏览器检查覆盖 D014 的 38 个播放器状态、返回、重置、答案折叠、公式和两种投影尺寸。算法测试及浏览器检查各有边界，不代表真实学习效果。
+
+## 数组查找状态与页面（D016）
+
+search_trace.py 提供顺序/折半状态、判定树深度、失败间隙、精确概率加权和静态分块过程；复用 tree_trace.player、tree_diagram.tree 及公共任务区，不增加独立 JavaScript 分支。状态区分 ready、compare、update、found、miss，输入保持不变；闭区间、0 起下标、任一匹配或 −1。分块另记索引比较和记录比较，selected 表示选定块，不等同尚未检查记录集合。
+
+array_view 显示完整输入、下标、候选/排除/当前/命中；decision_view 从同一输入推导分析树，gap_view 显示失败类别。成功 ASL 的记录分布要求互异关键字；mean_cost 使用 Fraction 并检查非负概率及归一。图文、边界和代码的一致性仍须内容审阅。
+
+Python 轨迹构建时检查数据，C 查询函数依赖已建立前提；CLI 的一次输入检查不计查询成本。C 演示限制 n≤256、保留轨迹，不作为通用查找库。独立线性参照、随机/边界输入、字面成本参照、分块非法成员及 C 对照见 tests/test_search_trace.py。样式限于 .search-lesson，公共变更覆盖采用者；教师审阅、真实课堂效果另行取证。

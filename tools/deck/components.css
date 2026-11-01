@@ -55,3 +55,49 @@
  .deck .dependency-lesson .dag-two{grid-template-columns:1fr 1.12fr}
  .deck .dependency-lesson details>:not(summary){display:none!important}
 }
+
+/* D016: array search. Wide task inputs keep all candidate records visible. */
+.deck .search-lesson p,.deck .search-lesson li{font-size:clamp(23px,1.9vw,30px);line-height:1.46;margin:12px 0}
+.deck .search-lesson .lead{font-size:clamp(28px,2.7vw,40px);line-height:1.4}
+.deck .search-lesson .search-note{font-size:clamp(18px,1.45vw,22px);color:var(--muted);line-height:1.4;margin:8px 0}
+.deck .search-lesson .search-definition{border-left:5px solid var(--blue);background:#f2f7fb;padding:10px 16px;font-size:23px;line-height:1.5;margin:0 0 14px}
+.deck .search-lesson .search-definition strong{color:var(--blue);font-size:20px}
+.deck .search-lesson .search-array{table-layout:fixed;margin:10px 0 0;width:100%}
+.deck .search-lesson .search-array th,.deck .search-lesson .search-array td{font-size:24px;text-align:center;padding:8px 2px;line-height:1.3;border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.deck .search-lesson .search-array th:first-child{width:90px;font-size:20px;background:var(--wash)}
+.deck .search-lesson .search-array .candidate{background:#e6f1fa}
+.deck .search-lesson .search-array .excluded{color:#677483;background:#eff1f3}
+.deck .search-lesson .search-array .current{outline:3px solid #c95710;outline-offset:-3px;color:var(--ink);background:#fff0de;font-weight:750}
+.deck .search-lesson .search-array .found{outline:3px solid #087a67;outline-offset:-3px;color:#07584c;background:#ddf4ed;font-weight:750}
+.deck .search-lesson figure{margin:0}
+.deck .search-lesson figcaption{font-size:18px;line-height:1.4;color:var(--muted);margin:8px 0}
+.deck .search-lesson .search-action{font-size:25px;border-left:4px solid var(--accent);padding-left:14px;margin:16px 0 12px}
+.deck .search-lesson .search-counters{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;padding:10px 18px;background:var(--wash);font-size:22px}
+.deck .search-lesson .search-empty{padding:28px;background:var(--wash);font-size:27px}
+.deck .search-lesson .course-workspace{grid-template-columns:1fr;gap:10px;align-items:start}
+.deck .search-lesson .course-workspace details{margin:8px 0 0;padding:10px 16px}
+.deck .search-lesson .search-compact-task .course-workspace{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:24px;align-items:center}
+.deck .search-lesson summary{font-size:22px}
+.deck .search-lesson .search-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:start}
+.deck .search-lesson .search-pair>*{min-width:0}
+.deck .search-lesson .search-table th,.deck .search-lesson .search-table td{font-size:23px;line-height:1.4;padding:8px 10px}
+.deck .search-lesson .search-table{margin:10px 0}
+.deck .search-lesson .search-index th,.deck .search-lesson .search-index td{font-size:21px;padding:4px 12px;line-height:1.3}
+.deck .search-lesson .search-index .current{background:#fff0de;outline:2px solid #c95710}
+.deck .search-lesson .search-index .found{background:#ddf4ed}
+.deck .search-lesson .search-block-head{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center}
+.deck .search-lesson .search-block-snapshot .search-action{font-size:23px;margin:12px 0}
+.deck .search-lesson .search-gaps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 18px}
+.deck .search-lesson .search-gaps>div{border:1px solid var(--line);padding:8px;text-align:center}
+.deck .search-lesson .search-gaps strong{display:block;font-size:22px;font-weight:600}
+.deck .search-lesson .search-gaps span{display:block;font-size:20px;color:var(--muted)}
+.deck .search-lesson .search-decision svg{display:block;width:100%;height:auto;max-height:310px}
+.deck .search-lesson pre{font-size:21px;line-height:1.38;margin:8px 0;padding:16px 20px}
+.deck .search-lesson .search-code-small{font-size:19px}
+.deck .search-lesson .search-player .toolbar{margin:8px 0 14px}
+@media print{
+ .deck .search-lesson .course-workspace{grid-template-columns:1fr}
+ .deck .search-lesson details>:not(summary){display:none!important}
+}
+.deck .search-lesson .search-answer-tree .search-decision svg{max-height:200px}
+.deck .search-lesson .search-formula{text-align:center}
