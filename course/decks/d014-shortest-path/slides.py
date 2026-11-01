@@ -155,7 +155,7 @@ add('relax', '一条输入记录怎样产生新的候选？',
 <tr><th>读取的图记录</th><td>边 BD 存在，权为 \(w(u,v)=1\)</td></tr>
 <tr><th>新候选路径</th><td>经 B 到 D，长度 \(3+1=4\)</td></tr>
 <tr><th>与旧值比较</th><td>旧记录 \(\mathrm{dist}[v]=7\)；\(4&lt;7\)，接受候选</td></tr></tbody></table>
-<p><strong>松弛（Relaxation）</strong>：用一条新候选路径尝试改进距离。</p>
+<p><strong>松弛（Relaxation）</strong>：尝试用新候选改进距离。</p>
 <p class="sp-small">u 是本次延伸的出发顶点，v 是待改进顶点；本例 \(u=B,v=D\)。dist[v] 保存当前找到的最好距离。</p>
 <p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>
 <p class="sp-small">u 是新候选路径的前驱；仅在接受更短候选后，才写入 parent[v]=u。</p>'''),
@@ -222,9 +222,9 @@ add('negative', '出现负权边后，哪里会失效？',
               r'<p>从 s 出发，先得到 \(\mathrm{dist}[p]=2\)、\(\mathrm{dist}[q]=5\)。</p>'
               r'<p>若先把 \(\mathrm{dist}[p]=2\) 当成最短距离确认，会遗漏什么？</p>'
               '<p>请指出上一页论证中失去保证的那一步。</p>',
-              '<p>s→q→p 的长度为 <strong>5−4=1</strong>。</p>'
-              '<p>到 q 的前缀长 5，整条路径反而只长 1。</p>'
-              '<p>延长路径可能降低代价，原来的确认依据失去保证。</p>'),
+              r'<p>取 \(P=s\to q\to p\)，长度 \(5-4=1\)。</p>'
+              r'<p>先选 \(u=p\) 时，\(x=s,y=q\)；但 \(\ell(P_{s\leadsto q})=5>1=\ell(P)\)。</p>'
+              '<p>“前缀长度不大于整条路径”失去保证，原确认依据不能使用。</p>'),
     P2, '用无负环的小反例识别 Dijkstra 的条件边界', '反例预测')
 
 add('algorithm', '怎样把这些判断组织成完整算法？',
@@ -250,7 +250,7 @@ add('trace', '从初始化开始，每一轮发生什么？',
 add('early-stop', '已经找到到 E 的路线，能够提前结束吗？',
     workspace(main(marked=(('A', 'B'), ('B', 'E')),
                    states={'A': 'visited', 'B': 'visited', 'C': 'visited'}),
-              '<p>刚完成 B 的更新：' + distance_value(AFTER_B,'D') + '，' + distance_value(AFTER_B,'E') + '；均未确认。</p>'
+              '<p>刚完成 B 的更新，D、E 均未确认：</p><p>' + distance_value(AFTER_B,'D') + '，' + distance_value(AFTER_B,'E') + '。</p>'
               '<p>只查询 A 到 E，能否现在返回 10？</p>'
               '<p>下一步处理 D 后，E 会怎样变化？</p>',
               r'<p>经 D 的新候选为 4+3=7，更新 \(\mathrm{dist}[E]\gets7\)，parent[E]=D。</p>'
@@ -336,8 +336,8 @@ add('independent', '换一张有向图，你能独立完成吗？',
               '<li>继续计算，恢复 P 到 S 的路径；用一句话解释为何可确认 Q。</li>'
               '<li>从 S 出发能否到达 P？依据箭头说明。</li></ol>'
               '<p class="sp-small">保留预测过程，再展开答案。编号 P=0，Q=1，R=2，S=3。</p>',
-              r'<p>处理 R 后：\(\mathrm{dist}[Q]=3\)，parent[Q]=R；\(\mathrm{dist}[S]=7\)，parent[S]=R。</p>'
-              r'<p>随后确认 Q 的距离 3，经零权 Q→S 更新 \(\mathrm{dist}[S]=3\)、parent[S]=Q；确认距离可以相等。</p>'
+              r'<p>处理 R 后：\(\mathrm{dist}[Q]=3\)，parent[Q]=R；<br>\(\mathrm{dist}[S]=7\)，parent[S]=R。</p>'
+              r'<p>确认 Q 的距离 3 后，经零权边 Q→S：<br>更新 \(\mathrm{dist}[S]=3\)、parent[S]=Q；确认距离可以相等。</p>'
               '<p>最终 P→R→Q→S，权和 <strong>3</strong>。</p>'
               '<p>Q 为当前最小未确认候选，且边权非负。S 没有出边，所以不能到达 P。</p>'),
     P3, '检验有向读取、零权、确认、路径恢复与反向不可达', '7 分钟独立作答＋3 分钟反馈', role='exercise')

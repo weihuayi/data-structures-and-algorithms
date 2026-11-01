@@ -199,7 +199,7 @@ add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=(
 add('multiple', '继续缩短 B，工期一定继续缩短吗？',
     task_workspace(aoe_view(activities=B4)+'<p class="dag-note">只把活动 B 的时长从 5 小时改为 4 小时；其他活动不变。</p>',
         '<p>B 的持续时间为 4 小时，工期和关键路径是什么？</p><p>若再改为 3 小时，工期还会缩短 1 小时吗？</p>',
-        '<p>B 持续 4 小时：T=9；B–D–F、A–E–D–F 均长 9 小时。</p>'
+        '<p>B 持续 4 小时：T=9。<br>关键路径：B–D–F、A–E–D–F。</p>'
         '<p>B 持续 3 小时：T 仍为 9，由 A–E–D–F 约束。</p>'
         '<p>加快一条关键路径独有的活动，未必能缩短另一条关键路径；改变时长后重新计算。</p>'),
     'critical','用时长变化理解多关键路径及加速效果的条件','变式预测与反馈',role='exercise')
