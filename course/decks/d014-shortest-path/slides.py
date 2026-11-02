@@ -115,21 +115,22 @@ add('mst-cost', '连接总成本最低，出行路线就最短吗？',
     P1, '解释最小生成树与最短路径的优化目标差异')
 
 add('single-source', '从一个起点出发，我们究竟要求什么？',
-    r'''<div class="sp-definition"><strong>教材定义（概述）</strong><br>
-给定带权图及源点，求源点到其他各顶点的最短路径；路径代价为沿途边权之和。</div>
-<div class="sp-two sp-text-pair"><div><p>输入：\(G=(V,E,w)\)，源点 \(s\)。</p>
-<p>路径权和：\(\ell(P)=\sum_{e\in P}w(e)\)。</p>
-<p>最短距离：\(\delta(s,v)=\min_{P:s\leadsto v}\ell(P)\)。</p></div>
-<div><p>输出：到各顶点的最短距离，以及各顶点的一条对应路径。</p>
-<p>源点到自身距离为 0；无可行路线时记为 \(\infty\)。</p></div></div>
-<p><strong>先预测：</strong>固定起点 A，如果程序最终要返回到每个顶点的距离与一条路线，你准备怎样用数组存储？是否需要给每个顶点保存整条路线？</p>
-<details><summary>核对输出表示：两个长度为 n 的数组</summary>
-<table class="sp-table"><thead><tr><th>顶点</th><th>A (0)</th><th>B (1)</th><th>C (2)</th><th>D (3)</th><th>E (4)</th></tr></thead><tbody>
+    r'''<div class="sp-definition"><strong>单源最短路径：</strong>给定带权图及源点 \(s\)，求到各顶点的最短距离和一条对应路线；路径代价为边权之和。</div>
+<div class="course-workspace" data-course-component="task-workspace">
+<div class="course-input" data-task-input>
+<p>输入：\(G=(V,E,w)\)、源点 \(s\)。</p>
+<p>最短距离：\(\delta(s,v)=\min_{P:s\leadsto v}\sum_{e\in P}w(e)\)。</p>
+<p>从 A 到 A 为 0；不可达时为 \(\infty\)。</p>
+<p class="sp-small">数学目标是距离与一条路线，暂不讨论怎样计算。</p></div>
+<div class="course-task"><div class="course-prompt" data-task-prompt>
+<p><strong>先预测：</strong>固定 A 作起点，怎样存到每个顶点的距离？恢复路线是否必须保存全部顶点序列？</p>
+</div><details class="course-answer" data-task-answer><summary>核对输出表示：两个长度为 n 的数组</summary><div class="course-solution">
+<table class="sp-table"><thead><tr><th>顶点</th><th>A(0)</th><th>B(1)</th><th>C(2)</th><th>D(3)</th><th>E(4)</th></tr></thead><tbody>
 <tr><th>dist[v]</th><td>0</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
 <tr><th>parent[v]</th><td>—</td><td>?</td><td>?</td><td>?</td><td>?</td></tr></tbody></table>
-<p>dist[v] 记录到 v 的当前最好路线长度；parent[v] 只记这条路线的直接前驱。从目标沿前驱回溯即可恢复一条路线。数组在计算时不断变化，算法结束后才保存最终结果。</p>
-<p class="sp-small">这两个数组表示一组单源最短路径结果，并不排除算法执行还需要 settled 等辅助状态；多条等长最短路线只保留其中一条。</p></details>
-<p class="sp-small">本讲讨论固定非负边权。现在仅预测输出的结构，具体数值怎样计算、为什么最终正确，留待后续回答。</p>''',
+<p>dist[v] 保存到 v 的当前最好距离；parent[v] 只记候选路线的直接前驱。沿前驱回溯即可恢复一条路线。</p>
+<p class="sp-small">两数组是结果表示；运行时另需确认状态。暂定值可能改进，正确结束后才是最终最短距离。等长路线只记录一条。</p>
+</div></details></div></div>''',
     P1, '从单源问题预测距离和一条路径的输出表示', '先预测两个数组，再核对解释')
 
 add('tentative', '找到一条路线后，哪些事情还没有确定？',
@@ -211,16 +212,19 @@ add('trace', '从初始化开始，每一轮发生什么？',
     P2, '区分选取、确认、读取、比较、修改与一轮完成', '按关键状态停顿的完整推演')
 
 add('concrete-confirm', '当前例子中，为什么能确认 D=4？',
-    r'''<div class="sp-definition"><strong>回到刚才的执行过程：</strong>已完成 A、C、B 的邻居更新；已确认集合 \(S=\{A,C,B\}\)。现在 \( \mathrm{dist}[D]=4,\ \mathrm{dist}[E]=10\)，准备确认 D。</div>
-<p><strong>待解释的问题：</strong>虽然我们选中了当前最小候选 D=4，但如何排除一条尚未找到、长度小于 4 的 A→D 路线？</p>
-<table class="sp-table"><thead><tr><th>第一次离开 S 的可能边</th><th>此前已算出的对应候选</th></tr></thead><tbody>
-<tr><td>B→D</td><td>\(\mathrm{dist}[B]+w(B,D)=3+1=4\)</td></tr>
-<tr><td>C→D</td><td>\(\mathrm{dist}[C]+w(C,D)=2+5=7\)</td></tr>
-<tr><td>B→E</td><td>\(\mathrm{dist}[B]+w(B,E)=3+7=10\)</td></tr></tbody></table>
-<details><summary>核对：为什么任何路线都不能短于 4？</summary>
-<p>从 A 到 D 的任意路线必须第一次从 S 走到外部。第一次到 D，已有候选下界为 4；第一次到 E，已有候选下界为 10。因为所有后续边权非负，继续走不会使该路线的累计代价减小，因此不可能存在总长度小于 4 的路线。</p>
-<p>另一方面，A→B→D 确实长 4，所以 \(\delta(A,D)=4\)。这是对<strong>当前具体图、当前状态</strong>的论证；下一页再推广到任意非负权图。</p></details>
-<p class="sp-small">这里比较的是已处理集合的全部出界候选，而不是枚举所有完整路线；B、C 的邻居已经处理完是必要前提。</p>''',
+    r'''<div class="sp-definition"><strong>回到处理完 B 的时刻：</strong>已确认并扫描完 \(S=\{A,C,B\}\)，\(\mathrm{dist}[D]=4\)，\(\mathrm{dist}[E]=10\)。为什么现在可以确认 D？</div>
+<div class="course-workspace course-workspace-stacked" data-course-component="task-workspace">
+<div class="course-input" data-task-input>
+<table class="sp-table"><thead><tr><th>从 S 第一次出界可能经过的边</th><th>已得到的最小候选</th></tr></thead><tbody>
+<tr><td>B→D</td><td>\(3+1=4\)</td></tr>
+<tr><td>C→D</td><td>\(2+5=7\)</td></tr>
+<tr><td>B→E</td><td>\(3+7=10\)</td></tr></tbody></table></div>
+<div class="course-task"><div class="course-prompt" data-task-prompt>
+<p>如果有长度小于 4 的 A→D 路线，它首次离开 S 时会发生什么？</p>
+</div><details class="course-answer" data-task-answer><summary>核对：为什么任何路线都不能短于 4？</summary><div class="course-solution">
+<p>任意 A→D 路线第一次出界，只可能到达 D 或 E；已有记录表明其出界前缀代价至少为 4。后续边权非负，总代价不会下降到 4 以下。</p>
+<p>A→B→D 确实长 4，所以 \(\delta(A,D)=4\)。这仅证明当前具体图；下一页推广到一般情形。</p>
+</div></details></div></div>''',
     P2, '从已处理区域的全部出界候选解释主例中 D=4 的确认', '具体状态预测与理由核对')
 
 add('first-exit', '假设有更短路线，它第一次离开哪里？',
@@ -243,15 +247,14 @@ add('first-exit', '假设有更短路线，它第一次离开哪里？',
     P2, '从具体例子推广到假设路径的首次出界位置', '无数值图示与角色辨析')
 
 add('confirmation-proof', '为什么任意非负权图中都可以确认最小候选？',
-    r'''<div class="sp-definition"><strong>证明命题：</strong>在每轮选择开始时，已处理集合 S 的距离正确、出边已经检查；所有边权非负。选择未确认顶点中暂定距离最小的有限候选 u，则它的距离可以确认。</div>
-<p>反证：如果还有一条到 u 的路线 P，满足 \(\ell(P)&lt;\mathrm{dist}[u]\)，令 y 为 P 的首次出界顶点，x 为它在 P 上的前一个顶点（x 在 S 中）。</p>
-<table class="sp-table"><thead><tr><th>根据什么事实？</th><th>得到什么不等式？</th></tr></thead><tbody>
-<tr><th>已确认 x，且 x→y 已松弛</th><td>\(\mathrm{dist}[y]\leq\ell(P_{s\leadsto y})\)</td></tr>
+    r'''<div class="sp-definition"><strong>命题：</strong>已处理集合 S 的距离正确、出边已检查且边权非负；从未确认顶点中选暂定距离最小的有限候选 u，可以确认它的距离。</div>
+<p>反证：假设仍有一条到 u 的更短路线 P。令 x→y 为 P 第一次离开 S 的边（x 在 S 中，y 不在 S 中）。</p>
+<table class="sp-table"><tbody>
+<tr><th>已确认 x 且 x→y 已松弛</th><td>\(\mathrm{dist}[y]\leq\ell(P_{s\leadsto y})\)</td></tr>
 <tr><th>后续边权非负</th><td>\(\ell(P_{s\leadsto y})\leq\ell(P)\)</td></tr>
-<tr><th>假设路线更短</th><td>\(\ell(P)&lt;\mathrm{dist}[u]\)</td></tr>
-<tr><th>合并可得</th><td>\(\mathrm{dist}[y]&lt;\mathrm{dist}[u]\)</td></tr></tbody></table>
-<p><strong>矛盾：</strong>y 尚未确认，但 u 是未确认顶点中暂定距离最小者，故 \(\mathrm{dist}[u]\leq\mathrm{dist}[y]\)。因此更短的路线 P 不存在，\(\mathrm{dist}[u]=\delta(s,u)\)。</p>
-<p class="sp-small">分层要求：全体学生理解首次出界与非负权的作用；进一步要求能复述不等式链；完整归纳不变量证明作为拓展。</p>''',
+<tr><th>假设 P 比当前记录更短</th><td>\(\ell(P)&lt;\mathrm{dist}[u]\)</td></tr></tbody></table>
+<p><strong>矛盾：</strong>合并得到 \(\mathrm{dist}[y]&lt;\mathrm{dist}[u]\)，但最小候选规则要求 \(\mathrm{dist}[u]\leq\mathrm{dist}[y]\)。因此 \(u\) 的距离已最优。</p>
+<p class="sp-small">请指出非负权用于哪一步；完整归纳证明作为进阶要求。</p>''',
     P2, '基于首次出界和非负权建立一般的贪心确认反证', '不等式链分层理解与复述')
 
 _NEG_NODES = {'s': (60, 145), 'p': (440, 65), 'q': (440, 230)}
