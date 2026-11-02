@@ -115,13 +115,13 @@ add('mst-cost', '连接总成本最低，出行路线就最短吗？',
     P1, '解释最小生成树与最短路径的优化目标差异')
 
 add('single-source', '从一个起点出发，我们究竟要求什么？',
-    r'''<div class="sp-definition"><strong>单源最短路径：</strong>给定带权图及源点 \(s\)，求到各顶点的最短距离和一条对应路线；路径代价为边权之和。</div>
+    r'''<div class="quote compact-quote"><strong>教材定义（概述）</strong><br>给定带权图与源点，求源点到其他各顶点的最短路径；路径长度是沿途边权之和。</div>
 <div class="course-workspace" data-course-component="task-workspace">
 <div class="course-input" data-task-input>
-<p>输入：\(G=(V,E,w)\)、源点 \(s\)。</p>
-<p>最短距离：\(\delta(s,v)=\min_{P:s\leadsto v}\sum_{e\in P}w(e)\)。</p>
-<p>从 A 到 A 为 0；不可达时为 \(\infty\)。</p>
-<p class="sp-small">数学目标是距离与一条路线，暂不讨论怎样计算。</p></div>
+<p><strong>输入：</strong>带权图 \(G=(V,E,w)\) 与源点 \(s\)。</p>
+<p><strong>最短距离：</strong>\(\delta(s,v)=\min_{P:s\leadsto v}\ell(P)\)，其中 \(\ell(P)=\sum_{e\in P}w(e)\)。</p>
+<p><strong>输出：</strong>每个顶点 \(v\) 的最短距离 \(\delta(s,v)\) 和一条对应的最短路径；不可达时报告 \(\infty\)。</p>
+<p class="sp-small">源点到自身距离为 0。本讲的 Dijkstra 采用固定非负边权。</p></div>
 <div class="course-task"><div class="course-prompt" data-task-prompt>
 <p><strong>先预测：</strong>固定 A 作起点，怎样存到每个顶点的距离？恢复路线是否必须保存全部顶点序列？</p>
 </div><details class="course-answer" data-task-answer><summary>核对输出表示：两个长度为 n 的数组</summary><div class="course-solution">
@@ -131,7 +131,7 @@ add('single-source', '从一个起点出发，我们究竟要求什么？',
 <p>dist[v] 保存到 v 的当前最好距离；parent[v] 只记候选路线的直接前驱。沿前驱回溯即可恢复一条路线。</p>
 <p class="sp-small">两数组是结果表示；运行时另需确认状态。暂定值可能改进，正确结束后才是最终最短距离。等长路线只记录一条。</p>
 </div></details></div></div>''',
-    P1, '从单源问题预测距离和一条路径的输出表示', '先预测两个数组，再核对解释')
+    P1, '按教材定义明确输入、最短距离与输出，并预测两个结果数组', '定义辨析、先预测再核对')
 
 add('tentative', '找到一条路线后，哪些事情还没有确定？',
     workspace(main(marked=(('A', 'C'), ('C', 'D'))),
@@ -159,15 +159,14 @@ add('improve', '找到更好的路线，怎样修改已有记录？',
 add('relax', '一条输入记录怎样产生新的候选？',
     pair(main(marked=(('B', 'D'),)),
          r'''<table class="sp-table"><tbody>
-<tr><th>已有路径信息</th><td>到 B 的路线长 \(\mathrm{dist}[u]=3\)</td></tr>
-<tr><th>读取的图记录</th><td>边 BD 存在，权为 \(w(u,v)=1\)</td></tr>
+<tr><th>已有路径信息</th><td>到 B 的当前距离 \(\mathrm{dist}[B]=3\)</td></tr>
+<tr><th>读取的图记录</th><td>边 BD 存在，权为 \(w(B,D)=1\)</td></tr>
 <tr><th>新候选路径</th><td>经 B 到 D，长度 \(3+1=4\)</td></tr>
-<tr><th>与旧值比较</th><td>旧记录 \(\mathrm{dist}[v]=7\)；\(4&lt;7\)，接受候选</td></tr></tbody></table>
-<p><strong>松弛（Relaxation）</strong>：尝试用新候选改进距离。</p>
-<p class="sp-small">u 是本次延伸的出发顶点，v 是待改进顶点；本例 \(u=B,v=D\)。dist[v] 保存当前找到的最好距离。</p>
-<p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>
-<p class="sp-small">u 是新候选路径的前驱；仅在接受更短候选后，才写入 parent[v]=u。</p>'''),
-    P2, '把输入边、已有距离与松弛公式逐项对应')
+<tr><th>与旧值比较</th><td>\(\mathrm{dist}[D]=7\)；\(4&lt;7\)，改为 4，前驱改为 B</td></tr></tbody></table>
+<p><strong>松弛（Relaxation）</strong>：尝试通过一条边延伸已有路线，改进当前距离记录。</p>
+<p class="sp-small">一般化：\(u\) 为当前顶点、\(v\) 为待更新顶点；本例 \(u=B,\ v=D\)。仅在更短时同步更新 \(\mathrm{parent}[v]=u\)。</p>
+<p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>'''),
+    P2, '先以 B→D 具体更新解释松弛，再引出 u、v 及一般公式')
 
 add('state-fields', '图、距离、前驱和确认状态各保存什么？',
     pair(main(),
@@ -212,20 +211,19 @@ add('trace', '从初始化开始，每一轮发生什么？',
     P2, '区分选取、确认、读取、比较、修改与一轮完成', '按关键状态停顿的完整推演')
 
 add('concrete-confirm', '当前例子中，为什么能确认 dist[D]=4？',
-    r'''<div class="sp-definition"><strong>回到处理完 B 的时刻：</strong>已确认并扫描完 \(S=\{A,C,B\}\)，\(\mathrm{dist}[D]=4\)，\(\mathrm{dist}[E]=10\)。为什么现在可以确认 D？</div>
-<div class="course-workspace course-workspace-stacked" data-course-component="task-workspace">
-<div class="course-input" data-task-input>
-<table class="sp-table"><thead><tr><th>从 S 第一次出界可能经过的边</th><th>出界候选长度</th></tr></thead><tbody>
+    "<p class=\"sp-small\"><strong>回到处理完 B 的时刻：</strong>\\(S=\\{A,C,B\\}\\)，\\(\\mathrm{dist}[D]=4\\)，\\(\\mathrm{dist}[E]=10\\)。准备确认 D。</p>" +
+    workspace(main(marked=(('B', 'D'), ('C', 'D'), ('B', 'E')),
+                   states={'A': 'visited', 'B': 'visited', 'C': 'visited'},
+                   regions=({'points': ((18, 25), (247, 25), (247, 280), (18, 280)), 'label': '已确认 S', 'label_position': (100, 52)},),
+                   caption='主例：已确认并处理完 A、C、B；红色粗线表示三条实际出界边 BD、CD、BE，并非已选最短路径。', legend=''),
+              r'''<table class="sp-table"><thead><tr><th>第一次出界可能经过的边</th><th>出界候选长度</th></tr></thead><tbody>
 <tr><td>B→D</td><td>\(3+1=4\)</td></tr>
 <tr><td>C→D</td><td>\(2+5=7\)</td></tr>
-<tr><td>B→E</td><td>\(3+7=10\)</td></tr></tbody></table></div>
-<div class="course-task"><div class="course-prompt" data-task-prompt>
-<p>如果有长度小于 4 的 A→D 路线，它首次离开 S 时会发生什么？</p>
-</div><details class="course-answer" data-task-answer><summary>核对：为什么任何路线都不能短于 4？</summary><div class="course-solution">
-<p>任意 A→D 路线第一次出界，只可能到达 D 或 E；已有记录表明其出界前缀代价至少为 4。后续边权非负，总代价不会下降到 4 以下。</p>
-<p>A→B→D 确实长 4，所以 \(\delta(A,D)=4\)。这仅证明当前具体图；下一页推广到一般情形。</p>
-</div></details></div></div>''',
-    P2, '从已处理区域的全部出界候选解释主例中 D=4 的确认', '具体状态预测与理由核对')
+<tr><td>B→E</td><td>\(3+7=10\)</td></tr></tbody></table>
+<p><strong>问题：</strong>如果有长度小于 4 的 A→D 路线，它第一次离开 S 时会经过哪里？</p>''',
+              r'''<p>任何 A→D 路线第一次离开 S 时，只可能经过 B→D、C→D 或 B→E。此前各顶点的最短距离已确认且出边完成松弛，出界前缀代价至少为 4。</p>
+<p>此后边权非负，总长度不能降至 4 以下。又确实存在 A→B→D，长度为 4，所以 \(\delta(A,D)=4\)。这里只证明主例的这一轮；下一页讨论一般情形。</p>'''),
+    P2, '主例图和出界候选同屏，解释 dist[D]=4 的具体确认依据', '观察已确认区域、预测出界位置、展开理由')
 
 add('first-exit', '假设有更短路线，它第一次离开哪里？',
     r'''<div class="sp-two">
