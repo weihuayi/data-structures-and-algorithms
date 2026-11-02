@@ -211,11 +211,11 @@ add('trace', '从初始化开始，每一轮发生什么？',
     dijkstra_player(),
     P2, '区分选取、确认、读取、比较、修改与一轮完成', '按关键状态停顿的完整推演')
 
-add('concrete-confirm', '当前例子中，为什么能确认 D=4？',
+add('concrete-confirm', '当前例子中，为什么能确认 dist[D]=4？',
     r'''<div class="sp-definition"><strong>回到处理完 B 的时刻：</strong>已确认并扫描完 \(S=\{A,C,B\}\)，\(\mathrm{dist}[D]=4\)，\(\mathrm{dist}[E]=10\)。为什么现在可以确认 D？</div>
 <div class="course-workspace course-workspace-stacked" data-course-component="task-workspace">
 <div class="course-input" data-task-input>
-<table class="sp-table"><thead><tr><th>从 S 第一次出界可能经过的边</th><th>已得到的最小候选</th></tr></thead><tbody>
+<table class="sp-table"><thead><tr><th>从 S 第一次出界可能经过的边</th><th>出界候选长度</th></tr></thead><tbody>
 <tr><td>B→D</td><td>\(3+1=4\)</td></tr>
 <tr><td>C→D</td><td>\(2+5=7\)</td></tr>
 <tr><td>B→E</td><td>\(3+7=10\)</td></tr></tbody></table></div>
