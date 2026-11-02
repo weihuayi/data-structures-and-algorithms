@@ -214,7 +214,7 @@ add('concrete-confirm', '当前例子中，为什么能确认 dist[D]=4？',
     "<p class=\"sp-small\"><strong>回到处理完 B 的时刻：</strong>\\(S=\\{A,C,B\\}\\)，\\(\\mathrm{dist}[D]=4\\)，\\(\\mathrm{dist}[E]=10\\)。准备确认 D。</p>" +
     workspace(main(marked=(('B', 'D'), ('C', 'D'), ('B', 'E')),
                    states={'A': 'visited', 'B': 'visited', 'C': 'visited'},
-                   regions=({'points': ((18, 25), (247, 25), (247, 280), (18, 280)), 'label': '已确认 S', 'label_position': (100, 42)},),
+                   regions=({'points': ((18, 25), (247, 25), (247, 280), (18, 280)), 'label': '已确认 S', 'label_position': (100, 52)},),
                    caption='主例：已确认并处理完 A、C、B；红色粗线表示三条实际出界边 BD、CD、BE，并非已选最短路径。', legend=''),
               r'''<table class="sp-table"><thead><tr><th>第一次出界可能经过的边</th><th>出界候选长度</th></tr></thead><tbody>
 <tr><td>B→D</td><td>\(3+1=4\)</td></tr>
