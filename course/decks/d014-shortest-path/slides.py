@@ -164,9 +164,8 @@ add('relax', '一条输入记录怎样产生新的候选？',
 <tr><th>新候选路径</th><td>经 B 到 D，长度 \(3+1=4\)</td></tr>
 <tr><th>与旧值比较</th><td>\(\mathrm{dist}[D]=7\)；\(4&lt;7\)，改为 4，前驱改为 B</td></tr></tbody></table>
 <p><strong>松弛（Relaxation）</strong>：尝试通过一条边延伸已有路线，改进当前距离记录。</p>
-<p class="sp-small">一般地，用 \(u\) 表示当前延伸的顶点，\(v\) 表示待改进顶点；本例 \(u=B,\ v=D\)。</p>
-<p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>
-<p class="sp-small">仅当新候选严格更短时，更新 \(\mathrm{parent}[v]=u\)；公式中的两个距离都是当前记录。</p>'''),
+<p class="sp-small">一般化：\(u\) 为当前顶点、\(v\) 为待更新顶点；本例 \(u=B,\ v=D\)。仅在更短时同步更新 \(\mathrm{parent}[v]=u\)。</p>
+<p class="sp-formula">\(\mathrm{dist}[v]\gets\min\{\mathrm{dist}[v],\mathrm{dist}[u]+w(u,v)\}\)</p>'''),
     P2, '先以 B→D 具体更新解释松弛，再引出 u、v 及一般公式')
 
 add('state-fields', '图、距离、前驱和确认状态各保存什么？',
@@ -215,7 +214,7 @@ add('concrete-confirm', '当前例子中，为什么能确认 dist[D]=4？',
     "<p class=\"sp-small\"><strong>回到处理完 B 的时刻：</strong>\\(S=\\{A,C,B\\}\\)，\\(\\mathrm{dist}[D]=4\\)，\\(\\mathrm{dist}[E]=10\\)。准备确认 D。</p>" +
     workspace(main(marked=(('B', 'D'), ('C', 'D'), ('B', 'E')),
                    states={'A': 'visited', 'B': 'visited', 'C': 'visited'},
-                   regions=({'points': ((18, 25), (247, 25), (247, 280), (18, 280)), 'label': '已确认集合 S', 'label_position': (132, 42)},),
+                   regions=({'points': ((18, 25), (247, 25), (247, 280), (18, 280)), 'label': '已确认 S', 'label_position': (100, 42)},),
                    caption='主例：已确认并处理完 A、C、B；红色粗线表示三条实际出界边 BD、CD、BE，并非已选最短路径。', legend=''),
               r'''<table class="sp-table"><thead><tr><th>第一次出界可能经过的边</th><th>出界候选长度</th></tr></thead><tbody>
 <tr><td>B→D</td><td>\(3+1=4\)</td></tr>
