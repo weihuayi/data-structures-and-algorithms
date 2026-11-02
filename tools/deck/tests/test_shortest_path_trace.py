@@ -70,6 +70,27 @@ class ShortestPathSemanticsTests(unittest.TestCase):
                       bodies['confirmation-proof'])
         self.assertIn('后续边权非负', bodies['confirmation-proof'])
         self.assertIn('两个长度为 n 的数组', bodies['single-source'])
+        # Definition and representation stay adjacent; concrete B->D precedes u,v.
+        self.assertIn('教材定义（概述）', bodies['single-source'])
+        for name in ('输入：', '最短距离：', '输出：'):
+            self.assertIn(name, bodies['single-source'])
+        self.assertIn(r'\mathrm{dist}[B]=3', bodies['relax'])
+        self.assertIn(r'w(B,D)=1', bodies['relax'])
+        self.assertLess(bodies['relax'].index(r'\mathrm{dist}[D]=7'),
+                        bodies['relax'].index('松弛（Relaxation）'))
+        self.assertLess(bodies['relax'].index('松弛（Relaxation）'),
+                        bodies['relax'].index(r'u=B'))
+        # The proof starts with the *actual* main graph and three cut edges.
+        cut_body = bodies['concrete-confirm']
+        self.assertIn('class="graph-region"', cut_body)
+        for vertex in 'ABC':
+            self.assertIn(f'data-vertex="{vertex}" data-state="visited"', cut_body)
+        for edge in ('B-D', 'C-D', 'B-E'):
+            self.assertIn(f'data-edge="{edge}"><path class="graph-edge marked"', cut_body)
+        self.assertIn('data-task-input', cut_body)
+        self.assertIn('data-task-prompt', cut_body)
+        self.assertIn('data-task-answer', cut_body)
+        self.assertIn('并非已选最短路径', cut_body)
         self.assertNotIn(r'd(v)=',bodies['confirmation-proof'])
         self.assertIn('data-required-context="B 行输入"',bodies['input-row'])
         self.assertIn('data-required-context="待对照代码"',bodies['c-code'])
