@@ -116,14 +116,21 @@ add('mst-cost', '连接总成本最低，出行路线就最短吗？',
 
 add('single-source', '从一个起点出发，我们究竟要求什么？',
     r'''<div class="sp-definition"><strong>教材定义（概述）</strong><br>
-给定带权图及源点，求源点到其他各顶点的最短路径。带权路径的长度用沿途边权之和度量。</div>
+给定带权图及源点，求源点到其他各顶点的最短路径；路径代价为沿途边权之和。</div>
 <div class="sp-two sp-text-pair"><div><p>输入：\(G=(V,E,w)\)，源点 \(s\)。</p>
-<p>路径 \(P\) 的代价：\(\ell(P)=\sum_{e\in P}w(e)\)。</p>
+<p>路径权和：\(\ell(P)=\sum_{e\in P}w(e)\)。</p>
 <p>最短距离：\(\delta(s,v)=\min_{P:s\leadsto v}\ell(P)\)。</p></div>
-<div><p>输出：每个顶点的最短距离，及一条对应路径。</p>
-<p>源点到自身：距离 \(0\)。</p><p>没有到达路径：距离记为 \(\infty\)。</p></div></div>
-<p class="sp-small">本讲重点：有限图、固定非负边权。无向边可按两个方向读取；有向边按箭头读取。</p>''',
-    P1, '明确单源最短路径的输入、输出与约定')
+<div><p>输出：到各顶点的最短距离，以及各顶点的一条对应路径。</p>
+<p>源点到自身距离为 0；无可行路线时记为 \(\infty\)。</p></div></div>
+<p><strong>先预测：</strong>固定起点 A，如果程序最终要返回到每个顶点的距离与一条路线，你准备怎样用数组存储？是否需要给每个顶点保存整条路线？</p>
+<details><summary>核对输出表示：两个长度为 n 的数组</summary>
+<table class="sp-table"><thead><tr><th>顶点</th><th>A (0)</th><th>B (1)</th><th>C (2)</th><th>D (3)</th><th>E (4)</th></tr></thead><tbody>
+<tr><th>dist[v]</th><td>0</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+<tr><th>parent[v]</th><td>—</td><td>?</td><td>?</td><td>?</td><td>?</td></tr></tbody></table>
+<p>dist[v] 记录到 v 的当前最好路线长度；parent[v] 只记这条路线的直接前驱。从目标沿前驱回溯即可恢复一条路线。数组在计算时不断变化，算法结束后才保存最终结果。</p>
+<p class="sp-small">这两个数组表示一组单源最短路径结果，并不排除算法执行还需要 settled 等辅助状态；多条等长最短路线只保留其中一条。</p></details>
+<p class="sp-small">本讲讨论固定非负边权。现在仅预测输出的结构，具体数值怎样计算、为什么最终正确，留待后续回答。</p>''',
+    P1, '从单源问题预测距离和一条路径的输出表示', '先预测两个数组，再核对解释')
 
 add('tentative', '找到一条路线后，哪些事情还没有确定？',
     workspace(main(marked=(('A', 'C'), ('C', 'D'))),
@@ -134,7 +141,7 @@ add('tentative', '找到一条路线后，哪些事情还没有确定？',
               '<p>还需要比较其他可能的路线；到 D 的距离仍然可以改进。</p>'),
     P1, '把有限暂定距离理解为有路径支持的上界', '解释已有信息与未决信息')
 
-# 8–20: local route comparisons, then a justified complete algorithm.
+# 8–21: compare, execute the complete algorithm, then justify confirmation.
 COURSE.start_section('distance')
 
 add('improve', '找到更好的路线，怎样修改已有记录？',
@@ -183,34 +190,69 @@ add('choose', '从 A 出发，下一步怎样选择？',
               '<p>源点距离 0 提供起点，下面解释怎样从已确认信息继续推进。</p>'),
     P2, '从合法初始状态提出最小候选选择与确认问题', '短预测与解释')
 
-_REGION = {'points': ((18, 25), (247, 25), (247, 280), (18, 280)),
-           'label': '已确认集合 S', 'label_position': (132, 27)}
-add('first-exit', '一条更短的路线，必须先经过哪里？',
-    pair(main(marked=(('A', 'B'), ('B', 'E'), ('D', 'E')),
-              states={'A': 'visited', 'B': 'visited', 'C': 'visited'},
-              details={'A':'s','B':'x ∈ S','E':'y ∉ S','D':'u ∉ S'},
-              regions=(_REGION,),
-              caption='图中 s=A、u=D；示意路线的首次出界边为 B→E，即 x=B、y=E。'),
-         r'''<p>在一般的一轮选择前，设集合 \(S\) 中的距离已正确确认，且邻居已完成更新。</p>
-<p>沿任意一条从源点到外部顶点的路线，找：</p>
-<p><strong>第一个未确认顶点 \(y\)</strong>，及它之前的顶点 \(x\in S\)。</p>
-<p>处理 \(x\) 时，边 \(x\to y\) 已经参与更新。</p>
-<p class="sp-small">x、y 由所讨论的路线决定；首次出界就到终点时，也可以 y=u。</p>'''),
-    P2, '定位确认论证中的首次出界顶点及已发生的更新')
+add('algorithm', '怎样把这些判断组织成完整算法？',
+    r'''<div class="sp-code-pair"><pre><code>dist[s] = 0，其余为 ∞；parent 为空
+所有顶点初始未确认
+重复：
+    选取暂定距离最小的未确认顶点 u
+    若不存在有限候选，停止
+    确认 u
+    对 u 的每个未确认邻居 v：
+        若经 u 的路径严格更短：
+            更新 dist[v] 和 parent[v]</code></pre>
+<div><p><strong>迪杰斯特拉算法（Dijkstra）</strong></p>
+<p>选择规则由当前距离给出。</p><p>先按候选规则执行；普遍正确性在完整演示后证明。</p>
+<p>邻居更新为下一轮积累信息。</p>
+<p class="sp-small">源点距离 0 是起点。教材把确认源点及其初次邻居更新并入初始化，后续过程相同。</p></div></div>''',
+    P2, '把局部操作、确认依据与完整控制流程连接起来')
 
-add('confirmation-proof', '为什么边权非负，就能够确认当前最小者？',
-    r'''<div class="sp-proof"><p>选最小有限候选 \(u\)（图中 D）。假设从 \(s\) 到 \(u\) 的路径 \(P\) 满足 \(\ell(P)&lt;\mathrm{dist}[u]\)。</p>''' +
-    pair(main(marked=(('A', 'B'), ('B', 'E'), ('D', 'E')),
-              states={'A': 'visited', 'B': 'visited', 'C': 'visited'}, regions=(_REGION,),
-              details={'A':'s','B':'x ∈ S','E':'y ∉ S','D':'u ∉ S'},
-              caption='S={A,B,C}，dist[D]=' + fmt(AFTER_B['distance']['D']) + '。红路线长 13，只示意出界；不是假设中更短的路径 P。'),
-         r'''<table class="sp-table"><tbody>
-<tr><th>已更新</th><td>\(\mathrm{dist}[y]\leq\ell(P_{s\leadsto y})\)<br><span class="sp-small">dist[x] 已正确，且处理过边 x→y。</span></td></tr>
-<tr><th>非负权</th><td>\(\ell(P_{s\leadsto y})\leq\ell(P)\)<br><span class="sp-small">后续边权非负。</span></td></tr>
-<tr><th>矛盾</th><td>\(\mathrm{dist}[y]&lt;\mathrm{dist}[u]\)<br><span class="sp-small">选择规则却给出 dist[u]≤dist[y]。</span></td></tr>
-</tbody></table>''') +
-    '<p><strong>因此可以确认 u。</strong> 哪一步用到了非负权？权为 0 时仍成立吗？</p></div>',
-    P2, '说明确认理由，并指出非负权进入论证的位置', '图示论证与学生复述')
+add('trace', '从初始化开始，每一轮发生什么？',
+    dijkstra_player(),
+    P2, '区分选取、确认、读取、比较、修改与一轮完成', '按关键状态停顿的完整推演')
+
+add('concrete-confirm', '当前例子中，为什么能确认 D=4？',
+    r'''<div class="sp-definition"><strong>回到刚才的执行过程：</strong>已完成 A、C、B 的邻居更新；已确认集合 \(S=\{A,C,B\}\)。现在 \( \mathrm{dist}[D]=4,\ \mathrm{dist}[E]=10\)，准备确认 D。</div>
+<p><strong>待解释的问题：</strong>虽然我们选中了当前最小候选 D=4，但如何排除一条尚未找到、长度小于 4 的 A→D 路线？</p>
+<table class="sp-table"><thead><tr><th>第一次离开 S 的可能边</th><th>此前已算出的对应候选</th></tr></thead><tbody>
+<tr><td>B→D</td><td>\(\mathrm{dist}[B]+w(B,D)=3+1=4\)</td></tr>
+<tr><td>C→D</td><td>\(\mathrm{dist}[C]+w(C,D)=2+5=7\)</td></tr>
+<tr><td>B→E</td><td>\(\mathrm{dist}[B]+w(B,E)=3+7=10\)</td></tr></tbody></table>
+<details><summary>核对：为什么任何路线都不能短于 4？</summary>
+<p>从 A 到 D 的任意路线必须第一次从 S 走到外部。第一次到 D，已有候选下界为 4；第一次到 E，已有候选下界为 10。因为所有后续边权非负，继续走不会使该路线的累计代价减小，因此不可能存在总长度小于 4 的路线。</p>
+<p>另一方面，A→B→D 确实长 4，所以 \(\delta(A,D)=4\)。这是对<strong>当前具体图、当前状态</strong>的论证；下一页再推广到任意非负权图。</p></details>
+<p class="sp-small">这里比较的是已处理集合的全部出界候选，而不是枚举所有完整路线；B、C 的邻居已经处理完是必要前提。</p>''',
+    P2, '从已处理区域的全部出界候选解释主例中 D=4 的确认', '具体状态预测与理由核对')
+
+add('first-exit', '假设有更短路线，它第一次离开哪里？',
+    r'''<div class="sp-two">
+<figure class="graph-figure"><svg viewBox="0 0 500 228" role="img" aria-label="一条假设中的路径从源点 s 出发，经过已确认顶点 x，第一次到达未确认顶点 y，最后到目标 u。">
+<title>反证法中的假设路径及其第一次出界位置</title>
+<rect x="12" y="20" width="211" height="179" rx="16" fill="#21856f" fill-opacity="0.10" stroke="#21856f" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="117" y="43" text-anchor="middle" fill="#21856f" font-size="17">已处理集合 S</text>
+<path d="M56 115 L175 115" stroke="#21856f" stroke-width="5" fill="none"/>
+<path d="M175 115 L304 115 L439 115" stroke="#c16b4d" stroke-width="4" stroke-dasharray="9 6" fill="none"/>
+<g fill="#305c83" stroke="#fff" stroke-width="2"><circle cx="56" cy="115" r="25"/><circle cx="175" cy="115" r="25"/><circle cx="304" cy="115" r="25"/><circle cx="439" cy="115" r="25"/></g>
+<g fill="#fff" font-size="22" text-anchor="middle"><text x="56" y="123">s</text><text x="175" y="123">x</text><text x="304" y="123">y</text><text x="439" y="123">u</text></g>
+<text x="240" y="97" fill="currentColor" font-size="15" text-anchor="middle">首次出界</text>
+<text x="244" y="190" fill="currentColor" font-size="14" text-anchor="middle">假设存在的路线 P（无数值）</text>
+</svg><figcaption>虚线仅代表反证中假设的路径后段，不代表原图中新增道路或已经发现的实际路线。</figcaption></figure>
+<div><p><strong>从具体推广到一般：</strong>在一轮选择前，S 中的距离已经正确，而且这些顶点的出边已完成松弛检查。</p>
+<p>假设还有一条从源点 s 到当前候选 u 的更短路线 P，沿 P 找到<strong>第一个不在 S 中的顶点 y</strong>，它前面的顶点 x 必在 S 中。</p>
+<p>因此边 x→y 已检查过；无论 y 是否等于 u，这个首次出界位置都能用于比较候选距离。</p>
+<p class="sp-small">s、x、y、u 是证明角色；不能将 y 固定理解为主例中的 E。这里假设 P 存在，尚未声称 P 是真实路线。</p></div></div>''',
+    P2, '从具体例子推广到假设路径的首次出界位置', '无数值图示与角色辨析')
+
+add('confirmation-proof', '为什么任意非负权图中都可以确认最小候选？',
+    r'''<div class="sp-definition"><strong>证明命题：</strong>在每轮选择开始时，已处理集合 S 的距离正确、出边已经检查；所有边权非负。选择未确认顶点中暂定距离最小的有限候选 u，则它的距离可以确认。</div>
+<p>反证：如果还有一条到 u 的路线 P，满足 \(\ell(P)&lt;\mathrm{dist}[u]\)，令 y 为 P 的首次出界顶点，x 为它在 P 上的前一个顶点（x 在 S 中）。</p>
+<table class="sp-table"><thead><tr><th>根据什么事实？</th><th>得到什么不等式？</th></tr></thead><tbody>
+<tr><th>已确认 x，且 x→y 已松弛</th><td>\(\mathrm{dist}[y]\leq\ell(P_{s\leadsto y})\)</td></tr>
+<tr><th>后续边权非负</th><td>\(\ell(P_{s\leadsto y})\leq\ell(P)\)</td></tr>
+<tr><th>假设路线更短</th><td>\(\ell(P)&lt;\mathrm{dist}[u]\)</td></tr>
+<tr><th>合并可得</th><td>\(\mathrm{dist}[y]&lt;\mathrm{dist}[u]\)</td></tr></tbody></table>
+<p><strong>矛盾：</strong>y 尚未确认，但 u 是未确认顶点中暂定距离最小者，故 \(\mathrm{dist}[u]\leq\mathrm{dist}[y]\)。因此更短的路线 P 不存在，\(\mathrm{dist}[u]=\delta(s,u)\)。</p>
+<p class="sp-small">分层要求：全体学生理解首次出界与非负权的作用；进一步要求能复述不等式链；完整归纳不变量证明作为拓展。</p>''',
+    P2, '基于首次出界和非负权建立一般的贪心确认反证', '不等式链分层理解与复述')
 
 _NEG_NODES = {'s': (60, 145), 'p': (440, 65), 'q': (440, 230)}
 _NEG = graph(_NEG_NODES, [('s', 'p'), ('s', 'q'), ('q', 'p')], directed=True,
@@ -226,26 +268,6 @@ add('negative', '出现负权边后，哪里会失效？',
               r'<p>先选 \(u=p\) 时，\(x=s,y=q\)；但 \(\ell(P_{s\leadsto q})=5>1=\ell(P)\)。</p>'
               '<p>“前缀长度不大于整条路径”失去保证，原确认依据不能使用。</p>'),
     P2, '用无负环的小反例识别 Dijkstra 的条件边界', '反例预测')
-
-add('algorithm', '怎样把这些判断组织成完整算法？',
-    r'''<div class="sp-code-pair"><pre><code>dist[s] = 0，其余为 ∞；parent 为空
-所有顶点初始未确认
-重复：
-    选取暂定距离最小的未确认顶点 u
-    若不存在有限候选，停止
-    确认 u
-    对 u 的每个未确认邻居 v：
-        若经 u 的路径严格更短：
-            更新 dist[v] 和 parent[v]</code></pre>
-<div><p><strong>迪杰斯特拉算法（Dijkstra）</strong></p>
-<p>选择规则由当前距离给出。</p><p>确认理由依赖非负权。</p>
-<p>邻居更新为下一轮积累信息。</p>
-<p class="sp-small">源点距离 0 是起点。教材把确认源点及其初次邻居更新并入初始化，后续过程相同。</p></div></div>''',
-    P2, '把局部操作、确认依据与完整控制流程连接起来')
-
-add('trace', '从初始化开始，每一轮发生什么？',
-    dijkstra_player(),
-    P2, '区分选取、确认、读取、比较、修改与一轮完成', '按关键状态停顿的完整推演')
 
 add('early-stop', '已经找到到 E 的路线，能够提前结束吗？',
     workspace(main(marked=(('A', 'B'), ('B', 'E')),
@@ -279,7 +301,7 @@ add('unreachable', '没有有限候选时，剩余顶点怎么办？',
 <p class="sp-small">过程中的 ∞ 表示尚未找到路径。正确停止后，剩余 ∞ 才表示不可达；E 不加入已确认集合。</p>'''),
     P2, '解释不可达的判断依据及停止状态')
 
-# 21–27: implementation, work, and independent evidence.
+# 22–28: implementation, work, and independent evidence.
 COURSE.start_section('execution')
 
 _B_INPUT = r'''<p><strong>输入矩阵 B 行</strong>（列 A–E）</p>
@@ -364,7 +386,7 @@ add('optimality', '路径合法、权和正确，已经说明什么？',
               '<p>最优性还需要确认论证，或其他能够排除更短路线的依据。</p>'),
     P3, '区分路径可行性、数值核对与最优性依据', '反例判断')
 
-# 28–36: all-pairs distances, a restricted intermediate set, and selection.
+# 29–37: all-pairs distances, a restricted intermediate set, and selection.
 COURSE.start_section('all-pairs')
 
 add('matrix', '从一个距离数组到一个距离矩阵，增加了什么？',
