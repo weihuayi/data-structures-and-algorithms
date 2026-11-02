@@ -51,11 +51,25 @@ class ShortestPathSemanticsTests(unittest.TestCase):
         p=Values();p.feed(bodies['early-stop']);self.assertEqual(p.values,[('D','4'),('E','10')])
         p=Values();p.feed(bodies['input-row'])
         self.assertEqual(p.values,[('B','3'),('D','7'),('E','∞'),('D','4'),('E','10')])
-        # The displayed red route is a concrete cut illustration, not a putative
-        # shorter path. Check its actual data rather than a renderer's output alone.
+        # The new learning path moves the complete trace before the proof, and
+        # separates an independently checkable numeric cut from a hypothetical P.
+        page_ids = [page['id'] for page in mod.COURSE.pages]
+        self.assertLess(page_ids.index('trace'), page_ids.index('concrete-confirm'))
+        self.assertLess(page_ids.index('concrete-confirm'), page_ids.index('first-exit'))
+        self.assertLess(page_ids.index('first-exit'), page_ids.index('confirmation-proof'))
+        self.assertLess(page_ids.index('confirmation-proof'), page_ids.index('negative'))
         weights={frozenset((a,b)):w for a,b,w in MAIN_EDGES}
-        self.assertEqual(sum(weights[frozenset(e)] for e in [('A','B'),('B','E'),('E','D')]),13)
-        self.assertIn('不是假设中更短的路径 P',bodies['confirmation-proof'])
+        cut = [('B','D',3),('C','D',2),('B','E',3)]
+        self.assertEqual([length+weights[frozenset((a,b))] for a,b,length in cut],
+                         [4,7,10])
+        for expression in ('3+1=4', '2+5=7', '3+7=10'):
+            self.assertIn(expression, bodies['concrete-confirm'])
+        self.assertIn('假设存在的路线 P', bodies['first-exit'])
+        self.assertNotIn('红路线长 13', bodies['first-exit']+bodies['confirmation-proof'])
+        self.assertIn(r'\mathrm{dist}[y]\leq\ell(P_{s\leadsto y})',
+                      bodies['confirmation-proof'])
+        self.assertIn('后续边权非负', bodies['confirmation-proof'])
+        self.assertIn('两个长度为 n 的数组', bodies['single-source'])
         self.assertNotIn(r'd(v)=',bodies['confirmation-proof'])
         self.assertIn('data-required-context="B 行输入"',bodies['input-row'])
         self.assertIn('data-required-context="待对照代码"',bodies['c-code'])
