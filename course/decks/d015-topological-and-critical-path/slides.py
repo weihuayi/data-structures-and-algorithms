@@ -210,16 +210,17 @@ add('late-trace', '怎样按逆拓扑序完成反向计算？', time_player('bac
 
 add('activity-time', '事件时间怎样变成活动的开始时间？',
     pair(aoe_view(values=MAIN['early'],marked=((1,3),)),
-         r'<p>活动 C：事件 1→3，持续 2 小时。</p><p>\(ve(1)=3\)，\(vl(3)=8\)。</p>'
-         r'<p>最早开始：\(e(C)=ve(1)=3\)。</p><p>最迟开始：\(l(C)=vl(3)-2=6\)。</p>'
-         r'<p>时间余量：\(l(C)-e(C)=3\)。</p>'
-         '<p class="dag-note">这里的余量是总时差，不能把各项余量视为独立额度。</p>'),
+         r'<p>为什么从事件时间转到活动时间？判断哪些活动可以延后，须计算每项活动的开始时间。</p>'
+          r'<p>活动 \(a\) 是弧 \(u\to v\)，时长 \(w_a\)；按活动索引记录最早开始 \(e[a]\) 和最迟开始 \(l[a]\)。</p>'
+          r'<p>\(e[a]=\mathrm{ve}[u]\)，\(l[a]=\mathrm{vl}[v]-w_a\)，总时差 \(TF[a]=l[a]-e[a]\)。</p>'
+          r'<p>例：C 是 \(1\to3\)，时长为 2；\(e[C]=3\)，\(l[C]=8-2=6\)，\(TF[C]=3\)。</p>'
+          '<p class="dag-note">事件编号与活动编号不能混用；C 程序的 earliest / latest / slack 是活动级结果。总时差不可独立叠加。</p>'
     'critical','对应事件最早/最迟时间与活动开始时间和总时差')
 
 add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=((0,2),(2,3),(3,4)))+
     '<p>B→D→F：5+3+2=10。</p>'
-    '<p class="dag-note">关键路径（Critical Path）从源到汇；依据活动的 l−e 判定，不只看端点。</p>',
-    table(('活动','e','l','余量'),[(a,t['earliest'],t['latest'],t['slack']) for a,t in MAIN['activity_times'].items()])+
+    r'<p class="dag-note">关键路径（Critical Path）从源到汇；依据活动 \(TF[a]=l[a]-e[a]\) 判定，不只看端点。</p>',
+    table(('活动','e[a]','l[a]','总时差'),[(a,t['earliest'],t['latest'],t['slack']) for a,t in MAIN['activity_times'].items()])+
     '<p>余量为 0 的关键活动：B、D、F。</p>'),
     'critical','依据活动余量识别完整的源汇关键路径')
 
@@ -235,11 +236,11 @@ add('multiple', '继续缩短 B，工期一定继续缩短吗？',
 add('independent', '换一张编号不同的网，你能独立计算吗？',
     task_workspace(aoe_view(EXERCISE_ACTIVITIES,exercise=True),
         '<p><strong>计算条件：</strong>活动时长固定且非负；源事件 2 从时刻 0 开始，汇事件 1 表示全部活动完成；资源不额外限制并行。</p>'
-        '<ol><li>写出拓扑序，计算全部 ve、vl。</li><li>求活动 c 的 e、l 和余量。</li>'
+        '<ol><li>写出拓扑序，计算全部事件的 ve、vl。</li><li>求活动 c 的 e[c]、l[c] 与总时差。</li>'
         '<li>指出工期与关键路径，解释一处 max 或 min 的依据。</li></ol>',
         '<p>拓扑序：2、0、3、1；T=6。</p>'+
         table(('事件',2,0,3,1),[('ve',0,2,3,6),('vl',0,2,4,6)],'dag-state')+
-        r'<p>活动 c：\(e(c)=2\)，\(l(c)=4-1=3\)，余量 1。</p><p>关键路径：2→0→1，活动 a、d。</p>'),
+        r'<p>活动 c：\(e[c]=2\)，\(l[c]=4-1=3\)，\(TF[c]=1\)。</p><p>关键路径：2→0→1，活动 a、d。</p>'),
     'critical','独立应用拓扑次序、两向约束和活动余量','8 分钟独立作答＋3 分钟反馈',role='exercise')
 
 add('predict-run', '预测与程序结果不同，先检查什么？', pair('<p class="dag-note">在本讲目录中运行：</p>'+
