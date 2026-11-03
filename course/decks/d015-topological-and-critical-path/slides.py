@@ -214,7 +214,7 @@ add('activity-time', '事件时间怎样变成活动的开始时间？',
           r'<p>活动 \(a\) 是弧 \(u\to v\)，时长 \(w_a\)；按活动索引记录最早开始 \(e[a]\) 和最迟开始 \(l[a]\)。</p>'
           r'<p>\(e[a]=\mathrm{ve}[u]\)，\(l[a]=\mathrm{vl}[v]-w_a\)，总时差 \(TF[a]=l[a]-e[a]\)。</p>'
           r'<p>例：C 是 \(1\to3\)，时长为 2；\(e[C]=3\)，\(l[C]=8-2=6\)，\(TF[C]=3\)。</p>'
-          '<p class="dag-note">事件编号与活动编号不能混用；C 程序的 earliest / latest / slack 是活动级结果。总时差不可独立叠加。</p>'
+          '<p class="dag-note">事件编号与活动编号不能混用；C 程序的 earliest / latest / slack 是活动级结果。总时差不可独立叠加。</p>'),
     'critical','对应事件最早/最迟时间与活动开始时间和总时差')
 
 add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=((0,2),(2,3),(3,4)))+
