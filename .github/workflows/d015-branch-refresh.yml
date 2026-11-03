@@ -2,7 +2,7 @@ name: D015 temporary branch build
 on:
   push:
     branches: [codex/d015-cognitive-continuity-revision]
-    paths: ['.github/workflows/d015-branch-refresh.yml']
+    paths: ['.github/workflows/d015-branch-refresh.yml', 'course/decks/d015-topological-and-critical-path/slides.py']
 permissions:
   contents: write
 jobs:
