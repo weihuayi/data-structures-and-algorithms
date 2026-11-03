@@ -6,6 +6,7 @@ on:
       - codex/d015-cognitive-continuity-revision
     paths:
       - .github/workflows/d015-branch-refresh.yml
+      - course/decks/d015-topological-and-critical-path/slides.py
 
 permissions:
   contents: write
