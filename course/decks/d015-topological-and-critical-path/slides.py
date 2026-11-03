@@ -66,7 +66,8 @@ add('project', '六项工作，哪些必须等待？', pair(task_table(),
 
 add('aov', '怎样把依赖画成 AOV 网？',
     task_workspace(definition('AOV 网（Activity on Vertex Network）以顶点表示活动，以有向弧表示先后依赖。',inline=True)+
-        aov_view(caption='新增活动 G：必须等 C、E 完成才能开始。'),
+        aov_view(),
+        '<p><strong>新增活动 G：</strong>必须等 C、E 完成才能开始。</p>'
         '<p>请补画依赖边；G 也必须等待 D 吗？</p>',
         completed_aov_view()+'<p class="dag-note">未给定 D→G，不能额外增加这项依赖。</p>'),
     'dependency','把活动和依赖对应为顶点与弧，避免添加多余约束','1 分钟独立补边与反馈',role='exercise')
@@ -121,15 +122,30 @@ add('blocked', '没有候选，又没排完，为什么说明有环？',
     'order','由剩余子图解释判环，区分环成员与受阻后续')
 
 add('check-order', '怎样核对别人给出的顺序？',
-    task_workspace(aov_view()+'<p class="dag-note">序列① A B C E D F<br>序列② A B D E C F</p>',
+    task_workspace(aov_view(),
+        '<p><strong>序列①：</strong>A B C E D F</p>'
+        '<p><strong>序列②：</strong>A B D E C F</p>'
         '<p>哪一个合法？请指出具体检查依据。</p>',
         '<p>① 合法；② 把 D 排在 E 前，违反 E→D。</p>'
         '<p>先查每个顶点恰好出现一次，再对每条弧检查起点位置小于终点位置。</p>'),
     'order','独立核对顶点完整性与逐边先后约束','2 分钟独立核对与反馈',role='exercise')
 
+add('topo-storage', '图与算法状态怎样对应到程序数据？',
+    pair(aov_view(),
+         '<p>活动 A–F 的顶点编号依次为 0–5。</p>'+
+         table(('对象','程序中的记录','作用'), [
+             ('出邻接表', 'head / edge', '由当前顶点 u 找出边'),
+             ('当前顶点与当前边', 'u / e', 'u 是顶点编号；e 是边记录编号'),
+             ('剩余入度', 'r->degree[v]', '未解除的入边；B→D 后 2→1'),
+             ('候选与输出', 'stack / r->order', '候选栈与拓扑序')])),
+    'order', '把数学图、出邻接表和算法辅助状态对应起来')
+
 add('topo-code', '怎样把排位和更新写进程序？', pair(code('u = stack[--size];\nr->order[r->count++] = u;\nfor (e = g->head[u]; e != -1;\n     e = g->edge[e].next) {\n    v = g->edge[e].v;\n    if (--r->degree[v] == 0)\n        stack[size++] = v;\n}'),
-    '<p><code>head/edge/next</code>：原图的出邻接表。</p><p><code>degree</code> 对应教材的 <code>indegree</code>；<code>stack</code> 保存候选。</p>'
-    '<p><code>order</code>：已生成的排列。</p><p class="dag-note">C 演示关键语句；按编号初始化栈，按邻接记录顺序扫描，与教材算法 6.12 对应。</p>'),
+    '<p><code>g</code> 指向原图；<code>r</code> 保存结果和辅助状态；<code>e</code> 是边记录索引。</p>'
+     '<p><code>g->head[u]</code>、<code>g->edge[e].next</code> 顺着出邻接表扫描，<code>g->edge[e].v</code> 给出终点。</p>'
+     '<p><code>r->degree[v]</code> 记录剩余入度；<code>stack</code> 保存零入度候选。</p>'
+    '<p><code>r->order</code> 保存已生成的排列。这里先读出邻接记录，再更新剩余入度，原图不删除边。</p>'
+     '<p class="dag-note">C 演示关键语句；按编号初始化栈，按邻接记录顺序扫描，与教材算法 6.12 对应。</p>'),
     'order','对应输入、辅助状态与 C 的关键条件')
 
 # Time meaning and earliest finish, pages 16–21.
@@ -148,17 +164,25 @@ add('aoe', '同一项目怎样表示成 AOE 网？',
     '<p>事件 2：B、E 均完成；事件 3：C、D 均完成。事件本身不占时长。</p>',
     'earliest','明确 AOV 活动顶点与 AOE 事件、活动弧的对应')
 
+add('aoe-storage', 'AOE 的计算输入和最早时间记录是什么？',
+    pair(aoe_view(marked=((0,2),(1,2))),
+         '<p>教学案例用 A–F 命名活动；程序用编号 0–4 表示事件。C 图的边记录保存起点 u、终点 v、时长 w 与邻接链索引 next，不单独存储活动名。</p>'+
+         table(('活动','弧记录 (u, v, w)'), [('B', '(0, 2, 5)'), ('E', '(1, 2, 1)')])+
+         r'<p>现在要为每个事件 v 计算<strong>最早发生时间</strong> \(\mathrm{ve}[v]\)，以事件编号索引。</p>'+
+         r'<p>源事件初始 \(\mathrm{ve}[0]=0\)；其他事件尚未汇总。逐条读取活动弧，才会得到新的时间约束。</p>'),
+    'earliest', '把 AOE 活动弧的存储字段映射为事件时间计算输入与状态')
+
 add('max', '为什么要等待最晚完成的前置工作？',
     task_workspace(aoe_view(marked=((0,2),(1,2)))+'<p class="dag-note">事件 0 在时刻 0 发生；事件 1 在时刻 3 发生。</p>'+
-        '<p class="dag-note">本次目标事件 v=2，前驱事件 u 为 0 或 1；连接它们的活动为 B、E，w(u,v) 表示活动时长。</p>',
+        r'<p>本次目标事件 \(v=2\)，前驱事件 \(u\) 为 0 或 1；活动 B、E 分别有时长 \(w_{02}=5\)、\(w_{12}=1\)。</p>',
         '<p>B 完成需到 0+5；E 完成需到 3+1。</p><p>事件 2 最早何时发生？能取较小值吗？</p>',
-        r'<p>必须等 B、E 都完成。</p><p>\(ve(2)=\max\{5,4\}=5\)。</p>'
+        r'<p>必须等 B、E 都完成。</p><p>\(\mathrm{ve}[2]=\max\{5,4\}=5\)。</p>'
         '<p>取 4 时 B 还没有完成，D 的开始条件不成立。</p>'),
     'earliest','由全部前置条件推导最大值递推','独立预测与解释',role='exercise')
 
 add('early-trace', '怎样按拓扑序计算最早时间？',
     time_player('forward')+
-    r'<p class="dag-note">\(ve(v)=\max_{(u,v)}\{ve(u)+w(u,v)\}\)。u、v 是事件，w(u,v) 为活动时长；全部前驱传播后，ve(v) 才完整。</p>',
+    r'<p class="dag-note">\(\mathrm{ve}[v]=\max_{u\to v}\{\mathrm{ve}[u]+w_{uv}\}\)。\(u,v\) 是事件编号，\(w_{uv}\) 是活动弧 \(u\to v\) 的时长；全部前驱传播后，\(\mathrm{ve}[v]\) 才确定。</p>',
     'earliest','区分已收集约束的下界与已经完整的最早时间','正向分步演示，停顿比较两个前置约束')
 
 add('longest', '为什么最长依赖链决定最早工期？', pair(aoe_view(marked=((0,2),(2,3),(3,4))),
@@ -171,33 +195,37 @@ add('longest', '为什么最长依赖链决定最早工期？', pair(aoe_view(ma
 COURSE.start_section('critical')
 
 add('min', '为了按时完工，事件 1 最迟何时发生？',
-    task_workspace(aoe_view(marked=((1,2),(1,3)))+'<p class="dag-note">不延长 T=10：事件 2 最迟为 5，事件 3 最迟为 8。</p>',
-        '<p>经过 E 要留 1 小时，经过 C 要留 2 小时。</p><p>事件 1 应取哪一个最迟期限？</p>',
-        r'<p>两项后续要求都要满足。</p><p>\(vl(1)=\min\{5-1,8-2\}=4\)。</p>'
+    task_workspace(aoe_view(marked=((1,2),(1,3))),
+        r'<p>已知最早工期 \(T=\mathrm{ve}[4]=10\)。不延长工期，定义 \(\mathrm{vl}[u]\) 为事件 \(u\) 的最迟发生时间；汇事件 \(\mathrm{vl}[4]=T\)。</p>'
+        '<p>事件 2 最迟为 5，事件 3 最迟为 8；经过 E 要留 1 小时，经过 C 要留 2 小时。</p>'
+        '<p>事件 1 应取哪一个最迟期限？</p>',
+        r'<p>两项后续要求都要满足。</p><p>\(\mathrm{vl}[1]=\min\{5-1,8-2\}=4\)。</p>'
         '<p>若取 6，E 就不能在事件 2 的期限前完成。</p>'),
     'critical','由全部后继期限推导最小值递推','独立预测与反馈',role='exercise')
 
 add('late-trace', '怎样按逆拓扑序完成反向计算？', time_player('backward')+
-    r'<p class="dag-note">\(vl(t)=T=ve(t)\)；\(vl(u)=\min_{(u,v)}\{vl(v)-w(u,v)\}\)。编号不是逆拓扑序。</p>',
+    r'<p class="dag-note">\(\mathrm{vl}[t]=T=\mathrm{ve}[t]\)；\(\mathrm{vl}[u]=\min_{u\to v}\{\mathrm{vl}[v]-w_{uv}\}\)。按逆拓扑序处理 \(u\)，仍读取原图从 \(u\) 出发的活动弧，并用后继的期限更新 \(\mathrm{vl}[u]\)；顶点编号不是处理次序。</p>',
     'critical','从汇点沿逆拓扑序汇总后继约束','反向分步演示，在事件 1 的两个期限处停顿')
 
 add('activity-time', '事件时间怎样变成活动的开始时间？',
     pair(aoe_view(values=MAIN['early'],marked=((1,3),)),
-         r'<p>活动 C：事件 1→3，持续 2 小时。</p><p>\(ve(1)=3\)，\(vl(3)=8\)。</p>'
-         r'<p>最早开始：\(e(C)=ve(1)=3\)。</p><p>最迟开始：\(l(C)=vl(3)-2=6\)。</p>'
-         r'<p>时间余量：\(l(C)-e(C)=3\)。</p>'
-         '<p class="dag-note">这里的余量是总时差，不能把各项余量视为独立额度。</p>'),
+         r'<p>为什么从事件时间转到活动时间？判断哪些活动可以延后，须计算每项活动的开始时间。</p>'
+          r'<p>活动 \(a\) 是弧 \(u\to v\)，时长 \(w_a\)；按活动索引记录最早开始 \(e[a]\) 和最迟开始 \(l[a]\)。</p>'
+          r'<p>\(e[a]=\mathrm{ve}[u]\)，\(l[a]=\mathrm{vl}[v]-w_a\)，总时差 \(TF[a]=l[a]-e[a]\)。</p>'
+          r'<p>例：C 是 \(1\to3\)，时长为 2；\(e[C]=3\)，\(l[C]=8-2=6\)，\(TF[C]=3\)。</p>'
+          '<p class="dag-note">事件编号与活动编号不能混用；C 程序的 earliest / latest / slack 是活动级结果。总时差不可独立叠加。</p>'),
     'critical','对应事件最早/最迟时间与活动开始时间和总时差')
 
 add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=((0,2),(2,3),(3,4)))+
     '<p>B→D→F：5+3+2=10。</p>'
-    '<p class="dag-note">关键路径（Critical Path）从源到汇；依据活动的 l−e 判定，不只看端点。</p>',
-    table(('活动','e','l','余量'),[(a,t['earliest'],t['latest'],t['slack']) for a,t in MAIN['activity_times'].items()])+
+    r'<p class="dag-note">关键路径（Critical Path）从源到汇；依据活动 \(TF[a]=l[a]-e[a]\) 判定，不只看端点。</p>',
+    table(('活动','e[a]','l[a]','总时差'),[(a,t['earliest'],t['latest'],t['slack']) for a,t in MAIN['activity_times'].items()])+
     '<p>余量为 0 的关键活动：B、D、F。</p>'),
     'critical','依据活动余量识别完整的源汇关键路径')
 
 add('multiple', '继续缩短 B，工期一定继续缩短吗？',
-    task_workspace(aoe_view(activities=B4)+'<p class="dag-note">只把活动 B 的时长从 5 小时改为 4 小时；其他活动不变。</p>',
+    task_workspace(aoe_view(activities=B4),
+        '<p><strong>修改条件：</strong>只把活动 B 的时长从 5 小时改为 4 小时；其他活动不变。</p>'
         '<p>B 的持续时间为 4 小时，工期和关键路径是什么？</p><p>若再改为 3 小时，工期还会缩短 1 小时吗？</p>',
         '<p>B 持续 4 小时：T=9。<br>关键路径：B–D–F、A–E–D–F。</p>'
         '<p>B 持续 3 小时：T 仍为 9，由 A–E–D–F 约束。</p>'
@@ -205,13 +233,13 @@ add('multiple', '继续缩短 B，工期一定继续缩短吗？',
     'critical','用时长变化理解多关键路径及加速效果的条件','变式预测与反馈',role='exercise')
 
 add('independent', '换一张编号不同的网，你能独立计算吗？',
-    task_workspace(aoe_view(EXERCISE_ACTIVITIES,exercise=True)+
-        '<p class="dag-note">固定非负时长；源事件 2 在时刻 0 开始，汇事件 1 表示全部活动完成；资源不额外限制并行。</p>',
-        '<ol><li>写出拓扑序，计算全部 ve、vl。</li><li>求活动 c 的 e、l 和余量。</li>'
+    task_workspace(aoe_view(EXERCISE_ACTIVITIES,exercise=True),
+        '<p><strong>计算条件：</strong>活动时长固定且非负；源事件 2 从时刻 0 开始，汇事件 1 表示全部活动完成；资源不额外限制并行。</p>'
+        '<ol><li>写出拓扑序，计算全部事件的 ve、vl。</li><li>求活动 c 的 e[c]、l[c] 与总时差。</li>'
         '<li>指出工期与关键路径，解释一处 max 或 min 的依据。</li></ol>',
         '<p>拓扑序：2、0、3、1；T=6。</p>'+
         table(('事件',2,0,3,1),[('ve',0,2,3,6),('vl',0,2,4,6)],'dag-state')+
-        r'<p>活动 c：\(e(c)=2\)，\(l(c)=4-1=3\)，余量 1。</p><p>关键路径：2→0→1，活动 a、d。</p>'),
+        r'<p>活动 c：\(e[c]=2\)，\(l[c]=4-1=3\)，\(TF[c]=1\)。</p><p>关键路径：2→0→1，活动 a、d。</p>'),
     'critical','独立应用拓扑次序、两向约束和活动余量','8 分钟独立作答＋3 分钟反馈',role='exercise')
 
 add('predict-run', '预测与程序结果不同，先检查什么？', pair('<p class="dag-note">在本讲目录中运行：</p>'+
