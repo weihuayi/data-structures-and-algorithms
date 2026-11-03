@@ -136,9 +136,9 @@ add('topo-storage', '图与算法状态怎样对应到程序数据？',
          table(('对象','程序中的记录','作用'), [
              ('图与出邻接关系', 'g->head / g->edge', '从当前顶点找到它的出边'),
              ('当前顶点与当前边', 'u / e', 'u 是顶点编号；e 是边记录编号'),
-             ('剩余入度', 'r->degree[v]', '记录还未解除的入边数'),
+             ('剩余入度', 'r->degree[v]', '未解除的入边；B→D 后 2→1'),
              ('候选与输出', 'stack / r->order', '零入度候选栈、已形成的序列')])+
-         '<p>例：读取 B(1) 的出边到 D(3)，将剩余入度从 2 减至 1；原图不变。</p>'),
+         '<p class="dag-note">输入原图不变；只更新算法辅助状态。</p>'),
     'order', '把数学图、出邻接表和算法辅助状态对应起来')
 
 add('topo-code', '怎样把排位和更新写进程序？', pair(code('u = stack[--size];\nr->order[r->count++] = u;\nfor (e = g->head[u]; e != -1;\n     e = g->edge[e].next) {\n    v = g->edge[e].v;\n    if (--r->degree[v] == 0)\n        stack[size++] = v;\n}'),
