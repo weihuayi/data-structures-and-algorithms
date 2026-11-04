@@ -173,6 +173,29 @@ class ShortestPathSemanticsTests(unittest.TestCase):
         self.assertEqual(after['allowed'], tuple('ABCD'))
         self.assertEqual(after['distance'][0][4], 7)
 
+    def test_floyd_cognitive_bridge_preserves_stage_semantics(self):
+        mod = load_deck(DECKS/'d014-shortest-path')
+        ids = [page['id'] for page in mod.COURSE.pages]
+        self.assertEqual(len(ids), 38)
+        self.assertEqual(ids[29:34],
+                         ['matrix', 'path-split', 'stage', 'floyd-update', 'floyd-loops'])
+        bodies = {page['id']: slide[1]
+                  for page, slide in zip(mod.COURSE.pages, mod.SLIDES)}
+        self.assertIn('A→B→D→E', bodies['path-split'])
+        self.assertIn(r'D_K(i,j)', bodies['stage'])
+        self.assertIn('内部顶点都属于', bodies['stage'])
+        self.assertNotIn('graph-node-visited', bodies['stage'])
+        self.assertIn(r'D_{K\cup\{k\}}(i,j)', bodies['floyd-update'])
+        self.assertIn('不经过 D', bodies['floyd-update'])
+        self.assertIn('3+3=6', bodies['floyd-update'])
+        stages = floyd_stages()
+        self.assertIsNone(stages[0]['distance'][0][4])
+        self.assertEqual(stages[2]['distance'][0][4], 10)
+        self.assertEqual(stages[3]['distance'][0][4], 10)
+        self.assertEqual(stages[3]['distance'][2][4], 9)
+        self.assertEqual(stages[4]['distance'][0][4], 7)
+        self.assertEqual(stages[4]['distance'][2][4], 6)
+
     def test_floyd_ordering_sensitive_path(self):
         end = floyd_stages('0123', (('0', '2', 1), ('2', '3', 1), ('3', '1', 1)),
                            directed=True)[-1]
