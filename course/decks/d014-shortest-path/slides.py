@@ -395,7 +395,7 @@ add('matrix', '初始距离矩阵 D⁽⁰⁾ 怎样构造？',
          '<p><strong>初始状态：</strong>由直接边构造 \\(D^{(0)}\\)。</p>' +
          matrix(FLOYD[0]['distance']) +
          '<p class="sp-small">初始化：对角线为 0，直接边为边权，其余为 ∞；尚未利用中间顶点。</p>'
-         '<p><strong>状态演化：</strong>同一矩阵 <code>D</code> 原地更新：\\(D^{(0)}\\to D^{(k)}\\to D^{(n)}\\)。</p>'),
+         '<p><strong>后续：</strong>更新同一矩阵 <code>D</code>：\\(D^{(0)}\\to D^{(k)}\\to D^{(n)}\\)。</p>'),
     P4, '由直接边构造初始距离矩阵 D^(0)，并建立单矩阵的状态演化目标')
 
 add('path-split', '怎样利用两段路径改进 A 到 E 的距离？',
