@@ -174,7 +174,7 @@ class ShortestPathSemanticsTests(unittest.TestCase):
         self.assertEqual(after['distance'][0][4], 7)
 
     def test_floyd_cognitive_bridge_preserves_stage_semantics(self):
-        """The deck exposes D^(0), vertex-prefix stages and their loop mapping."""
+        """The deck exposes bold-italic matrix stages and their loop mapping."""
         mod = load_deck(DECKS/'d014-shortest-path')
         ids = [page['id'] for page in mod.COURSE.pages]
         self.assertEqual(len(ids), 38)
@@ -183,21 +183,33 @@ class ShortestPathSemanticsTests(unittest.TestCase):
         bodies = {page['id']: slide[1]
                   for page, slide in zip(mod.COURSE.pages, mod.SLIDES)}
         self.assertIn('A→B→D→E', bodies['path-split'])
-        self.assertIn(r'D^{(0)}', bodies['matrix'])
+        self.assertIn(r'\boldsymbol{M}^{(0)}', bodies['matrix'])
         self.assertIn('同一矩阵', bodies['matrix'])
-        self.assertIn(r'D^{(k)}[i,j]', bodies['stage'])
+        self.assertIn(r'\boldsymbol{M}^{(k)}[i,j]', bodies['stage'])
         self.assertIn('前', bodies['stage'])
         self.assertIn('按序经过', bodies['stage'])
         self.assertNotIn('D_K', bodies['stage'] + bodies['floyd-update'])
         self.assertNotIn('graph-node-visited', bodies['stage'])
-        self.assertIn(r'D^{(3)}[A,E]', bodies['floyd-update'])
-        self.assertIn(r'D^{(4)}[A,E]', bodies['floyd-update'])
-        self.assertIn(r'D^{(k+1)}[i,j]', bodies['floyd-update'])
+        self.assertIn(r'\boldsymbol{M}^{(3)}[A,E]', bodies['floyd-update'])
+        self.assertIn(r'\boldsymbol{M}^{(4)}[A,E]', bodies['floyd-update'])
+        self.assertIn(r'\boldsymbol{M}^{(k+1)}[i,j]', bodies['floyd-update'])
         self.assertIn('不经过 D', bodies['floyd-update'])
         self.assertIn('3+3=6', bodies['floyd-update'])
         self.assertIn(r'v_k=k', bodies['floyd-loops'])
-        self.assertIn(r'D^{(k+1)}', bodies['floyd-loops'])
+        self.assertIn(r'\boldsymbol{M}^{(k+1)}', bodies['floyd-loops'])
         self.assertIn('原地更新', bodies['floyd-loops'])
+        # Matrix notation is bold italic; D continues to denote a graph vertex.
+        for page_id in ('matrix', 'stage', 'floyd-update', 'floyd-loops'):
+            self.assertIn(r'\\boldsymbol{M}', bodies[page_id])
+            self.assertNotIn('D^{(', bodies[page_id])
+            self.assertNotIn(r'\\mathbf{M}', bodies[page_id])
+        self.assertIn('A→B→D→E', bodies['path-split'])
+        self.assertIn(r'\\boldsymbol{M}^{(3)}[A,D]', bodies['floyd-update'])
+        self.assertIn('<code>M</code>', bodies['matrix'])
+        self.assertIn('M[i,j] = min(M[i,j], M[i,k] + M[k,j])',
+                      bodies['floyd-loops'])
+        self.assertNotIn('<code>D</code>', bodies['floyd-loops'])
+
 
         stages = floyd_stages()
         self.assertEqual(stages[0]['allowed'], ())
