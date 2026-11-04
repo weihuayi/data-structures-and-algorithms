@@ -1,0 +1,21 @@
+name: Course AI harness checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skill-structure-and-links:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Check Skill metadata, discovery adapters and local references
+        run: python3 tools/harness/check_skills.py
+      - name: Run normal and failure fixtures
+        run: python3 -m unittest discover -s tools/harness/tests -v
