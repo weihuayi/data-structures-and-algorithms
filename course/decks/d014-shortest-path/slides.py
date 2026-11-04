@@ -390,13 +390,13 @@ add('optimality', '路径合法、权和正确，已经说明什么？',
 # 29–37: all-pairs distances, a restricted intermediate set, and selection.
 COURSE.start_section('all-pairs')
 
-add('matrix', '初始距离矩阵 D⁽⁰⁾ 怎样构造？',
+add('matrix', '初始距离矩阵怎样构造？',
     pair(main(),
-         '<p><strong>初始状态：</strong>由直接边构造 \\(D^{(0)}\\)。</p>' +
+         '<p><strong>初始状态：</strong>由直接边构造 \\(\\boldsymbol{M}^{(0)}\\)。</p>' +
          matrix(FLOYD[0]['distance']) +
          '<p class="sp-small">初始化：对角线为 0，直接边为边权，其余为 ∞；尚未利用中间顶点。</p>'
-         '<p><strong>后续：</strong>更新同一矩阵 <code>D</code>：\\(D^{(0)}\\to D^{(k)}\\to D^{(n)}\\)。</p>'),
-    P4, '由直接边构造初始距离矩阵 D^(0)，并建立单矩阵的状态演化目标')
+         '<p><strong>后续：</strong>更新同一矩阵 <code>M</code>：\\(\\boldsymbol{M}^{(0)}\\to \\boldsymbol{M}^{(k)}\\to \\boldsymbol{M}^{(n)}\\)。</p>'),
+    P4, '由直接边构造粗斜体距离矩阵的初始状态，建立单矩阵演化目标')
 
 add('path-split', '怎样利用两段路径改进 A 到 E 的距离？',
     workspace(main(marked=(('A', 'B'), ('B', 'E'))),
@@ -411,39 +411,39 @@ add('path-split', '怎样利用两段路径改进 A 到 E 的距离？',
 add('stage', '为什么按照固定顶点序列定义计算阶段？',
     workspace(main(),
               r'''<p>固定顺序：A(0)、B(1)、C(2)、D(3)、E(4)，共 \(n=5\) 个顶点；第 \(k\) 个顶点记为 \(v_k\)。</p>
-<p><strong>阶段状态：</strong>\(D^{(k)}[i,j]\) 表示<strong>只允许序列前 \(k\) 个顶点</strong>作为路径内部顶点时，从 \(i\) 到 \(j\) 的最短距离，\(0\le k\le n\)。</p>
-<p>\(D^{(0)}\) 是初始矩阵，\(D^{(n)}\) 是最终结果。允许不等于必经，也不要求按序经过；起点和终点不受限制。</p>
-<p><strong>判断：</strong>\(D^{(3)}[A,E]=10\) 为什么不是 7？</p>''',
+<p><strong>阶段状态：</strong>\(\boldsymbol{M}^{(k)}[i,j]\) 表示<strong>只允许序列前 \(k\) 个顶点</strong>作为路径内部顶点时，从 \(i\) 到 \(j\) 的最短距离，\(0\le k\le n\)。</p>
+<p>\(\boldsymbol{M}^{(0)}\) 是初始矩阵，\(\boldsymbol{M}^{(n)}\) 是最终结果。允许不等于必经，也不要求按序经过；起点和终点不受限制。</p>
+<p><strong>判断：</strong>\(\boldsymbol{M}^{(3)}[A,E]=10\) 为什么不是 7？</p>''',
               r'''<p>前 3 个顶点是 A、B、C。A→B→E 长 10，内部顶点 B 已允许。</p>
 <p>A→B→D→E 虽然长 7，但其内部顶点 D 直到第 4 阶段才允许。</p>
 <p><strong>固定顺序用于推进计算，不是路径实际经过顶点的顺序。</strong></p>'''),
-    P4, '使用固定顶点序列的前缀定义 D^(k)，区分计算顺序与路径顺序', '阶段语义判断')
+    P4, '以固定顶点序列前缀定义矩阵阶段状态，区分计算顺序与路径顺序', '阶段语义判断')
 
 add('floyd-update', '新增序列中的 D，如何建立阶段递推？',
     workspace(main(marked=(('A', 'B'), ('B', 'D'), ('D', 'E'))),
-              r'''<p>前 3 个顶点 A、B、C 已允许，现有 \(D^{(3)}\)：</p>
+              r'''<p>前 3 个顶点 A、B、C 已允许，现有 \(\boldsymbol{M}^{(3)}\)：</p>
 <table class="sp-table"><tbody>
-<tr><th>\(D^{(3)}[A,E]\)</th><td>10</td></tr>
-<tr><th>\(D^{(3)}[A,D]\)</th><td>4</td></tr>
-<tr><th>\(D^{(3)}[D,E]\)</th><td>3</td></tr></tbody></table>
-<p><strong>本轮新增 \(v_3=D\)：</strong>分别考虑“不经过 D”和“经过 D”，如何求 \(D^{(4)}[A,E]\)？</p>''',
-              r'''<p>不经过 D：保留 10；经过 D：拼接两个第 3 阶段结果，得 \(4+3=7\)。故 \(D^{(4)}[A,E]=7\)。</p>
+<tr><th>\(\boldsymbol{M}^{(3)}[A,E]\)</th><td>10</td></tr>
+<tr><th>\(\boldsymbol{M}^{(3)}[A,D]\)</th><td>4</td></tr>
+<tr><th>\(\boldsymbol{M}^{(3)}[D,E]\)</th><td>3</td></tr></tbody></table>
+<p><strong>本轮新增 \(v_3=D\)：</strong>分别考虑“不经过 D”和“经过 D”，如何求 \(\boldsymbol{M}^{(4)}[A,E]\)？</p>''',
+              r'''<p>不经过 D：保留 10；经过 D：拼接两个第 3 阶段结果，得 \(4+3=7\)。故 \(\boldsymbol{M}^{(4)}[A,E]=7\)。</p>
 <p><strong>一般递推（\(k=0,\ldots,n-1\)）：</strong></p>
-<p>\(D^{(k+1)}[i,j]\)</p>
-<p>\(\quad=\min\{D^{(k)}[i,j],\,D^{(k)}[i,v_k]+D^{(k)}[v_k,j]\}\)。</p>
+<p>\(\boldsymbol{M}^{(k+1)}[i,j]\)</p>
+<p>\(\quad=\min\{\boldsymbol{M}^{(k)}[i,j],\,\boldsymbol{M}^{(k)}[i,v_k]+\boldsymbol{M}^{(k)}[v_k,j]\}\)。</p>
 <p class="sp-small">边权非负，最短路径可选为简单路径；若经过新增的 \(v_k\)，两段内部顶点只能来自此前的序列前缀。</p>
-<p><strong>迁移：</strong>\(D^{(3)}[C,E]=9\)，经 D 得 \(3+3=6\)，故 \(D^{(4)}[C,E]=6\)。</p>'''),
-    P4, '按是否经过序列新增顶点推导 D^(k) 到 D^(k+1) 的递推', '数值预测、公式推导与迁移')
+<p><strong>迁移：</strong>\(\boldsymbol{M}^{(3)}[C,E]=9\)，经 D 得 \(3+3=6\)，故 \(\boldsymbol{M}^{(4)}[C,E]=6\)。</p>'''),
+    P4, '按是否经过新增顶点推导矩阵的阶段递推关系', '数值预测、公式推导与迁移')
 
-add('floyd-loops', '阶段 D⁽ᵏ⁾ 怎样对应程序中的循环和矩阵？',
-    r'''<p>顶点按序编号，\(v_k=k\)。第 \(k\) 次外层循环开始时，程序矩阵 <code>D</code> 表示 \(D^{(k)}\)。</p>
+add('floyd-loops', '阶段矩阵怎样对应程序循环？',
+    r'''<p>顶点按序编号，\(v_k=k\)。第 \(k\) 次外层循环开始时，程序矩阵 <code>M</code> 表示 \(\boldsymbol{M}^{(k)}\)。</p>
 <pre><code>for k = 0, ..., n-1:       // 本轮新增序列中的顶点 k
     for i = 0, ..., n-1:
         for j = 0, ..., n-1:
             若两段路径都存在：
-                D[i,j] = min(D[i,j], D[i,k] + D[k,j])</code></pre>
-<p>每轮只新增一个中间顶点，但要更新<strong>所有端点对</strong> \(i,j\)；整轮结束后 <code>D</code> 对应 \(D^{(k+1)}\)。</p>
-<p class="sp-small">本讲非负权时，\(D[i,k]\) 和 \(D[k,j]\) 在本轮不会进一步减小，因此可以原地更新；内层执行中是部分更新状态。</p>
+                M[i,j] = min(M[i,j], M[i,k] + M[k,j])</code></pre>
+<p>每轮只新增一个中间顶点，但要更新<strong>所有端点对</strong> \(i,j\)；整轮结束后 <code>M</code> 对应 \(\boldsymbol{M}^{(k+1)}\)。</p>
+<p class="sp-small">本讲非负权时，\(\boldsymbol{M}[i,k]\) 和 \(\boldsymbol{M}[k,j]\) 在本轮不会进一步减小，因此可以原地更新；内层执行中是部分更新状态。</p>
 <p class="sp-formula">共 \(n\) 轮、每轮 \(n^2\) 对：时间 \(O(n^3)\)，距离矩阵空间 \(O(n^2)\)。</p>''',
     P4, '映射阶段编号、外层新增顶点和程序矩阵的原地更新')
 
