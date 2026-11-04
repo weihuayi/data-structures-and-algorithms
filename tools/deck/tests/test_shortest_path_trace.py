@@ -200,16 +200,15 @@ class ShortestPathSemanticsTests(unittest.TestCase):
         self.assertIn('原地更新', bodies['floyd-loops'])
         # Matrix notation is bold italic; D continues to denote a graph vertex.
         for page_id in ('matrix', 'stage', 'floyd-update', 'floyd-loops'):
-            self.assertIn(r'\\boldsymbol{M}', bodies[page_id])
+            self.assertIn(r'\boldsymbol{M}', bodies[page_id])
             self.assertNotIn('D^{(', bodies[page_id])
-            self.assertNotIn(r'\\mathbf{M}', bodies[page_id])
+            self.assertNotIn(r'\mathbf{M}', bodies[page_id])
         self.assertIn('A→B→D→E', bodies['path-split'])
-        self.assertIn(r'\\boldsymbol{M}^{(3)}[A,D]', bodies['floyd-update'])
+        self.assertIn(r'\boldsymbol{M}^{(3)}[A,D]', bodies['floyd-update'])
         self.assertIn('<code>M</code>', bodies['matrix'])
         self.assertIn('M[i,j] = min(M[i,j], M[i,k] + M[k,j])',
                       bodies['floyd-loops'])
         self.assertNotIn('<code>D</code>', bodies['floyd-loops'])
-
 
         stages = floyd_stages()
         self.assertEqual(stages[0]['allowed'], ())
