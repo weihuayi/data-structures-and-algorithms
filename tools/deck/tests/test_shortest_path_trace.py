@@ -184,7 +184,7 @@ class ShortestPathSemanticsTests(unittest.TestCase):
                   for page, slide in zip(mod.COURSE.pages, mod.SLIDES)}
         self.assertIn('A→B→D→E', bodies['path-split'])
         self.assertIn(r'D^{(0)}', bodies['matrix'])
-        self.assertIn('同一个程序矩阵', bodies['matrix'])
+        self.assertIn('同一矩阵', bodies['matrix'])
         self.assertIn(r'D^{(k)}[i,j]', bodies['stage'])
         self.assertIn('前', bodies['stage'])
         self.assertIn('按序经过', bodies['stage'])
