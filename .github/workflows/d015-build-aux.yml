@@ -1,0 +1,37 @@
+name: D015 temporary controlled regeneration
+on:
+  push:
+    branches:
+      - codex/d015-aoe-record-notation-fix
+    paths:
+      - .github/workflows/d015-build-aux.yml
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate D015 HTML from slides source
+        run: python3 tools/deck/build.py D015
+      - name: Validate wording, math and source
+        run: |
+          python3 -m py_compile course/decks/d015-topological-and-critical-path/slides.py
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('course/decks/d015-topological-and-critical-path/index.html').read_text()
+          assert 'C 图的边记录' not in html
+          assert r'边记录含起点 \(u\)、终点 \(v\)、时长 \(w\)' in html
+          assert r'弧记录 \((u,v,w)\)' in html
+          assert r'按事件编号 \(v\) 记录' in html
+          print('Focused page 20 assertions passed')
+          PY
+      - name: Commit generated D015 asset
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add course/decks/d015-topological-and-critical-path/index.html course/decks/d015-topological-and-critical-path/README.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'D015: regenerate page 20 after overflow repair'
+            git push origin HEAD:codex/d015-aoe-record-notation-fix
+          fi
