@@ -67,6 +67,33 @@ class SkillCheckTests(unittest.TestCase):
         self.assertTrue(any("invalid Skill name" in x for x in errors), errors)
         self.assertTrue(any("invalid Skill description" in x for x in errors), errors)
 
+    def test_non_string_yaml_descriptions(self):
+        for bad in ("null", "Null", "~", "[]", "{}", "true", "false",
+                    "yes", "no", "123", "1.5", "# no description",
+                    "|", ">", "|-", ">-"):
+            with self.subTest(description=bad):
+                self.write("skills/example-case/SKILL.md",
+                           f"---\nname: example-case\ndescription: {bad}\n---\n")
+                self.fail_has("invalid Skill description")
+
+    def test_malformed_yaml_descriptions(self):
+        for bad in ("Valid: invalid YAML", 'Not quoted "bad" # trailing',
+                    '"unterminated', '"not" valid', "'unterminated",
+                    "'bad' trailing", "hello # inline comment", '""', "''",
+                    '"\\q"'):
+            with self.subTest(description=bad):
+                self.write("skills/example-case/SKILL.md",
+                           f"---\nname: example-case\ndescription: {bad}\n---\n")
+                self.fail_has("invalid Skill description")
+
+    def test_valid_quoted_yaml_descriptions(self):
+        for good in ('"Valid: quoted description"', "'We''re describing a case'",
+                     '"Text # not an inline comment"', "普通课程案例说明"):
+            with self.subTest(description=good):
+                self.write("skills/example-case/SKILL.md",
+                           f"---\nname: example-case\ndescription: {good}\n---\n")
+                self.assertEqual(check_repository(self.root), [])
+
     def test_duplicate_frontmatter_key(self):
         self.write("skills/example-case/SKILL.md", "---\nname: example-case\nname: extra\ndescription: Valid\n---\n")
         self.fail_has("duplicate frontmatter field")

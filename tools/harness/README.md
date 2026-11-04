@@ -13,7 +13,7 @@ python3 -m unittest discover -s tools/harness/tests -v
 
 ## 覆盖范围
 
-- Skill `SKILL.md` 中简易 YAML frontmatter 的名称、描述、目录同名及索引入口；当前约定为单行标量 `name` 与 `description`。
+- Skill `SKILL.md` 中简易 YAML frontmatter 的名称、描述、目录同名及索引入口。`name`、`description` 只支持**非空单行字符串**：以字母开头、不含未引用冒号后空格或内联注释的普通标量、JSON 兼容双引号标量、YAML 单引号标量（以 `''` 转义单引号）。不接受 `null`、布尔值、数字、数组、映射、块标量或其它 YAML 语法；这是明确限定的子集，不是完整 YAML 解析器。
 - `.agents/skills/` 相对符号链接的目标正确、存在、不越界，并禁止复制为并列技能正文或留下无主入口。
 - 根协作入口、技能目录、案例索引和技能正文中的**基本 Markdown 行内本地链接**是否指向仓库内实际文件或目录；案例 Markdown 文件应被案例索引引用。
 - 使用正常与故障夹具检验缺失文件、错误元数据、无效链接及越界引用能够触发失败。

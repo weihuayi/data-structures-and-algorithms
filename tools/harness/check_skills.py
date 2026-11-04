@@ -2,6 +2,7 @@
 """Deterministic repository Skill structure and local-link checks (read-only)."""
 
 import argparse
+import json
 from pathlib import Path
 import re
 from urllib.parse import unquote, urlsplit
@@ -44,6 +45,41 @@ def local_targets(path, root, errors):
     return links
 
 
+def single_line_yaml_string(raw):
+    """Decode the documented, deliberately small YAML string subset.
+
+    Accepted: a plain scalar starting with a letter, JSON-compatible double
+    quotes, or YAML single quotes (using doubled apostrophes). Unsupported YAML
+    types, multiline forms, comments and malformed quoting must fail closed.
+    This is not a general-purpose YAML parser.
+    """
+    value = raw.strip()
+    if not value:
+        return None
+    if value.startswith('"'):
+        try:
+            decoded = json.loads(value)
+        except (ValueError, TypeError):
+            return None
+        return decoded if isinstance(decoded, str) and decoded.strip() else None
+    if value.startswith("'"):
+        if len(value) < 2 or not value.endswith("'"):
+            return None
+        inside = value[1:-1]
+        if "'" in inside.replace("''", ""):
+            return None
+        decoded = inside.replace("''", "'")
+        return decoded if decoded.strip() else None
+    # Plain YAML scalars cannot use ": " as unquoted text, or "#"
+    # preceded by whitespace as an inline comment. Restrict the initial
+    # character to a letter to avoid flow, tags, aliases and numeric scalars.
+    if not value[0].isalpha() or re.search(r":(?:\s|$)|\s#", value):
+        return None
+    if value.casefold() in {"null", "true", "false", "yes", "no", "on", "off"}:
+        return None
+    return value
+
+
 def skill_metadata(path, slug, errors):
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
@@ -69,15 +105,12 @@ def skill_metadata(path, slug, errors):
         key, value = match.groups()
         if key in metadata:
             errors.append(f"duplicate frontmatter field: {slug}: {key}")
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
-            value = value[1:-1]
-        metadata[key] = value
-    name = metadata.get("name", "")
-    description = metadata.get("description", "")
-    if not SLUG.fullmatch(name) or len(name) > 64 or name != slug:
+        metadata[key] = single_line_yaml_string(value)
+    name = metadata.get("name")
+    description = metadata.get("description")
+    if not isinstance(name, str) or not SLUG.fullmatch(name) or len(name) > 64 or name != slug:
         errors.append(f"invalid Skill name/directory: {slug}: {name!r}")
-    if not description or description in ("|", ">", "|-", ">-") or len(description) > 1024:
+    if not isinstance(description, str) or not description.strip() or len(description) > 1024:
         errors.append(f"invalid Skill description: {slug}")
 
 
