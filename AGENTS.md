@@ -9,10 +9,15 @@
 | `course/` | [课程协作约定](course/AGENTS.md) | 课程资产、连续性、教学与学习证据边界 |
 | `course/decks/` | 上述约定及[课件协作约定](course/decks/AGENTS.md) | 设计、公共表达、制作与完成验收 |
 | `tools/deck/` | [工具协作约定](tools/deck/AGENTS.md) | 共享组件、检查器、兼容性与影响回归 |
+| `skills/` | [技能索引](skills/README.md)；涉及表达设计案例时按需读 [案例 Skill](skills/dsa-design-case-curation/SKILL.md) | AI Skill 的单一主源、使用方式与适用边界 |
+| `kb/design_cases/` | [案例索引](kb/design_cases/README.md) | 真实表达设计案例与证据边界；原始事实仍以课程、PR 和课堂记录为源 |
+| `tools/harness/` | [Harness 检查说明](tools/harness/README.md) | Skill 元数据、发现适配与本地引用的确定性检查 |
 | `submissions/` | 对应作业说明 | 可公开的学生作业提交 |
 | `src/`、`tests/`、`examples/` 等 | 对应项目说明 | 项目实践工程 |
 
 只处理任务涉及的入口；跨入口修改说明具体关联。目录级约定按作用范围补充本入口，不在每讲复制一套规则。即使所用 AI 工具不自动加载嵌套 AGENTS，也必须沿本表读取所涉及入口。
+
+表达设计案例的发现、重构与受控入库按任务启用 Skill；普通课件制作不因此默认加载该 Skill。执行器发现入口为 `.agents/skills/`，唯一正文主源在 `skills/`，实际自动发现能力需另行验证。
 
 ## 当前规范与依据
 
