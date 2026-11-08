@@ -158,7 +158,7 @@ add('order-time', '得到一个顺序，就知道何时完工了吗？', pair(ta
     'earliest','区分合法排列、串行总时长与并行工期')
 
 add('aoe', '同一项目怎样表示成 AOE 网？',
-    definition('AOE 网（Activity on Edge Network）以顶点表示事件、弧表示活动、权表示持续时间，是带权 DAG。',inline=True)+
+    definition('AOE 网（Activity on Edge Network）以事件为顶点、活动为带权弧，是一种数学图模型（DAG）；计算需相应的带权图表示。',inline=True)+
     '<div class="dag-two dag-comparison">'+aov_view(caption='AOV：六个顶点分别是活动 A–F。')+
     aoe_view(caption='AOE：五个顶点分别是事件；A–F 标在活动弧上。')+'</div>'+
     '<p>事件 2：B、E 均完成；事件 3：C、D 均完成。事件本身不占时长。</p>',
@@ -166,24 +166,25 @@ add('aoe', '同一项目怎样表示成 AOE 网？',
 
 add('aoe-storage', 'AOE 的计算输入和最早时间记录是什么？',
     pair(aoe_view(marked=((0,2),(1,2))),
-         '<p>活动 A–F 是教学标识；事件编号为 0–4。</p>'+
-         r'<p>边记录含起点 \(u\)、终点 \(v\)、时长 \(w\) 与邻接索引 <code>next</code>，不存活动名。</p>'+
-         table(('活动',r'弧记录 \((u,v,w)\)'), [('B', '(0, 2, 5)'), ('E', '(1, 2, 1)')])+
-         r'<p>数组 \(\mathrm{ve}[v]\) 按事件编号 \(v\) 记录<strong>最早发生时间</strong>。</p>'+
-         r'<p>源事件初始 \(\mathrm{ve}[0]=0\)；其他事件尚未汇总。逐条读取活动弧，才会得到新的时间约束。</p>'),
+         '<p>C 示例：事件编号 0–4，采用带权出邻接表。</p>'+
+         r'<p><code>head[u]</code> 找事件 \(u\) 的首条出边；沿 <code>edge[e].next</code> 继续读取终点 \(v\) 与时长 \(w\)。</p>'+
+         table(('活动',r'当前弧 \((u,v,w)\)'), [('B', '(0, 2, 5)'), ('E', '(1, 2, 1)')])+
+         r'<p><code>order</code> 是 AOE 事件拓扑序；\(\mathrm{ve}[v]\) 记录事件最早发生时间。</p>'+
+         r'<p>初态 \(\mathrm{ve}[0]=0\)，其余为“—”（未汇总）；原图不变。</p>'),
     'earliest', '把 AOE 活动弧的存储字段映射为事件时间计算输入与状态')
 
 add('max', '为什么要等待最晚完成的前置工作？',
     task_workspace(aoe_view(marked=((0,2),(1,2)))+'<p class="dag-note">事件 0 在时刻 0 发生；事件 1 在时刻 3 发生。</p>'+
         r'<p>本次目标事件 \(v=2\)，前驱事件 \(u\) 为 0 或 1；活动 B、E 分别有时长 \(w_{02}=5\)、\(w_{12}=1\)。</p>',
         '<p>B 完成需到 0+5；E 完成需到 3+1。</p><p>事件 2 最早何时发生？能取较小值吗？</p>',
-        r'<p>必须等 B、E 都完成。</p><p>\(\mathrm{ve}[2]=\max\{5,4\}=5\)。</p>'
+        r'<p>必须等 B、E 都完成。</p><p>\(\mathrm{ve}[2]=\max\{\mathrm{ve}[0]+5,\mathrm{ve}[1]+1\}=5\)。</p>'
+        r'<p>一般地，\(\mathrm{ve}[v]=\max_{u\to v}\{\mathrm{ve}[u]+w_{uv}\}\)，源事件 \(\mathrm{ve}[s]=0\)。</p>'
         '<p>取 4 时 B 还没有完成，D 的开始条件不成立。</p>'),
     'earliest','由全部前置条件推导最大值递推','独立预测与解释',role='exercise')
 
 add('early-trace', '怎样按拓扑序计算最早时间？',
     time_player('forward')+
-    r'<p class="dag-note">\(\mathrm{ve}[v]=\max_{u\to v}\{\mathrm{ve}[u]+w_{uv}\}\)。\(u,v\) 是事件编号，\(w_{uv}\) 是活动弧 \(u\to v\) 的时长；全部前驱传播后，\(\mathrm{ve}[v]\) 才确定。</p>',
+    r'<p class="dag-note">逐条读取 AOE 出边 \(u\to v\)，以时长 \(w\) 得候选 \(c=\mathrm{ve}[u]+w\)；“—”时首次写入 \(c\)，否则 \(\mathrm{ve}[v]\gets\max\{\mathrm{ve}[v],c\}\)。全部前驱传播后才确定。</p>',
     'earliest','区分已收集约束的下界与已经完整的最早时间','正向分步演示，停顿比较两个前置约束')
 
 add('longest', '为什么最长依赖链决定最早工期？', pair(aoe_view(marked=((0,2),(2,3),(3,4))),
@@ -201,11 +202,12 @@ add('min', '为了按时完工，事件 1 最迟何时发生？',
         '<p>事件 2 最迟为 5，事件 3 最迟为 8；经过 E 要留 1 小时，经过 C 要留 2 小时。</p>'
         '<p>事件 1 应取哪一个最迟期限？</p>',
         r'<p>两项后续要求都要满足。</p><p>\(\mathrm{vl}[1]=\min\{5-1,8-2\}=4\)。</p>'
+        r'<p>一般地，\(\mathrm{vl}[u]=\min_{u\to v}\{\mathrm{vl}[v]-w_{uv}\}\)，汇事件 \(\mathrm{vl}[t]=T\)。</p>'
         '<p>若取 6，E 就不能在事件 2 的期限前完成。</p>'),
     'critical','由全部后继期限推导最小值递推','独立预测与反馈',role='exercise')
 
 add('late-trace', '怎样按逆拓扑序完成反向计算？', time_player('backward')+
-    r'<p class="dag-note">\(\mathrm{vl}[t]=T=\mathrm{ve}[t]\)；\(\mathrm{vl}[u]=\min_{u\to v}\{\mathrm{vl}[v]-w_{uv}\}\)。按逆拓扑序处理 \(u\)，仍读取原图从 \(u\) 出发的活动弧，并用后继的期限更新 \(\mathrm{vl}[u]\)；顶点编号不是处理次序。</p>',
+    r'<p class="dag-note">汇点 \(\mathrm{vl}[t]=T=\mathrm{ve}[t]\)。逆拓扑读取原图出边 \(u\to v\)，候选 \(c=\mathrm{vl}[v]-w\)；“—”时首次写入 \(c\)，否则 \(\mathrm{vl}[u]\gets\min\{\mathrm{vl}[u],c\}\)。全部后继汇总后确定。</p>',
     'critical','从汇点沿逆拓扑序汇总后继约束','反向分步演示，在事件 1 的两个期限处停顿')
 
 add('activity-time', '事件时间怎样变成活动的开始时间？',
