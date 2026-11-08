@@ -1,0 +1,52 @@
+name: D015 one-time controlled build
+on:
+  push:
+    branches: [codex/d015-aoe-forward-state-transition-20261109]
+    paths:
+      - '.github/workflows/d015-bridge-build.yml'
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build controlled HTML and README page plan
+        run: python3 tools/deck/build.py D015
+      - name: Run semantic unit tests and C compiler check
+        run: |
+          python3 -m py_compile course/decks/d015-topological-and-critical-path/slides.py
+          python3 -B -m unittest discover -s tools/deck/tests
+          gcc -std=c11 -Wall -Wextra -Werror course/decks/d015-topological-and-critical-path/code/dependency_demo.c -o /tmp/d015
+          /tmp/d015 main
+          /tmp/d015 exercise
+      - name: Assert source and HTML semantics for modified pages
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('course/decks/d015-topological-and-critical-path/index.html').read_text()
+          for p in ('aoe', 'aoe-storage', 'max', 'early-trace', 'late-trace'):
+              assert f'data-page-id="{p}"' in s, p
+          def page(pageid):
+              block = s.split(f'data-page-id="{pageid}"', 1)[1]
+              return block.split('</section>', 1)[0]
+          p19,p20,p21,p22,p26 = (page(q) for q in ('aoe','aoe-storage','max','early-trace','late-trace'))
+          assert '数学图模型' in p19
+          assert '带权出邻接表' in p20 and 'head[u]' in p20 and 'edge[e].next' in p20
+          assert 'AOE 事件的拓扑序' in p20
+          assert r'\mathrm{ve}[0]+5' in p21 and r'\mathrm{ve}[1]+1' in p21
+          assert r'\mathrm{ve}[v]\gets\max' in p22 and '首次写入' in p22
+          assert r'\mathrm{vl}[u]\gets\min' in p26 and '逆拓扑读取原图' in p26
+          assert len(s.split('class="slide" id="slide-')) - 1 == 35
+          print('D015 targeted semantic and 35-slide assertions passed')
+          PY
+      - name: Commit only generated D015 assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add course/decks/d015-topological-and-critical-path/index.html course/decks/d015-topological-and-critical-path/README.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'D015: synchronize HTML and page plan for AOE update explanation'
+            git push origin HEAD:codex/d015-aoe-forward-state-transition-20261109
+          fi
