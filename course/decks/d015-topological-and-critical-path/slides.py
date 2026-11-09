@@ -43,6 +43,17 @@ def definition(text, *, inline=False):
 
 
 MAIN = critical_path()
+
+
+def event_times_table(*, include_latest=False):
+    """Persistent context: event-indexed times, not an activity-level table."""
+    nodes = tuple(sorted(MAIN['early']))
+    rows = [('ve', *(MAIN['early'][v] for v in nodes))]
+    if include_latest:
+        rows.append(('vl', *(MAIN['late'][v] for v in nodes)))
+    return table(('事件', *nodes), rows, 'dag-state')
+
+
 EXERCISE = critical_path(range(4), EXERCISE_ACTIVITIES, source=2, sink=1)
 B4 = tuple((a,u,v,4 if a=='B' else w) for a,u,v,w in MAIN_ACTIVITIES)
 B3 = tuple((a,u,v,3 if a=='B' else w) for a,u,v,w in MAIN_ACTIVITIES)
@@ -187,44 +198,63 @@ add('early-trace', '怎样按拓扑序计算最早时间？',
     r'<p class="dag-note">逐条读取 AOE 出边 \(u\to v\)，以时长 \(w\) 得候选 \(c=\mathrm{ve}[u]+w\)；“—”时首次写入 \(c\)，否则 \(\mathrm{ve}[v]\gets\max\{\mathrm{ve}[v],c\}\)。全部前驱传播后才确定。</p>',
     'earliest','区分已收集约束的下界与已经完整的最早时间','正向分步演示，停顿比较两个前置约束')
 
-add('longest', '为什么最长依赖链决定最早工期？', pair(aoe_view(marked=((0,2),(2,3),(3,4))),
-    '<p>B→D→F 必须先后完成：5+3+2=<strong>10</strong>，任何安排都不能少于 10。</p>'+
-    table(('活动','一种可行时间安排'),[('A、B','A：0–3；B：0–5'),('C、E','C：3–5；E：3–4'),('D','5–8'),('F','8–10')])+
-    '<p class="dag-note">这个安排满足全部依赖并达到 10：下界能够达到，所以最早工期为 10。</p>'),
-    'earliest','同时说明最长链的下界与最早安排的可达到性')
+add('longest', '为什么最长依赖链决定最早工期？',
+    task_workspace(aoe_view()+event_times_table(),
+        r'<p><strong>最长依赖路径</strong>：完整源汇路径中，活动时长之和最大的路径。</p>'
+        r'<p>\(\mathrm{ve}[v]\) 是从源事件到 \(v\) 的最长路径长度；正向计算没有保存路径。</p>'
+        r'<p>从汇点 4 倒查满足 \(\mathrm{ve}[v]=\mathrm{ve}[u]+w\) 的入边，能恢复哪条路径？</p>',
+        r'<p>\(\mathrm{ve}[4]=\mathrm{ve}[3]+2=10\)；'
+        r'\(\mathrm{ve}[3]=\mathrm{ve}[2]+3=8\)；'
+        r'\(\mathrm{ve}[2]=\mathrm{ve}[0]+5=5\)。</p>'
+        '<p><strong>路径：</strong>0→2→3→4（B–D–F），长 10。</p>'
+        '<p>依赖链给出工期下界 10；按最早时间安排可在 10 完成，故 T=10。</p>'),
+    'earliest','从 ve 长度追踪最长源汇路径，并说明工期下界可达到','预测路径、核对依据')
 
 # Latest constraints, activity float, independent work, pages 22–31.
 COURSE.start_section('critical')
 
 add('min', '为了按时完工，事件 1 最迟何时发生？',
-    task_workspace(aoe_view(marked=((1,2),(1,3))),
-        r'<p>已知最早工期 \(T=\mathrm{ve}[4]=10\)。不延长工期，定义 \(\mathrm{vl}[u]\) 为事件 \(u\) 的最迟发生时间；汇事件 \(\mathrm{vl}[4]=T\)。</p>'
-        '<p>事件 2 最迟为 5，事件 3 最迟为 8；经过 E 要留 1 小时，经过 C 要留 2 小时。</p>'
-        '<p>事件 1 应取哪一个最迟期限？</p>',
-        r'<p>两项后续要求都要满足。</p><p>\(\mathrm{vl}[1]=\min\{5-1,8-2\}=4\)。</p>'
-        r'<p>一般地，\(\mathrm{vl}[u]=\min_{u\to v}\{\mathrm{vl}[v]-w_{uv}\}\)，汇事件 \(\mathrm{vl}[t]=T\)。</p>'
-        '<p>若取 6，E 就不能在事件 2 的期限前完成。</p>'),
-    'critical','由全部后继期限推导最小值递推','独立预测与反馈',role='exercise')
+    task_workspace(aoe_view(marked=((1,2),(1,3)))+event_times_table(),
+        r'<p><strong>最迟发生时间</strong> \(\mathrm{vl}[u]\)：不延长工期时，事件 \(u\) 最晚可发生的时刻。</p>'
+        r'<p>\(T=\mathrm{ve}[4]=10\)。反推：\(\mathrm{vl}[4]=10\)，'
+        r'\(\mathrm{vl}[3]=10-2=8\)，\(\mathrm{vl}[2]=8-3=5\)。</p>'
+        '<p>事件 1 必须同时满足 C、E 的后继期限；最迟能在何时发生？</p>',
+        r'<p>\(\mathrm{vl}[1]=\min\{5-1,8-2\}=4\)：两项约束都要满足。</p>'
+        r'<p>一般地，\(\mathrm{vl}[u]=\min_{u\to v}\{\mathrm{vl}[v]-w_{uv}\}\)，'
+        r'\(\mathrm{vl}[t]=T\)。</p>'
+        '<p>因此，最迟发生时间 = T − 从该事件到汇点的最长剩余路径长度。</p>'),
+    'critical','从完成期限示范两次反推，再独立判断事件 1 的最迟发生时间',
+    '从汇点示范、独立预测与反馈',role='exercise')
 
 add('late-trace', '怎样按逆拓扑序完成反向计算？', time_player('backward')+
     r'<p class="dag-note">汇点 \(\mathrm{vl}[t]=T=\mathrm{ve}[t]\)。逆拓扑读取原图出边 \(u\to v\)，候选 \(c=\mathrm{vl}[v]-w\)；“—”时首次写入 \(c\)，否则 \(\mathrm{vl}[u]\gets\min\{\mathrm{vl}[u],c\}\)。全部后继汇总后确定。</p>',
     'critical','从汇点沿逆拓扑序汇总后继约束','反向分步演示，在事件 1 的两个期限处停顿')
 
 add('activity-time', '事件时间怎样变成活动的开始时间？',
-    pair(aoe_view(values=MAIN['early'],marked=((1,3),)),
-         r'<p>为什么从事件时间转到活动时间？判断哪些活动可以延后，须计算每项活动的开始时间。</p>'
-          r'<p>活动 \(a\) 是弧 \(u\to v\)，时长 \(w_a\)；按活动索引记录最早开始 \(e[a]\) 和最迟开始 \(l[a]\)。</p>'
-          r'<p>\(e[a]=\mathrm{ve}[u]\)，\(l[a]=\mathrm{vl}[v]-w_a\)，总时差 \(TF[a]=l[a]-e[a]\)。</p>'
-          r'<p>例：C 是 \(1\to3\)，时长为 2；\(e[C]=3\)，\(l[C]=8-2=6\)，\(TF[C]=3\)。</p>'
-          '<p class="dag-note">事件编号与活动编号不能混用；C 程序的 earliest / latest / slack 是活动级结果。总时差不可独立叠加。</p>'),
-    'critical','对应事件最早/最迟时间与活动开始时间和总时差')
+    pair(aoe_view(marked=((1,3),))+event_times_table(include_latest=True),
+         '<p>要判断活动能延后多久，先求它的开始时间。</p>'
+         r'<p><strong>最早开始时间</strong> \(e[a]\)：满足前置约束时最早能开始；'
+         r'\(e[a]=\mathrm{ve}[u]\)。</p>'
+         r'<p><strong>最迟开始时间</strong> \(l[a]\)：不延长工期时最迟能开始；'
+         r'\(l[a]=\mathrm{vl}[v]-w_a\)。</p>'
+         r'<p>活动 C：\(1\to3\)，时长 2；\(e[C]=3\)，\(l[C]=6\)。</p>'
+         r'<p><strong>总时差</strong> \(TF[C]=l[C]-e[C]=3\)。</p>',
+         'dag-tight'),
+    'critical','先解释活动最早与最迟开始的意义，再由事件时间计算及比较')
 
-add('critical-path', '哪些活动组成关键路径？', pair(aoe_view(marked=((0,2),(2,3),(3,4)))+
-    '<p>B→D→F：5+3+2=10。</p>'
-    r'<p class="dag-note">关键路径（Critical Path）从源到汇；依据活动 \(TF[a]=l[a]-e[a]\) 判定，不只看端点。</p>',
-    table(('活动','e[a]','l[a]','总时差'),[(a,t['earliest'],t['latest'],t['slack']) for a,t in MAIN['activity_times'].items()])+
-    '<p>余量为 0 的关键活动：B、D、F。</p>'),
-    'critical','依据活动余量识别完整的源汇关键路径')
+add('critical-path', '哪些活动组成关键路径？',
+    pair(aoe_view(marked=((0,2),(2,3),(3,4)))+
+         table(('活动', *(a for a, _, _, _ in MAIN_ACTIVITIES)),
+               [('总时差', *(MAIN['activity_times'][a]['slack'] for a, _, _, _ in MAIN_ACTIVITIES))],
+               'dag-state'),
+         '<p><strong>关键路径</strong>：长度等于最早工期的完整源汇路径。</p>'
+         '<p><strong>关键活动</strong>：位于至少一条关键路径上的活动。</p>'
+         '<p>怎样不枚举所有路径就判断关键活动？</p>'
+         r'<p><strong>判据：</strong>本模型下，活动关键当且仅当 \(TF[a]=l[a]-e[a]=0\)。</p>'
+         '<p>表中 B、D、F 余量为 0，连成 0→2→3→4；'
+         'B–D–F 长 10，与 T 相等。</p>',
+         'dag-tight'),
+    'critical','先定义关键路径与关键活动，再由总时差核对关键性')
 
 add('multiple', '继续缩短 B，工期一定继续缩短吗？',
     task_workspace(aoe_view(activities=B4),
