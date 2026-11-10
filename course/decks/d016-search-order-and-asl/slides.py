@@ -17,10 +17,10 @@ MATH = True
 COURSE = CourseDeck([
     Section('task', '明确查找任务', '拿到编号，究竟要找到什么？',
             '区分记录、关键字和下标，建立顺序查找的成功与失败基线。'),
-    Section('order', '利用有序信息', '凭什么可以排除半边？',
+    Section('order', '利用有序信息', '为什么比较中点后，可以排除一侧的候选记录？',
             '解释候选区间、更新依据和终止条件，再对应到 C 程序。'),
     Section('cost', '计算查找代价', '比较少了多少，结论依赖什么条件？',
-            '从具体路径进入判定树和 ASL，区分概率、平均与最坏代价。'),
+            '从具体路径进入判定树，区分查询概率、平均与最坏比较次数。'),
     Section('blocks', '用索引缩小范围', '块内没有排好序，还能先缩小范围吗？',
             '检查块间范围，建立索引，再完成块内扫描。'),
     Section('choice', '结合需求选择', '什么时候值得先组织数据再查找？',
@@ -69,7 +69,7 @@ add('cover', TITLE,
 COURSE.outline()
 COURSE.start_section('task')
 add('record-key-index', '编号 27，和下标 27，是一回事吗？',
-    definition('查找表是同一类型记录的集合；关键字是记录中用于标识记录的某个数据项的值。按给定值确定关键字相等的记录，称为查找。')+
+    definition('<strong>查找表</strong>是同一类型记录的集合；<strong>关键字</strong>是记录中用于标识记录的某个数据项的值。按给定值确定关键字相等的记录，称为<strong>查找</strong>。')+
     array_view()+
     table(('对象','本例含义'), [('关键字 27','商品编号；记录还可含名称、库存等字段'),
                             ('数组下标 3','记录在当前数组中的位置；A[3].key=27')])+
@@ -77,7 +77,7 @@ add('record-key-index', '编号 27，和下标 27，是一回事吗？',
     'task','区分查找表、记录、关键字与当前存储位置')
 add('sequential-hit', '逐个比较，怎样找到编号 27？',
     search_player(27,mode='sequential')+
-    '<p class="search-note">顺序查找（Sequential Search）：从一端逐个比较。本讲从前向后；教材示例从后向前，两者都需说明方向。</p>',
+    '<p class="search-note"><strong>顺序查找（Sequential Search）</strong>：从一端逐个比较。本讲从前向后；教材示例从后向前，两者都需说明方向。</p>',
     'task','从顺序查找轨迹建立比较计数与命中输出','先预测次数，再分步核对')
 add('sequential-miss', '没有编号 65，怎样才足以确认？',
     task_workspace(array_view(caption='目标为 65；本基线只作相等判断，不利用有序性提前停止。'),
@@ -98,7 +98,7 @@ add('access-versus-lookup', '数组访问快，查找就一定快吗？',
 # Order, proof obligations and C.
 COURSE.start_section('order')
 add('eliminate-half', '与 36 比较后，哪些位置不必再查？',
-    task_workspace(array_view(current=5,caption='目标 27；按编号递增。当前中点下标 5，关键字 36。'),
+    task_workspace('<p class="search-action"><strong>查找目标：27</strong>；关键字升序；当前比较 A[5]=36。</p>'+array_view(current=5,caption='当前比较位置为下标 5；其余位置尚待根据有序性判断。'),
         '<p>请写出剩余下标范围，并解释被排除的位置为什么都不可能命中。</p>',
         array_view(low=0,high=4,caption='新的候选为 [0,4]；中点及其右侧全部排除。')+
         '<p>对 i≥5，A[i]≥36&gt;27，所以这批记录均不可能命中。</p>'),
@@ -111,7 +111,7 @@ add('binary-miss', '折半查找 65，失败证据在哪里？',
     search_player(65)+
     '<p class="search-note">失败时 low=9、high=8；这是空区间，不读取 A[low] 或 A[high] 来“再确认”。</p>',
     'order','将区间为空与查找失败对应','分步核对，比较与上一页的停止原因')
-add('invariant-progress', '为什么不会漏查，也不会停住？',
+add('invariant-progress', '为什么不会漏查，又能保证算法终止？',
     pair('<h3>保留可能命中的记录</h3>'
          '<p>若目标存在，仍在当前候选区间。</p>'
          '<p>每次根据有序性，只排除已经确定不可能命中的位置。</p>',
@@ -129,7 +129,7 @@ add('binary-code', '区间规则怎样进入 C 程序？',
     '<p class="search-note">核心代码省略轨迹记录。键数组 a[i] 对应记录 A[i].key，一般记录还需保持其他字段对应。前提：n≥0、存储有效且按同一关键字非递减；查询不现场排序。</p>',
     'order','将区间约定、返回契约与实际 C 条件和更新对应','对照规则阅读代码')
 add('boundary-task', '只剩最后一个候选，还要比较吗？',
-    '<div class="search-compact-task">'+task_workspace(array_view((5,16),caption='目标 16；初始 low=0、high=1，向下取中点。'),
+    '<div class="search-compact-task">'+task_workspace('<p class="search-action"><strong>查找目标：16</strong>；初始区间为 [0,1]。</p>'+array_view((5,16),caption='闭区间，向下取中点；下标从 0 开始。'),
         '<p>第一次未命中后，若写 low=mid，会发生什么？正确更新后只剩一个候选，循环应继续吗？</p>',
         array_view((5,16),low=1,high=1,current=1,found=1,caption='low=1、high=1，仍比较 A[1]=16。')+
         '<p>low=mid 会保持原区间；正确为 low=mid+1。闭区间在 low=high 时仍有一个候选，故使用 low≤high。</p>')+'</div>',
@@ -143,14 +143,16 @@ add('wrong-field', '按价格排好序，能按编号折半吗？',
 
 # Cost model and conditional averages.
 COURSE.start_section('cost')
+COURSE.slides[-1][1] += '<p><strong>平均查找长度（Average Search Length，ASL）</strong>：本阶段将引入的代价评价指标。</p>'
 add('all-query-costs', '一次命中用了三次，其他查询呢？',
-    table(('关键字',*KEYS), [('顺序',*SEQ_COSTS),('折半',*BINARY_COSTS)])+
+    '<p><strong>表：不同关键字的成功查找比较次数（次）</strong></p>'+
+    table(('方法／关键字',*KEYS), [('顺序查找',*SEQ_COSTS),('折半查找',*BINARY_COSTS)])+
     '<p>查 5：顺序 1 次，折半 3 次；查 36：顺序 6 次，折半 1 次。</p>'
     '<p class="search-note">统一计数：比较过几个记录的关键字。一次中点判定计 1 个；C 中的 ==、&lt; 等条件测试次数和实测时间另计。</p>',
     'cost','从不同查询的实际比较次数建立评价问题')
 add('decision-tree', '判定树怎样把不同路径画出来？',
     decision_view()+
-    '<p class="search-note">本表比较 1、2、3、4 次的记录分别有 1、2、4、4 个。先看实际路径，再汇总。</p>',
+    '<p class="search-note">这棵判定树中，成功查找需要比较 1、2、3、4 次的记录数分别为 1、2、4、4。先看实际路径，再汇总。</p>',
     'cost','把数组查找路径与判定树层数对应','指出 27、71 的路径并数比较')
 add('success-asl', '怎样从不同查询得到平均代价？',
     definition('平均查找长度（Average Search Length，ASL）是比较关键字个数的期望。教材首先定义成功时的 ASL；此时概率在成功记录之间归一。')+
@@ -164,7 +166,7 @@ add('success-asl', '怎样从不同查询得到平均代价？',
     'cost','解释 ASL 的计数、权重及成功条件','先根据树汇总，再形成公式')
 add('failure-asl', '失败代价，能从成功平均直接得到吗？',
     gap_view()+
-    '<p class="search-note">上表列出 12 个失败间隙；本主例每个间隙都有可取的整数。各间隙是否等概率，需另外给定。</p>'+
+    '<p class="search-note">上方列出 12 个失败间隙；本主例每个间隙都有可取的整数。各间隙是否等概率，需另外给定。</p>'+
     r'<p>若题设给出失败间隙等概率：\(ASL_{\mathrm{fail}}=(4\times3+8\times4)/12=11/3\)。</p>'
     '<p class="search-note">查 65 的 3 次是单次结果。实际查询混合成功和失败时，还要按它们的发生比例加权。</p>',
     'cost','区分一次失败、失败间隙分布与条件平均')
@@ -185,7 +187,7 @@ add('growth', '表长增加，代价怎样增长？',
     '<p class="search-note">特殊长度的 ASL 闭式公式保留其前提，不用于任意表长。链表节点走访成本需另计。</p>',
     'cost','区分具体代价、最坏上界与增长阶')
 add('cost-task', '换一张表，你能独立分析吗？',
-    '<div class="search-compact-task">'+task_workspace(array_view(INDEPENDENT,caption='按关键字递增；四个记录在成功查询中等概率；闭区间、向下取中点。'),
+    '<div class="search-compact-task">'+task_workspace('<p class="search-action"><strong>成功查询：4 个关键字等概率。</strong> 折半采用闭区间、向下取中点。</p>'+array_view(INDEPENDENT,caption='按关键字升序排列；下标从 0 开始。'),
         '<p>画出判定树，求顺序和折半的成功 ASL。若没有给出概率，还能得到唯一均值吗？</p>',
         '<div class="search-answer-tree">'+decision_view(INDEPENDENT,caption='层数从 1 开始，表示成功比较次数。')+'</div>'+
         r'<p>折半比较次数为 2、1、2、3，均值 2；顺序均值 2.5。未给概率时，可写 \(\sum p_i c_i\)，不能指定唯一均值。</p>')+'</div>',
@@ -194,15 +196,15 @@ add('cost-task', '换一张表，你能独立分析吗？',
 # Partial order by blocks.
 COURSE.start_section('blocks')
 add('block-input', '块内无序，哪些信息仍可用于排除？',
-    definition('分块查找（Blocking Search，又称索引顺序查找）先定位块，再在块内顺序查找。索引记录块的最大关键字及起始位置。')+
-    index_view()+array_view(sum(BLOCKS,()),caption='B1 为下标 0–2，B2 为 3–5，B3 为 6–10；仍是原来 11 个记录。')+
+    definition('<strong>分块查找（Blocking Search，又称索引顺序查找）</strong>先定位块，再在块内顺序查找。索引记录块的最大关键字及起始位置。')+
+    '<p><strong>数据重新分块：</strong>记录集合不变，但数组排列及记录下标已改变。</p>'+index_view()+array_view(sum(BLOCKS,()),caption='B1 为下标 0–2，B2 为 3–5，B3 为 6–10；下标均按重排后的数组计算。')+
     r'<p class="search-note">本讲互异关键字满足 \(\max(B_i)<\min(B_{i+1})\)；块内无需有序。块末由下一起点或表长确定。</p>',
     'blocks','明确块间范围、块内排列和索引的不同职责')
 add('block-trace', '查 30：索引和块内扫描怎样分工？',
     block_player(30),
     'blocks','从索引定位到块内扫描，区分两段比较计数','遇到块内 36 时停顿，预测能否提前结束')
 add('block-miss', '查 28：什么时候才足以判定失败？',
-    task_workspace(array_view(sum(BLOCKS,()),caption='查找 28；索引（最大值，起点）：(20,0)、(36,3)、(71,6)；总长 11。'),
+    task_workspace('<p><strong>索引（最大关键字，起始下标）：</strong>(20,0)、(36,3)、(71,6)。</p>'+array_view(sum(BLOCKS,()),caption='查找目标 28；分块数组共 11 条记录。'),
         '<p>定位哪个块？需要检查哪些位置？看到第一个记录大于 28，可以停止吗？</p>',
         array_view(sum(BLOCKS,()),low=3,high=5,checked=(3,4,5),caption='蓝底标出已经完整检查的 B2：36、27、30。')+
         '<p>索引比较 2 次，块内比较 3 次，返回 −1。块内无序，看到 36&gt;28 不能停止；块末以后不再扫描。</p>'),
@@ -217,7 +219,7 @@ add('block-condition', '最大值递增，就一定分块正确吗？',
 # Complete cost and choice.
 COURSE.start_section('choice')
 add('preparation-cost', '准备工作的代价，何时能摊回？',
-    '<p>只比较关键字比较次数。题设：准备耗费 60 次比较；每次成功查询等概率，顺序均值 6、折半均值 3。</p>'+
+    '<p>本题仅以记录关键字的比较次数计量代价。题设：准备耗费 60 次比较；每次成功查询等概率，顺序均值 6、折半均值 3。</p>'+
     table(('查询次数 q','顺序：6q','准备后折半：60+3q'),[(1,6,63),(20,120,120),(100,600,360)])+
     '<p>在这个模型中，q&gt;20 才获得比较次数收益。</p>'
     '<p class="search-note">60 是题设，不是排序实测。记录移动、空间与实际时间另作评估；排序实现留到 D019–D020。</p>',
@@ -231,8 +233,8 @@ add('whole-cost', '仅比较次数，够不够决定方案？',
     '<p class="search-note">分块更新还取决于实际存储、容量和索引维护；块内无序不自动带来 O(1) 更新。</p>',
     'choice','将比较收益放回表示、维护与需求的整体成本')
 add('choice-task', '面对一个新需求，怎样给出选择？',
-    task_workspace('<p>20 万条记录已按编号存于数组；查询持续发生，近期没有增删。</p>'
-                   '<p class="search-note">目标是返回任一匹配位置或不存在；查询频率分布未给定。</p>',
+    task_workspace('<p>20 万条记录按编号升序存于数组；查询持续发生，近期没有增删。</p>'
+                   '<p>返回任一匹配位置，或报告不存在；<strong>查询关键字的概率分布未给定</strong>。</p>',
         '<p>给出方法、成立条件、代价依据，以及一个可能使你改选的变化。可以直接给出唯一 ASL 吗？</p>',
         '<p>可选择数组折半：已有顺序，无需为本次查询再排序；迭代只维护边界。</p>'
         '<p>按最坏比较次数评估，每次至多 18 次；未给查询概率，不能指定唯一 ASL。</p>'
@@ -242,7 +244,7 @@ add('choice-task', '面对一个新需求，怎样给出选择？',
 add('summary', '怎样把查找方法连成一条判断链？',
     table(('判断','本讲形成的依据'),[
         ('找什么？','给定关键字，返回位置或确认不存在'),
-        ('为什么能排除？','已有有序信息；候选不漏且持续缩小'),
+        ('为什么能排除？','依据比较结果与有效前提排除候选；不漏目标且持续推进'),
         ('少比较多少？','按实际路径、成功/失败与概率计算'),
         ('何时值得采用？','结合准备、访问、更新维护与空间')])+
     '<p>回收 D002 的信息利用、D003 的数组访问和 D010 的加权路径思想。</p>'
@@ -252,7 +254,7 @@ add('after-class', '课后怎样核对预测与运行？',
     code('gcc -std=c11 -Wall -Wextra \\\n  course/decks/d016-search-order-and-asl/code/search_demo.c -o /tmp/d016\n/tmp/d016 last\n/tmp/d016 profile --json',small=True)+
     '<p><strong>A · 教材：</strong>精读 7.1–7.2、算法 7.1–7.3，核对下标、返回值与 ASL 假设。</p>'
     '<p><strong>B · 实践：</strong>先预测查 71 再运行；另拟 4–7 个互异关键字，画判定树并算等概率成功 ASL；核对分块查 28 的失败依据。</p>'
-    '<p class="search-note">保留手工过程、程序输出和 3–5 行差异解释，按课程作业说明提交。</p>',
+    '<p class="search-note">保留手工过程、程序输出和 3–5 行差异解释；如另行布置为正式作业，再按相应要求提交。</p>',
     goal='明确教材导航与先预测后运行的课后任务',role='closing')
 
 SLIDES = COURSE.finalize()
