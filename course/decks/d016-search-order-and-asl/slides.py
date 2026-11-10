@@ -153,8 +153,8 @@ add('decision-tree', '判定树怎样把不同路径画出来？',
     array_view(caption='原有序数组：上排下标，下排关键字。')+
     '<div style="display:grid;grid-template-columns:minmax(0,2.5fr) minmax(280px,1fr);gap:16px;align-items:center">'+
         decision_view()+
-        '<div><p><strong>查 27：</strong>36 → 20 → 27，结点 27 在第 3 层，比较 3 次。</p>'+
-        '<p><strong>对应关系：</strong>树上每个结点是一次中点比较；该树仅用于分析，不另建存储结构。</p></div></div>',
+        '<div style="font-size:23px;line-height:1.35"><div><strong>查 27：</strong>36 → 20 → 27；结点 27 在第 3 层，比较 3 次。</div>'+
+        '<div style="margin-top:12px"><strong>对应：</strong>每个树结点是一次中点比较；判定树仅用于分析。</div></div></div>',
     'cost','把数组查找路径与判定树层数对应','指出 27、71 的路径并数比较')
 add('success-asl', '怎样从不同查询得到平均代价？',
     definition('平均查找长度（Average Search Length，ASL）是比较关键字个数的期望。教材首先定义成功时的 ASL；此时概率在成功记录之间归一。')+
@@ -171,8 +171,8 @@ add('failure-asl', '失败代价，能从成功平均直接得到吗？',
     array_view(caption='有序数组：相邻关键字之间及两端之外都可能出现失败查询。')+
     '<div style="display:grid;grid-template-columns:minmax(0,2.5fr) minmax(280px,1fr);gap:16px;align-items:center">'+
         decision_view()+
-        '<div><p><strong>查 65：</strong>60&lt;65&lt;67；路径 36 → 60 → 67 → 空候选，共 3 次比较。空分支不另计一次。</p>'+
-        r'<p><strong>间隙等概率时：</strong>4 个间隙比较 3 次、8 个间隙比较 4 次，\(ASL_{\mathrm{fail}}=(4\times3+8\times4)/12=11/3\)。</p></div></div>',
+        '<div style="font-size:22px;line-height:1.35"><div><strong>查 65：</strong>60&lt;65&lt;67，路径 36 → 60 → 67 → 空候选；比较 3 次，空分支不另计一次。</div>'+
+        r'<div style="margin-top:12px"><strong>间隙等概率：</strong>4 个间隙比较 3 次、8 个比较 4 次；\(ASL_{\mathrm{fail}}=44/12=11/3\)。</div></div></div>',
     'cost','区分一次失败、失败间隙分布与条件平均')
 add('query-frequency', '查询频率变了，平均代价会变吗？',
     table(('成功查询分布','顺序 ASL','折半 ASL'),[
