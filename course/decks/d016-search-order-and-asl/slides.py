@@ -197,7 +197,7 @@ add('cost-task', '换一张表，你能独立分析吗？',
 # Partial order by blocks.
 COURSE.start_section('blocks')
 add('block-input', '块内无序，哪些信息仍可用于排除？',
-    definition('<strong>分块查找</strong>先凭索引定位一块，再顺序扫描块内。<strong>本例块间必须满足</strong> \(\max(B_i)<\min(B_{i+1})\)，块内可无序。')+
+    definition(r'<strong>分块查找（Blocking Search，又称索引顺序查找）</strong>先定位块，再块内扫描。<strong>本例块间条件：</strong>\(\max(B_i)<\min(B_{i+1})\)，块内可无序。')+
     index_view()+array_view(sum(BLOCKS,()),caption='重新分块后的数组：B1 下标 0–2，B2 为 3–5，B3 为 6–10；记录重排后下标改变。'),
     'blocks','明确块间范围、块内排列和索引的不同职责')
 add('block-trace', '查 30：索引和块内扫描怎样分工？',
