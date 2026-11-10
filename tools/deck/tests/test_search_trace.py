@@ -194,6 +194,8 @@ class SlideTests(unittest.TestCase):
         self.assertIn('data-search-array',bridge)
         self.assertIn('search-decision',bridge)
         self.assertIn('36 → 20 → 27',bridge)
+        self.assertIn('aria-label=',bridge)
+        self.assertNotIn('判定树用于分析，不另建树来执行本数组查找。</figcaption>',bridge)
         failure=page('failure-asl')
         self.assertIn('12 个间隙',failure)
         self.assertIn('60&lt;65&lt;67',failure)
