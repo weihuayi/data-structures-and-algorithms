@@ -50,6 +50,11 @@ def pair(left, right):
     return '<div class="search-pair"><div>'+left+'</div><div>'+right+'</div></div>'
 
 
+def decision_view_without_duplicate_caption():
+    """Keep SVG title/aria-label; adjacent large text explains the same relation."""
+    return re.sub(r'<figcaption>[^<]*</figcaption>', '', decision_view(), count=1)
+
+
 BINARY_COSTS = successful_costs()
 SEQ_COSTS = successful_costs(mode='sequential')
 MEAN_BINARY = mean_cost(BINARY_COSTS, UNIFORM)
@@ -144,14 +149,17 @@ add('wrong-field', '按价格排好序，能按编号折半吗？',
 # Cost model and conditional averages.
 COURSE.start_section('cost')
 add('all-query-costs', '一次命中用了三次，其他查询呢？',
-    '<p><strong>表：不同关键字的成功查找比较次数（次）</strong></p>'+
-    table(('方法／关键字',*KEYS), [('顺序查找',*SEQ_COSTS),('折半查找',*BINARY_COSTS)])+
-    '<p>查 5：顺序 1 次，折半 3 次；查 36：顺序 6 次，折半 1 次。</p>'
-    '<p class="search-note">统一计数：比较过几个记录的关键字。一次中点判定计 1 个；C 中的 ==、&lt; 等条件测试次数和实测时间另计。</p>',
+    '<p><strong>问题：</strong>比较次数由查找路径决定；怎样得到所有目标的折半比较次数？</p>'+
+    table(('查找目标','顺序查找','折半查找'), [(5,1,3),(27,4,3),(36,6,1)])+
+    '<p>不同目标的比较次数不同。下面把同一数组上的折半比较路径组织起来，不必逐个重演。</p>',
     'cost','从不同查询的实际比较次数建立评价问题')
 add('decision-tree', '判定树怎样把不同路径画出来？',
-    decision_view()+
-    '<p class="search-note">这棵判定树中，成功查找需要比较 1、2、3、4 次的记录数分别为 1、2、4、4。先看实际路径，再汇总。</p>',
+    '<p class="search-action"><strong>折半查找的判定树：</strong>将中点比较组织成树，用于统计比较次数。</p>'+
+    array_view(caption='原有序数组：上排下标，下排关键字。')+
+    '<div style="display:grid;grid-template-columns:minmax(0,2.5fr) minmax(280px,1fr);gap:16px;align-items:center">'+
+        decision_view_without_duplicate_caption()+
+        '<div style="font-size:23px;line-height:1.35"><div><strong>查 27：</strong>36 → 20 → 27；结点 27 在第 3 层，比较 3 次。</div>'+
+        '<div style="margin-top:12px"><strong>对应：</strong>每个树结点是一次中点比较；判定树仅用于分析。</div></div></div>',
     'cost','把数组查找路径与判定树层数对应','指出 27、71 的路径并数比较')
 add('success-asl', '怎样从不同查询得到平均代价？',
     definition('平均查找长度（Average Search Length，ASL）是比较关键字个数的期望。教材首先定义成功时的 ASL；此时概率在成功记录之间归一。')+
@@ -164,10 +172,12 @@ add('success-asl', '怎样从不同查询得到平均代价？',
     r'<p class="search-note">平均 3 次不表示每次 3 次，也不表示最坏 3 次。顺序成功均值为 \((n+1)/2=6\)。</p>',
     'cost','解释 ASL 的计数、权重及成功条件','先根据树汇总，再形成公式')
 add('failure-asl', '失败代价，能从成功平均直接得到吗？',
-    gap_view()+
-    '<p class="search-note">上方列出 12 个失败间隙；本主例每个间隙都有可取的整数。各间隙是否等概率，需另外给定。</p>'+
-    r'<p>若题设给出失败间隙等概率：\(ASL_{\mathrm{fail}}=(4\times3+8\times4)/12=11/3\)。</p>'
-    '<p class="search-note">查 65 的 3 次是单次结果。实际查询混合成功和失败时，还要按它们的发生比例加权。</p>',
+    '<p class="search-action"><strong>失败间隙：</strong>相邻关键字之间及两端之外的未命中范围；11 个关键字形成 12 个间隙。</p>'+
+    array_view(caption='有序数组：相邻关键字之间及两端之外都可能出现失败查询。')+
+    '<div style="display:grid;grid-template-columns:minmax(0,2.5fr) minmax(280px,1fr);gap:16px;align-items:center">'+
+        decision_view_without_duplicate_caption()+
+        '<div style="font-size:22px;line-height:1.35"><div><strong>查 65：</strong>60&lt;65&lt;67，路径 36 → 60 → 67 → 空候选；比较 3 次，空分支不另计一次。</div>'+
+        r'<div style="margin-top:12px"><strong>间隙等概率：</strong>4 个间隙比较 3 次、8 个比较 4 次；\(ASL_{\mathrm{fail}}=44/12=11/3\)。</div></div></div>',
     'cost','区分一次失败、失败间隙分布与条件平均')
 add('query-frequency', '查询频率变了，平均代价会变吗？',
     table(('成功查询分布','顺序 ASL','折半 ASL'),[
@@ -178,26 +188,25 @@ add('query-frequency', '查询频率变了，平均代价会变吗？',
     '<p class="search-note">此例折半均值恰好仍为 3；一般情况下它也会随分布变化。这里比较关键字个数，不据此宣称实测更快。</p>',
     'cost','用非均匀查询反例检验固定平均结论','先预测，再核对权重')
 add('growth', '表长增加，代价怎样增长？',
-    table(('方法','最坏比较关键字数','这里的条件'),[
-        ('顺序基线','n','不利用有序性提前停止'),
-        ('数组折半',r'\(\lfloor\log_2 n\rfloor+1\)（n≥1）','按关键字有序，且能 O(1) 访问中点')])+
-    '<p>本例 n=11：折半最坏为 4，成功 ASL 为 3，含义不同。</p>'
-    '<p>折半每轮把候选规模约减半，时间为 O(log n)；空表不比较。</p>'
-    '<p class="search-note">特殊长度的 ASL 闭式公式保留其前提，不用于任意表长。链表节点走访成本需另计。</p>',
+    table(('判定树最多比较 h 次','1','2','3','4'), [('最多容纳的关键字数','1','3','7','15')])+
+    r'<p>第 \(h\) 层以前最多有 \(1+2+\cdots+2^{h-1}=2^h-1\) 个关键字。中点折半形成尽量平衡的树，故最坏比较次数为</p>'+
+    r'<p class="search-formula">\(C_{\max}(n)=\lceil\log_2(n+1)\rceil=\lfloor\log_2 n\rfloor+1\quad(n\ge1)\)</p>'+
+    r'<p>本例 \(n=11\)，最坏比较 4 次。固定对数底数只改变常数倍：\(\log_2 n=\log_b n/\log_b 2\)（\(b>1\) 固定），因此 \(O(\log_2 n)=O(\log n)\)。</p>'+
+    r'<p class="search-note">仅当数组中点访问和关键字比较均为常数成本时，查找时间为 \(O(\log n)\)；空表比较 0 次。</p>',
     'cost','区分具体代价、最坏上界与增长阶')
 add('cost-task', '换一张表，你能独立分析吗？',
     '<div class="search-compact-task">'+task_workspace('<p class="search-action"><strong>成功查询：4 个关键字等概率。</strong> 折半采用闭区间、向下取中点。</p>'+array_view(INDEPENDENT,caption='按关键字升序排列；下标从 0 开始。'),
-        '<p>画出判定树，求顺序和折半的成功 ASL。若没有给出概率，还能得到唯一均值吗？</p>',
-        '<div class="search-answer-tree">'+decision_view(INDEPENDENT,caption='层数从 1 开始，表示成功比较次数。')+'</div>'+
-        r'<p>折半比较次数为 2、1、2、3，均值 2；顺序均值 2.5。未给概率时，可写 \(\sum p_i c_i\)，不能指定唯一均值。</p>')+'</div>',
+        '<p>先画判定树，标出各关键字的层数，再求顺序和折半成功 ASL。若没有概率，还能得到唯一均值吗？</p>',
+        '<div class="search-answer-tree">'+decision_view(INDEPENDENT,caption='层数从 1 开始，等于成功比较次数。')+'</div>'+
+        table(('关键字',*INDEPENDENT),[('折半比较次数',2,1,2,3)])+
+        r'<p>根为 19（1 次），8 和 31 位于第 2 层，47 位于第 3 层；等概率折半均值 2，顺序均值 2.5。若不给概率，不能指定唯一 ASL。</p>')+'</div>',
     'cost','在新输入上产出判定树与有条件的平均计算','独立画图与计算',role='exercise')
 
 # Partial order by blocks.
 COURSE.start_section('blocks')
 add('block-input', '块内无序，哪些信息仍可用于排除？',
-    definition('<strong>分块查找（Blocking Search，又称索引顺序查找）</strong>先定位块，再在块内顺序查找。索引记录块的最大关键字及起始位置。')+
-    index_view()+array_view(sum(BLOCKS,()),caption='B1 为下标 0–2，B2 为 3–5，B3 为 6–10；下标均按重排后的数组计算。')+
-    r'<p class="search-note">记录重排后下标改变；块间满足 \(\max(B_i)<\min(B_{i+1})\)，块内可无序。</p>',
+    definition(r'<strong>分块查找（Blocking Search，又称索引顺序查找）</strong>先定位块，再块内扫描。<strong>本例块间条件：</strong>\(\max(B_i)<\min(B_{i+1})\)，块内可无序。')+
+    index_view()+array_view(sum(BLOCKS,()),caption='重新分块后的数组：B1 下标 0–2，B2 为 3–5，B3 为 6–10；记录重排后下标改变。'),
     'blocks','明确块间范围、块内排列和索引的不同职责')
 add('block-trace', '查 30：索引和块内扫描怎样分工？',
     block_player(30),
@@ -212,7 +221,7 @@ add('block-condition', '最大值递增，就一定分块正确吗？',
     task_workspace(table(('待核对块','记录','最大值'),[('B1','5、30',30),('B2','16、36',36)]),
         '<p>索引最大值递增。查 16 时会选哪个块？这能保证不漏查吗？</p>',
         array_view((5,30,16,36),found=2,caption='16 实际在 B2；第一次索引定位却会选 B1。')+
-        '<p>最大值递增不足以保证块间范围有序。本例 30&gt;16，块成员范围交错，不能使用该定位规则。</p>'),
+        r'<p>最大值递增不够；本讲只扫描首个候选块，必须保证块间范围严格分离：\(\max(B_i)<\min(B_{i+1})\)。这里 \(30>16\)，该条件失败，查 16 会漏查。</p>'),
     'blocks','用非法分块反例检验结构条件','独立诊断并解释反例',role='exercise')
 
 # Complete cost and choice.
@@ -236,10 +245,9 @@ add('choice-task', '面对一个新需求，怎样给出选择？',
                    '<p>返回任一匹配位置，或报告不存在；<strong>查询关键字的概率分布未给定</strong>。</p>',
         '<p>给出方法、成立条件、代价依据，以及一个可能使你改选的变化。可以直接给出唯一 ASL 吗？</p>',
         '<p>可选择数组折半：已有顺序，无需为本次查询再排序；迭代只维护边界。</p>'
-        '<p>按最坏比较次数评估，每次至多 18 次；未给查询概率，不能指定唯一 ASL。</p>'
-        '<p>若持续大量插入删除，应重新评估移动与维护成本，并比较后续树表、散列等结构。</p>'),
+        r'<p>\(2^{17}=131072\lt200000\lt262144=2^{18}\)，故最坏比较次数 \(C_{\max}(200000)=\lfloor\log_2 200000\rfloor+1=18\)。</p>'
+        '<p>查询概率未给定，不能指定唯一 ASL。若持续大量插入删除，应重新评估移动与维护成本，并比较后续树表、散列等结构。</p>'),
     'choice','在陌生规模上作出有前提、有代价依据的选择','独立决策与同伴解释',role='exercise')
-
 add('summary', '怎样把查找方法连成一条判断链？',
     table(('判断','本讲形成的依据'),[
         ('找什么？','给定关键字，返回位置或确认不存在'),
