@@ -20,7 +20,7 @@ COURSE = CourseDeck([
     Section('order', '利用有序信息', '为什么比较中点后，可以排除一侧的候选记录？',
             '解释候选区间、更新依据和终止条件，再对应到 C 程序。'),
     Section('cost', '计算查找代价', '比较少了多少，结论依赖什么条件？',
-            '从具体路径进入判定树，区分查询概率、平均与最坏比较次数。'),
+            '核心概念：平均查找长度（Average Search Length，ASL）。通过判定树分析查询概率、平均与最坏代价。'),
     Section('blocks', '用索引缩小范围', '块内没有排好序，还能先缩小范围吗？',
             '检查块间范围，建立索引，再完成块内扫描。'),
     Section('choice', '结合需求选择', '什么时候值得先组织数据再查找？',
@@ -143,7 +143,6 @@ add('wrong-field', '按价格排好序，能按编号折半吗？',
 
 # Cost model and conditional averages.
 COURSE.start_section('cost')
-COURSE.slides[-1][1] += '<p><strong>平均查找长度（Average Search Length，ASL）</strong>：本阶段将引入的代价评价指标。</p>'
 add('all-query-costs', '一次命中用了三次，其他查询呢？',
     '<p><strong>表：不同关键字的成功查找比较次数（次）</strong></p>'+
     table(('方法／关键字',*KEYS), [('顺序查找',*SEQ_COSTS),('折半查找',*BINARY_COSTS)])+
