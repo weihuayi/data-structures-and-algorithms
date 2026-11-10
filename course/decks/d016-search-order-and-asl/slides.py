@@ -196,8 +196,8 @@ add('cost-task', '换一张表，你能独立分析吗？',
 COURSE.start_section('blocks')
 add('block-input', '块内无序，哪些信息仍可用于排除？',
     definition('<strong>分块查找（Blocking Search，又称索引顺序查找）</strong>先定位块，再在块内顺序查找。索引记录块的最大关键字及起始位置。')+
-    '<p><strong>数据重新分块：</strong>记录集合不变，但数组排列及记录下标已改变。</p>'+index_view()+array_view(sum(BLOCKS,()),caption='B1 为下标 0–2，B2 为 3–5，B3 为 6–10；下标均按重排后的数组计算。')+
-    r'<p class="search-note">本讲互异关键字满足 \(\max(B_i)<\min(B_{i+1})\)；块内无需有序。块末由下一起点或表长确定。</p>',
+    index_view()+array_view(sum(BLOCKS,()),caption='B1 为下标 0–2，B2 为 3–5，B3 为 6–10；下标均按重排后的数组计算。')+
+    r'<p class="search-note">记录重排后下标改变；块间满足 \(\max(B_i)<\min(B_{i+1})\)，块内可无序。</p>',
     'blocks','明确块间范围、块内排列和索引的不同职责')
 add('block-trace', '查 30：索引和块内扫描怎样分工？',
     block_player(30),
