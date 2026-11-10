@@ -185,6 +185,35 @@ class SlideTests(unittest.TestCase):
         self.assertIn('2.5',answer)
         self.assertTrue(mod.COURSE.pages[-1]['role']=='closing')
 
+    def test_d016_reasoning_bridges_and_independent_answer_context(self):
+        html,_=render_document(DECKS/'d016-search-order-and-asl')
+        def page(pid):
+            return html.split('data-page-id="'+pid+'"',1)[1].split('</section>',1)[0]
+        bridge=page('decision-tree')
+        self.assertIn('原有序数组',bridge)
+        self.assertIn('data-search-array',bridge)
+        self.assertIn('search-decision',bridge)
+        self.assertIn('36 → 20 → 27',bridge)
+        failure=page('failure-asl')
+        self.assertIn('12 个间隙',failure)
+        self.assertIn('60&lt;65&lt;67',failure)
+        self.assertIn('空分支不另计一次',failure)
+        self.assertIn('search-decision',failure)
+        growth=page('growth')
+        for expression in ('2^h-1',r'\lfloor\log_2 n\rfloor+1',
+                           r'O(\log_2 n)=O(\log n)',r'\log_b 2'):
+            self.assertIn(expression,growth)
+        blocks=page('block-input')
+        self.assertLess(blocks.index(r'\max(B_i)'),blocks.index('search-index'))
+        self.assertIn(r'\max(B_i)<\min(B_{i+1})',page('block-condition'))
+        example=page('choice-task')
+        self.assertIn('C_{\max}(200000)',example)
+        self.assertIn('=18',example)
+        initial,answer=page('cost-task').split('data-task-answer',1)
+        self.assertNotIn('折半比较次数',initial)
+        self.assertIn('折半比较次数',answer)
+        self.assertIn('>2</td>',answer)
+
     def test_trace_and_profile_dom_bind_counts_to_rendered_data(self):
         html,_=render_document(DECKS/'d016-search-order-and-asl')
         self.assertIn('data-search-low="9" data-search-high="8"',html.replace('data-search-phase="miss" ',''))
