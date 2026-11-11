@@ -258,10 +258,10 @@ add('summary', '怎样把查找方法连成一条判断链？',
     '<p class="search-note">下一讲：数据持续变化，怎样用树维护查找所需的顺序？</p>',
     goal='回收查找契约、正确性、评价与选择，并衔接 D017',role='closing')
 add('after-class', '课后怎样核对预测与运行？',
-    code('gcc -std=c11 -Wall -Wextra \\\n  course/decks/d016-search-order-and-asl/code/search_demo.c -o /tmp/d016\n/tmp/d016 last\n/tmp/d016 profile --json',small=True)+
-    '<p><strong>A · 教材：</strong>精读 7.1–7.2、算法 7.1–7.3，核对下标、返回值与 ASL 假设。</p>'
-    '<p><strong>B · 实践：</strong>先预测查 71 再运行；另拟 4–7 个互异关键字，画判定树并算等概率成功 ASL；核对分块查 28 的失败依据。</p>'
-    '<p class="search-note">保留手工过程、程序输出和 3–5 行差异解释；如另行布置为正式作业，再按相应要求提交。</p>',
+    code('gcc -std=c11 -Wall -Wextra \\\n  course/decks/d016-search-order-and-asl/code/search_demo.c -o /tmp/d016\n/tmp/d016 last\n/tmp/d016 block28',small=True)+
+    '<p><strong>A · 书本习题（必做）：</strong>第 7 章选择题 (1)(2)(3)(4)(5)、应用题 (1)。选择题附理由；应用题画折半查找判定树、写比较序列并计算等概率成功 ASL。</p>'
+    '<p><strong>B · 程序实践（必做）：</strong>使用本讲 <code>code/search_demo.c</code>，先预测查找 71 的比较过程，再在个人电脑运行 <code>last</code> 核对；运行 <code>block28</code> 并解释失败依据。</p>'
+    '<p class="search-note">提交 A、B、预测与实测及 3–5 行过程记录，按<a href="../../assignments/homework-guide.md">作业规范</a>通过飞书提交；程序不必推送 GitHub。自拟关键字画树与递归折半查找为选做。</p>',
     goal='明确教材导航与先预测后运行的课后任务',role='closing')
 
 SLIDES = COURSE.finalize()
