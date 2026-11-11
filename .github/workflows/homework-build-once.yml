@@ -19,6 +19,10 @@ jobs:
           fetch-depth: 0
       - name: Regenerate controlled deck derivatives from Python sources
         run: python3 tools/deck/build.py all
+      - name: Check homework structure and local C execution
+        run: |
+          python3 tools/deck/check_homework.py
+          python3 -m unittest discover -s tools/deck/tests -p 'test_homework.py' -v
       - name: Commit regenerated derivatives to the authorized temporary branch
         shell: bash
         run: |
