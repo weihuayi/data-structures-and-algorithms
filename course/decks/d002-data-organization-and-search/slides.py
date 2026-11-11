@@ -191,7 +191,7 @@ SLIDES = [['组织数据，让计算更有效',
   '<ol><li><strong>排序映射：</strong>写出位置、原编号、价格的对应；辨认数据元素、数据项与被改变的关系。</li>\n'
   '<li><strong>目标 37：</strong>运行 <code>code/pair_sum_sorted.c</code> 前先写下你预测的扫描轨迹，再运行核对；解释一次排除并写出不等式，说明为什么会终止。</li>\n'
   '<li><strong>程序核对：</strong>说明输入是否已排序、输出位置的含义，以及未被计入的排序与存储成本。</li></ol>\n'
-  '<p class="small">挑战（选做）：修改程序输出全部配对。AI 使用规范与提交格式见作业规范（course/assignments/homework-guide.md）：带着思考参与整个过程，附过程记录。</p>',
+  '<p class="small">挑战（选做）：修改程序输出全部配对。AI 使用规范与提交格式见<a href="../../assignments/homework-guide.md">作业规范</a>：带着思考参与整个过程，附过程记录。</p>',
   '课后衔接'],
  ['回到教材第一章',
   '<table><thead><tr><th>读到教材概念时</th><th>回想课堂案例</th></tr></thead><tbody>\n'

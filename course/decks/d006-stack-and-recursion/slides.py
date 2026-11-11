@@ -157,8 +157,8 @@ SLIDES = [['栈与递归：程序执行的栈模型',
   'class="quote">把一次“我以为”变成一次有依据的修正。</div>',
   '学会了吗'],
  ['课后：教材导航与本周作业',
-  '<p><strong>教材导航</strong>：精读 3.4 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（作业规范见 '
-  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 3 '
+  '<p><strong>教材导航</strong>：精读 3.4 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（详见 '
+  '<a href="../../assignments/homework-guide.md">作业规范</a>）：</p><p><strong>A. 书本习题</strong>：第 3 '
   '章选择题 (5)(15)、算法设计题 (9)。选择题每题附一句“为什么选它”；算法设计题写出思路与关键步骤，Ack(2,1) '
   '的计算过程要求画出递归工作栈的压帧与弹帧。</p><p><strong>B. 扩展作业</strong>：手工写出 hanoi(4) 的前 5 步与后 '
   '2 步（先写下你的推演），再运行 <code>code/recursion_demo.c</code> Part 2 核对；附预测与实测对照；正式提交 A、B 与 3–5 行过程记录，按课程作业规范通过飞书提交。</p><p '

@@ -149,8 +149,8 @@ SLIDES = [['链表与表示的选择',
   'class="quote">把一次“我以为”变成一次有依据的修正。</div>',
   '学会了吗'],
  ['课后：教材导航与本周作业',
-  '<p><strong>教材导航</strong>：精读 2.5–2.8 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（作业规范见 '
-  'course/assignments/homework-guide.md）：</p><p><strong>A. 书本习题</strong>：第 2 '
+  '<p><strong>教材导航</strong>：精读 2.5–2.8 节。课件中带“教学注记”的页面，课后可以自行点开再看；带演示的页面可以反复推演。</p><p><strong>本周作业</strong>（详见 '
+  '<a href="../../assignments/homework-guide.md">作业规范</a>）：</p><p><strong>A. 书本习题</strong>：第 2 '
   '章选择题 (4)(5)(6)(7)(12)(13)、算法设计题 (1)。选择题每题附一句“为什么选它”；算法设计题写出思路与关键步骤。</p><p><strong>B. '
   '扩展作业</strong>：补全 <code>code/linklist.c</code> 的 insert 链接顺序：先把两行赋值注释掉、自己补全，再运行核对插入 '
   '104 的结果；附预测与实测对照；正式提交 A、B 与 3–5 行过程记录，按课程作业规范通过飞书提交。</p><p '

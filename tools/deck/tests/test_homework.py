@@ -63,6 +63,26 @@ class HomeworkContractTests(unittest.TestCase):
 
 @unittest.skipUnless(shutil.which("gcc"), "GCC required for local C regression")
 class HomeworkCExecutionTests(unittest.TestCase):
+    def test_all_referenced_C_sources_compile(self):
+        from check_homework import SOURCE, is_homework_title
+        with tempfile.TemporaryDirectory(prefix="course-homework-compile-") as tmp:
+            count = 0
+            for deck in sorted(DECKS.iterdir()):
+                if not (deck / "slides.py").is_file():
+                    continue
+                slides = load_deck(deck).SLIDES
+                pages = [body for title, body, _ in slides if is_homework_title(title)]
+                self.assertEqual(len(pages), 1)
+                for source in sorted(set(SOURCE.findall(pages[0]))):
+                    with self.subTest(deck=deck.name, source=source):
+                        outfile = str(Path(tmp) / f"compile-{count}")
+                        count += 1
+                        cmd = ["gcc", "-std=c11", "-Wall", "-Wextra",
+                               str(deck / "code" / source), "-o", outfile, "-lm"]
+                        run = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            self.assertGreaterEqual(count, 16)
+
     def test_d012_d016_actual_homework_programs(self):
         cases = [
             ("d012-graph-traversal", "traversal_demo.c", (), "homework+BFS"),
