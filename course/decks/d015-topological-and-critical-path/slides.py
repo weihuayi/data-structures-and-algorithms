@@ -304,7 +304,7 @@ add('homework', '课后怎样练习和核对？',
     '<p><strong>A · 教材：</strong>第 6 章选择题（15）、应用题（5），按图 6.38 完成工期、活动开始时间及关键活动计算。</p>'
     '<p><strong>B · 程序实践：</strong>只把主例 D 从 3 改为 2。先预测事件 2、3 的最早时间、工期和关键活动，再在个人电脑编译运行本讲 <code>code/dependency_demo.c</code> 的 <code>homework</code> 模式核对。</p>'+
     code('/tmp/d015 homework')+
-    '<p class="dag-note">阅读 6.6.3–6.6.4、算法 6.12/6.13；提交 A、B、一次更新的解释及 3–5 行过程记录（包含预测和实测对照），按课程作业说明通过飞书提交。<code>/tmp/d015</code> 仅为 Linux 本地示例。</p>',
+    '<p class="dag-note">阅读 6.6.3–6.6.4、算法 6.12/6.13；提交 A、B、一次更新的解释及 3–5 行过程记录（包含预测和实测对照），按<a href="../../assignments/homework-guide.md">课程作业说明</a>通过飞书提交。<code>/tmp/d015</code> 仅为 Linux 本地示例。</p>',
     goal='明确教材导航与先预测后运行的课后任务',role='closing')
 
 add('recall-next', '依赖关系怎样支撑了计算与判断？',
