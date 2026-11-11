@@ -157,5 +157,5 @@ SLIDES = [['数据结构与算法',
   '部分 · 书本习题</strong>：第 1 章简述题 1、2、3。每题用自己的话作答，并各举一个例子。</p><p><strong>B '
   '部分 · 扩展作业</strong>：运行 <code>code/pair_sum.c</code>：先把目标改成 100 之前写下你预测的输出，再运行核对；解释 i '
   '&lt; j 怎样进入内层循环；给小迷宫的两个位置写出可通行邻居与数组值。凡运行代码，附预测与实测对照。</p><p '
-  'class="small">AI 使用规范与提交格式见作业规范（course/assignments/homework-guide.md）：带着思考参与整个过程，附过程记录。</p>',
+  'class="small">AI 使用规范与提交格式见<a href="../../assignments/homework-guide.md">作业规范</a>：带着思考参与整个过程，附过程记录。</p>',
   '课后衔接']]

@@ -240,3 +240,14 @@ search_trace.py 提供顺序/折半状态、判定树深度、失败间隙、精
 array_view 显示完整输入、下标、候选/排除/当前/命中；decision_view 从同一输入推导分析树，gap_view 显示失败类别。成功 ASL 的记录分布要求互异关键字；mean_cost 使用 Fraction 并检查非负概率及归一。图文、边界和代码的一致性仍须内容审阅。
 
 Python 轨迹构建时检查数据，C 查询函数依赖已建立前提；CLI 的一次输入检查不计查询成本。C 演示限制 n≤256、保留轨迹，不作为通用查找库。独立线性参照、随机/边界输入、字面成本参照、分块非法成员及 C 对照见 tests/test_search_trace.py。样式限于 .search-lesson，公共变更覆盖采用者；教师审阅、真实课堂效果另行取证。
+
+## 正式作业一致性检查
+
+课件的每次课正式 A/B 作业以相应 `slides.py` 的课后页为内容主源，共同提交规则见 [作业规范](../../course/assignments/homework-guide.md)。
+
+```bash
+python3 tools/deck/check_homework.py
+python3 -m unittest discover -s tools/deck/tests -p 'test_homework.py' -v
+```
+
+检查器只读加载本仓库可信的课件主源，逐讲检查 A/B 标签、教材题型、过程记录提示、共同规范入口、C 源码引用及明显的“仓库执行／待另行布置”冲突。单元测试还在本地临时目录编译并实际运行 D012—D016 的典型作业模式（需要 GCC）。检查是**必要的结构与指定输入验证**，不核实教材内容是否正确、任务难度、学生真实理解或飞书发布的一致性；它们仍需 AI 专业审阅与教师核对。统一 `verify.py` 的 `homework-contract` 运行单独保留日志与退出状态。

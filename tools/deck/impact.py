@@ -9,7 +9,7 @@ from build import ROOT, DECKS, EXAMPLES, load_deck, render_document
 from dependencies import dependency_manifest
 from instructions import CONTEXT_FILES
 
-VALIDATION = {'tools/deck/check.py', 'tools/deck/check-browser.cjs', 'tools/deck/review-context.cjs',
+VALIDATION = {'tools/deck/check.py', 'tools/deck/check_homework.py', 'tools/deck/check-browser.cjs', 'tools/deck/review-context.cjs',
               'tools/deck/dependencies.py', 'tools/deck/impact.py', 'tools/deck/verify.py',
               'tools/deck/legacy_baseline.py', 'tools/deck/legacy.json'}
 VALIDATION |= {'tools/deck/review.py', 'tools/deck/instructions.py', 'tools/deck/navigation.py',

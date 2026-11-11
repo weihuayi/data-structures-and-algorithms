@@ -45,6 +45,7 @@ def main():
 
     check = [sys.executable, 'tools/deck/check.py']
     run('static', check + ['all', *impact['examples'], '--static-only', '--output', str(output / 'static')])
+    run('homework-contract', [sys.executable, 'tools/deck/check_homework.py'])
     run('semantic', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tools/deck/tests'])
     # Failed static/semantic checks must not be hidden by later browser results.
     legacy_comparison = None
