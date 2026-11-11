@@ -1,0 +1,29 @@
+# Temporary branch-only regeneration; remove before PR delivery.
+name: Homework deck source regeneration (temporary)
+on:
+  push:
+    branches:
+      - codex/homework-consistency-d001-d016
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: codex/homework-consistency-d001-d016
+          fetch-depth: 0
+      - name: Regenerate controlled deck derivatives from Python sources
+        run: python3 tools/deck/build.py all
+      - name: Commit regenerated derivatives to the authorized temporary branch
+        shell: bash
+        run: |
+          git add -- 'course/decks/*/index.html' 'course/decks/*/README.md'
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build(decks): regenerate homework pages from slides.py'
+            git push origin HEAD:codex/homework-consistency-d001-d016
+          fi
