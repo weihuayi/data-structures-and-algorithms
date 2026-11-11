@@ -27,15 +27,16 @@ class HomeworkContractTests(unittest.TestCase):
 
     def test_d016_requires_concrete_A_and_B(self):
         self.assertEqual(check_page(self.deck, self.title, self.body), [])
-        for old, problem in [
-            ("第 7 章选择题", "no concrete textbook"),
-            ("<strong>A · 书本习题", "missing formal A"),
-            ("<strong>B · 程序实践", "missing formal B"),
-            ("过程记录", "process record"),
-            ("homework-guide.md", "shared homework guide"),
-        ]:
-            with self.subTest(removed=old):
-                fake = self.body.replace(old, "no-longer-present")
+        faults = [
+            (self.body.replace("选择题", "练习").replace("应用题", "练习"), "no concrete textbook"),
+            (self.body.replace("<strong>A · 书本习题", "<strong>阅读 · 书本习题"), "missing formal A"),
+            (self.body.replace("<strong>B · 程序实践", "<strong>练习 · 程序实践"), "missing formal B"),
+            (self.body.replace("过程记录", "心得记录"), "process record"),
+            (self.body.replace("homework-guide.md", "unknown-guide")
+                      .replace("作业规范", "其它说明"), "shared homework guide"),
+        ]
+        for fake, problem in faults:
+            with self.subTest(problem=problem):
                 issues = check_page(self.deck, self.title, fake)
                 self.assertTrue(any(problem in msg for msg in issues), issues)
 
