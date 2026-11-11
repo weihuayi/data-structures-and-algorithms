@@ -302,7 +302,7 @@ for 每个顶点 v（按编号）：
  '补充 · 扩展存储'],
 
 ['课后：教材导航与正式作业',
- r'''<p><strong>教材导航</strong>：精读 6.4.1–6.4.2、6.5；6.4.3–6.4.4 按第 31–32 页自学。</p><p><strong>A. 书本习题</strong>：第 6 章选择题 <strong>(4)(6)(8)(9)(13)(14)</strong>、应用题 <strong>(1)(3)</strong>、算法设计题 <strong>(2)</strong>。写理由、推演或实现过程。</p><p><strong>B. 程序实践</strong>：预测主例 BFS，再加无向边 DE；提交新顺序、parent、从 A 的距离与邻接项扫描数，运行 homework+BFS 核对，解释 E 的变化。</p><div class="submission-note"><strong>提交</strong>：A、B 与 3–5 行过程记录，遵循<a href="../../assignments/homework-guide.md">作业规范</a>。<br><strong>自学不提交</strong>：算法题 (4)(5)；用应用题 (1)(2) 的图练习扩展存储。</div>''' +
+ r'''<p><strong>教材导航</strong>：精读 6.4.1–6.4.2、6.5；6.4.3–6.4.4 按第 31–32 页自学。</p><p><strong>A. 书本习题</strong>：第 6 章选择题 <strong>(4)(6)(8)(9)(13)(14)</strong>、应用题 <strong>(1)(3)</strong>、算法设计题 <strong>(2)</strong>。写理由、推演或实现过程。</p><p><strong>B. 程序实践</strong>：预测主例 BFS，再加无向边 DE；提交新顺序、parent、从 A 的距离与邻接项扫描数，在个人电脑编译运行本讲 <code>code/traversal_demo.c</code>，核对 <code>homework+BFS</code> 输出，解释 E 的变化。</p><div class="submission-note"><strong>提交</strong>：A、B 与 3–5 行过程记录，遵循<a href="../../assignments/homework-guide.md">作业规范</a>。<br><strong>自学不提交</strong>：算法题 (4)(5)；用应用题 (1)(2) 的图练习扩展存储。</div>''' +
  note('A 题号直接采用仓库 D012 清单，不把清单内核心题另降为待确认或选做。教材图未在本课复制，题目以教材原图为准。B 新增 DE 后 BFS=ABCDE，parent=-1,0,0,2,3，距离=0,1,1,2,3；表扫描 10 项，若矩阵单源则 25 格。'),
  '收口 · 作业与下一讲'],
 

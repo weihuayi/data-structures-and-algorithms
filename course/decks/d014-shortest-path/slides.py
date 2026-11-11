@@ -470,7 +470,7 @@ add('homework', '课后怎样练习和核对？',
     r'''<p><strong>A　教材练习</strong></p>
 <p>阅读 6.6.2；完成第 6 章应用题（4）：按图 6.37，从 a 出发填写表 6.10，保留距离、前驱或路径及确认集合。</p>
 <p><strong>B　程序实践</strong></p>
-<p>主例只将 CD 从 5 改为 0。先预测到 D、E 的距离与路径，再运行 <code>/tmp/d014 homework</code>，写出一处更新和一处确认的依据。</p>
+<p>主例只将 CD 从 5 改为 0。先预测到 D、E 的距离与路径，再在个人电脑编译运行本讲 <code>code/shortest_path_demo.c</code> 的 <code>homework</code> 模式，写出一处更新和一处确认的依据。</p>
 <p class="sp-small">题图以教材为准。提交 A、B 与 3–5 行过程记录，遵循
 <a href="../../assignments/homework-guide.md">课程作业说明</a>。</p>''',
     '课后衔接', '明确教材导航与先预测后核对的课后实践', role='closing')
