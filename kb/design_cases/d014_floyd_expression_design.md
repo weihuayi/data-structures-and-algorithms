@@ -1,11 +1,11 @@
 # Design Case | D014 Floyd 算法教学表达的连续重构（案例迁移入口）
 
-本文件保留原案例在课程仓的稳定访问路径，以便追溯其形成背景与迁移历史。D014 课程的课件、教学设计卡、源码和版本证据仍由本仓主维护；**案例认知主叙述拟由《可信表达实践》主题唯一主承载**。课程仓不再维护第二份会与主题案例并行演化的完整案例正文。
+本文件保留原案例在课程仓的稳定访问路径，以便追溯其形成背景与迁移历史。D014 课程的课件、教学设计卡、源码和版本证据仍由本仓主维护；**案例认知主叙述已迁移至《可信表达实践》主题，由其唯一主承载**。课程仓不再维护第二份会与主题案例并行演化的完整案例正文。
 
 ## 案例认知主版本与迁移状态
 
-- **候选唯一主承载**：[算海组织建设实践仓 · 可信表达实践 · D014 Floyd 案例](https://github.com/suanhaitech/suanhai_org_practice/blob/develop/topics/trustworthy_expression/cases/d014_floyd_expression_design.md)。
-- **迁移审阅 PR**：[suanhai_org_practice#7](https://github.com/suanhaitech/suanhai_org_practice/pull/7)。**只有该 PR 合并后**，上述 `develop` 路径才应被视为当前正式可达的案例认知主承载位置；未合并期间请查看 PR 文件差异，勿把该候选链接当作已完成迁移的事实。
+- **已确认的唯一主承载**：[算海组织建设实践仓 · 可信表达实践 · D014 Floyd 案例](https://github.com/suanhaitech/suanhai_org_practice/blob/develop/topics/trustworthy_expression/cases/d014_floyd_expression_design.md)。
+- **迁移状态（已完成）**：[suanhai_org_practice#7](https://github.com/suanhaitech/suanhai_org_practice/pull/7) 已于 2026-11-05 合并，主案例在该仓 `develop` 可访问；随后 [data-structures-and-algorithms#20](https://github.com/weihuayi/data-structures-and-algorithms/pull/20) 合并，课程仓保留本迁移入口。Git 历史和两份合并 PR 用于核对迁移顺序；本文件不再是案例主版本。
 - **课程仓历史原文**：[迁移前完整案例（固定 Git 提交）](https://github.com/weihuayi/data-structures-and-algorithms/blob/10f214ab51a8376c89ad8ad72abbad5978108723/kb/design_cases/d014_floyd_expression_design.md)，对应当时文件 Blob `3f69da6aa878f4a00c1000468e3022e722183b29`。
 - **原始事实主源**：课程主例、[D014 设计卡](../../course/decks/d014-shortest-path/README.md)、[课件生成源](../../course/decks/d014-shortest-path/slides.py)、[PR #14](https://github.com/weihuayi/data-structures-and-algorithms/pull/14)、[PR #15](https://github.com/weihuayi/data-structures-and-algorithms/pull/15)、[PR #16](https://github.com/weihuayi/data-structures-and-algorithms/pull/16)。
 
