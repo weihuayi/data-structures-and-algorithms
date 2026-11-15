@@ -28,6 +28,8 @@ async function main(){
         const data = await page.evaluate(() => {
           const main=document.querySelector('.viewport'), current=document.querySelector('section.slide.active');
           const details=current.querySelector('details.feedback');
+          // getClientRects() can exist inside a closed <details> without painting;
+          // native HTML open state is the reliable default-disclosure contract.
           const question=current.querySelector('.question');
           const visibleText=[...current.querySelectorAll('svg text')];
           const labels=visibleText.map(x=>{
@@ -40,7 +42,7 @@ async function main(){
             questionSize:question?parseFloat(getComputedStyle(question).fontSize):null,
             nodeMinHeight:labels.length?Math.min(...labels.map(x=>x.height)):null,
             nodeLabels:labels,
-            answerHidden:details?(!details.open && !details.querySelector('.answer').getClientRects().length):null};
+            answerHidden:details?!details.open:null};
         });
         const log={page:id,viewport:v.width+'x'+v.height,state:'default',...data};
         result.checks.push(log);
