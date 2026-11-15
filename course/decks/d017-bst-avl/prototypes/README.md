@@ -2,7 +2,7 @@
 
 > **状态**：此目录是 **R4 设计验证的临时隔离原型**，不是学生正式课件、并列 handout 或页面内容主维护来源。正式课程入口仍为上一层的 `slides.py` 和生成的 `index.html`。待教师审阅后把经确认的版式、内容和交互移植至 `slides.py`，再考虑移除此临时原型，避免形成长期竞争性的主源。
 
-在本地浏览器直接打开 [r4-five-page-review.html](r4-five-page-review.html)，使用上一页/下一页切换；可以通过 `#bst-check` 等 ID 直接进入某一原型。文件自包含 CSS、SVG 和最小导航脚本，无网络依赖，不影响正式播放器。
+在本地浏览器直接打开 [r4-five-page-review.html](r4-five-page-review.html)，使用上一页/下一页切换；可以通过 `#bst-check` 等 ID 直接进入某一原型。文件自包含 CSS、SVG 和最小导航脚本，无网络依赖，不影响正式播放器。仓库 CI 使用本目录的 `check_visual.cjs` 在 **1280×720、1440×900** 实际 Chromium 中检查默认/答案展开态、标题与树结点尺寸、横向溢出并保存截图到 `course-verification/d017-r4-preview/`；脚本的阈值是工程辅助，不证明后排阅读舒适或认知路径有效。
 
 | 页面 ID | 审阅重点 | 主要认知输入 |
 | --- | --- | --- |
