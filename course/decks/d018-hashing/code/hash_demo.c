@@ -87,6 +87,22 @@ static void self_test(void) {
     require(insert(&t, 13) == INSERTED);
     require(t.slot[3].key == 10 && t.slot[4].key == 17 &&
            t.slot[5].key == 24 && t.slot[6].key == 13);
+    /* Cross-check the classroom success and failure ASL numerators. */
+    const int present[] = {10, 17, 24, 13};
+    const unsigned succ[] = {1, 2, 3, 1};
+    const unsigned miss[] = {1, 1, 1, 5, 4, 3, 2};
+    unsigned succ_sum = 0, fail_sum = 0;
+    for (unsigned i = 0; i < 4; ++i) {
+        require(lookup(&t, present[i], &probes, false) >= 0);
+        require(probes == succ[i]);
+        succ_sum += probes;
+    }
+    for (unsigned r = 0; r < CAP; ++r) {
+        require(lookup(&t, (int)(700 + r), &probes, false) == -1);
+        require(probes == miss[r]);
+        fail_sum += probes;
+    }
+    require(succ_sum == 7 && fail_sum == 17);
     require(lookup(&t, 24, &probes, false) == 5 && probes == 3);
     require(erase(&t, 17) && t.slot[4].state == DELETED);
     require(lookup(&t, 24, &probes, false) == 5 && probes == 3);
