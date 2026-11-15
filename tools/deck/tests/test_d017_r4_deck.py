@@ -68,7 +68,7 @@ class D017R4Tests(unittest.TestCase):
         self.assertIn("typedef struct Node", self.by_id["bst-node-links"][1])
 
         css = self.by_id["cover"][1]
-        rule = re.search(r"\\.deck \\.d017 \\.d17-code\\{([^{}]+)\\}", css)
+        rule = re.search(r"[.]deck [.]d017 [.]d17-code[{]([^{}]+)[}]", css)
         self.assertIsNotNone(rule, "Find the actual lesson-specific code style")
         declarations = dict(
             item.strip().split(":", 1)
