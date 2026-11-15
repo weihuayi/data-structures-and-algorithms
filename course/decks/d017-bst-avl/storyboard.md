@@ -105,9 +105,9 @@
 
 **AVL约束与示例：** `h(空树)=0`，单结点1，`BF(v)=h(L(v))-h(R(v))`，AVL要求每个结点`|BF(v)|≤1`。LL用30、20、16示范右旋；LR用30、16、20先让学生发现只右旋会在新根16出现BF=-2，再左旋16、右旋30。中间状态尚未完成修复。旋转保BST顺序与恢复AVL平衡是不同核验。
 
-**候选独立题**：原始AVL根30，左20（左10、右25），右40；插入27，最低失衡祖先30，左孩子20的BF=-1，先左旋20、再右旋30。最后根25，左20（左10），右30（左27、右40）。**旧实装仍是插入5的LL题**；本轮没有修改学生实际看到的课件。
+**候选独立题**：原始AVL根30，左20（左10、右25），右40；插入27，最低失衡祖先30，左孩子20的BF=-1，先左旋20、再右旋30。最后根25，左20（左10），右30（左27、右40）。**新实装已经替换为插入27的LR独立题**；本轮没有修改学生实际看到的课件。
 
-**程序边界**：当前`code/bst_avl_demo.c`有BST构造和查找计数、AVL插入与旋转及固定30/16/20的LR演示；**无BST删除函数，也无新版独立题插入27的运行模式**。未来更改练习需要同步重新核验程序接口及断言，不能以已有固定示范当新题证据。
+**程序边界**：当前C11保留BST构造、查找访问计数及固定LR演示，并新增可选avl27核对模式；**不含BST删除函数**。未来更改练习需要同步重新核验程序接口及断言，不能以已有固定示范当新题证据。
 
 ## 五、关键真实视觉原型及验收
 
@@ -126,47 +126,52 @@
 - `two-builds`拆成`build-shape-balanced`与`build-shape-chain`，让两棵完整树能清楚呈现且标明从空树重建。
 - `c-bridge`不再在结尾独立出现：基础结点字段进入`bst-node-links`，旋转指针映射进入`rotation-order`。
 - 新增`bst-node-links`、`bst-transfer`、`height-observe`、`bf-calculate`、`lr-double-stage1`。剩余30个旧ID保留身份但需要全面重构表达职责。数量`32-2+2+5=37`；最终页数须经原型与课堂预算审阅。
-- **本轮只更新设计资产**。现行正式A/B作业、C11和HTML未变；教材题号仍以课件最后一页为唯一实际发布主源。
+- **本轮按此设计重构37页实际课件**。现行正式A/B作业、C11和HTML未变；教材题号仍以课件最后一页为唯一实际发布主源。
 - **下一阶段**：先制作五个真实内容HTML原型供教师审阅，再整讲重构`slides.py`、生成HTML、同步README派生页表和Storyboard身份校验；最后开展专业、语义、视觉与交互分层验证。
 
-## 七、现行32页过渡身份核对（非候选设计）
+## 七、R4 已实现37页的身份核对（从 slides.py 派生）
 
-下面是从**当前32页`slides.py`**取得的ID顺序快照，只承担旧实现与现有`storyboard-page-ids/order`检查器的过渡核对职责。候选37页表与此表不同；本节**不表示32页已经满足新的认知职责**。将来T2真正实现新版页面时，应删除/更新此表，使检查器依据新的实际页面注册进行核验，不能临时关闭检查。
+以下表格为当前已注册的37页稳定 ID 顺序，用于现有 `storyboard-page-ids/order` 的确定性检查。上面的候选页面认知职责表仍承担设计依据；`slides.py` 才是实际页面身份、顺序、标题与活动的主源。此表只证明结构对应，不证明视觉表达或学生理解已经得到教师验收。
 
-| 当前实装ID |
+| 已实现R4页面ID |
 | --- |
-| `cover`／现行实装 |
-| `outline`／现行实装 |
-| `part-bridge`／现行实装 |
-| `recall-sorted`／现行实装 |
-| `update-array`／现行实装 |
-| `part-bst`／现行实装 |
-| `bst-order`／现行实装 |
-| `bst-search`／现行实装 |
-| `bst-insert`／现行实装 |
-| `bst-check`／现行实装 |
-| `bst-delete-cases`／现行实装 |
-| `bst-delete-two`／现行实装 |
-| `part-height`／现行实装 |
-| `two-builds`／现行实装 |
-| `compare-path`／现行实装 |
-| `worst-shape`／现行实装 |
-| `need-balance`／现行实装 |
-| `part-avl`／现行实装 |
-| `avl-definition`／现行实装 |
-| `bf-every-node`／现行实装 |
-| `ll-trigger`／现行实装 |
-| `right-rotate`／现行实装 |
-| `rotation-order`／现行实装 |
-| `lr-single-fails`／现行实装 |
-| `lr-double`／现行实装 |
-| `mirror-cases`／现行实装 |
-| `independent-avl`／现行实装 |
-| `part-choice`／现行实装 |
-| `structure-choice`／现行实装 |
-| `c-bridge`／现行实装 |
-| `synthesis`／现行实装 |
-| `homework`／现行实装 |
+| `cover`／R4实装 |
+| `outline`／R4实装 |
+| `part-bridge`／R4实装 |
+| `recall-sorted`／R4实装 |
+| `update-array`／R4实装 |
+| `part-bst`／R4实装 |
+| `bst-node-links`／R4实装 |
+| `bst-order`／R4实装 |
+| `bst-search`／R4实装 |
+| `bst-insert`／R4实装 |
+| `bst-check`／R4实装 |
+| `bst-transfer`／R4实装 |
+| `bst-delete-cases`／R4实装 |
+| `bst-delete-two`／R4实装 |
+| `part-height`／R4实装 |
+| `build-shape-balanced`／R4实装 |
+| `build-shape-chain`／R4实装 |
+| `compare-path`／R4实装 |
+| `worst-shape`／R4实装 |
+| `need-balance`／R4实装 |
+| `part-avl`／R4实装 |
+| `height-observe`／R4实装 |
+| `avl-definition`／R4实装 |
+| `bf-calculate`／R4实装 |
+| `bf-every-node`／R4实装 |
+| `ll-trigger`／R4实装 |
+| `right-rotate`／R4实装 |
+| `rotation-order`／R4实装 |
+| `lr-single-fails`／R4实装 |
+| `lr-double-stage1`／R4实装 |
+| `lr-double`／R4实装 |
+| `mirror-cases`／R4实装 |
+| `independent-avl`／R4实装 |
+| `part-choice`／R4实装 |
+| `structure-choice`／R4实装 |
+| `synthesis`／R4实装 |
+| `homework`／R4实装 |
 
 ## 八、验证边界和未决问题
 
