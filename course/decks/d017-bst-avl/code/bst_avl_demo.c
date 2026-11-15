@@ -59,9 +59,17 @@ static int visits(const Node*p,int k){
     int n=0;while(p){n++;if(k==p->key)return n;p=k<p->key?p->left:p->right;}return n;
 }
 static void inorder(const Node*p){
-    if(!p)return;inorder(p->left);printf(" %d",p->key);inorder(p->right);
+    if(!p)return;
+    inorder(p->left);
+    printf(" %d",p->key);
+    inorder(p->right);
 }
-static void release(Node*p){if(!p)return;release(p->left);release(p->right);free(p);}
+static void release(Node*p){
+    if(!p)return;
+    release(p->left);
+    release(p->right);
+    free(p);
+}
 static void run_bst(void){
     const int a[]={30,20,44,16,27,36,55},b[]={16,20,27,30,36,44,55};
     Node*p=build(a,7,0),*q=build(b,7,0);
