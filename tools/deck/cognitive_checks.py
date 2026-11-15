@@ -13,15 +13,37 @@ def _plain(text):
     return re.sub(r'\s+', ' ', unicodedata.normalize('NFKC', text)).strip()
 
 
+# HTML inline formatting does not introduce a visual word boundary. Only tags
+# normally creating separate blocks/lines should split neighboring text fragments.
+# SVG <text> elements are individually positioned labels, unlike inline <tspan>.
+TEXT_BOUNDARIES = {
+    'address', 'article', 'aside', 'blockquote', 'br', 'dd', 'details', 'div',
+    'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'li', 'main', 'nav',
+    'ol', 'p', 'pre', 'section', 'summary', 'svg', 'table', 'tbody',
+    'td', 'tfoot', 'th', 'thead', 'tr', 'ul', 'text',
+}
+
+
 class _InitiallyVisibleText(HTMLParser):
-    """Renderable text, including details summaries, excluding closed details bodies."""
+    """Static default-visible text; preserve continuity through inline markup."""
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.details = []
         self.skip = 0
         self.parts = []
 
+    def _visible(self):
+        return not self.skip and all(x['open'] or x['summary'] for x in self.details)
+
+    def _boundary(self, tag):
+        if tag in TEXT_BOUNDARIES and self._visible():
+            self.parts.append(' ')
+
     def handle_starttag(self, tag, attrs):
+        # A closed <details> is not visible except for its <summary>.
+        # Separate adjacent visible text even when its contents are concealed.
+        self._boundary(tag)
         if tag in {'script', 'style'}:
             self.skip += 1
         if tag == 'details':
@@ -36,16 +58,17 @@ class _InitiallyVisibleText(HTMLParser):
             self.details[-1]['summary'] = False
         elif tag == 'details' and self.details:
             self.details.pop()
+        self._boundary(tag)
 
     def handle_data(self, data):
-        if not self.skip and all(x['open'] or x['summary'] for x in self.details):
+        if self._visible():
             self.parts.append(data)
 
 
 def initially_visible(html):
     parser = _InitiallyVisibleText()
     parser.feed(html)
-    return _plain(' '.join(parser.parts))
+    return _plain(''.join(parser.parts))
 
 
 def prediction_checks(course, slides):
