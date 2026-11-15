@@ -83,7 +83,7 @@ PAGES = json.loads(r'''[
   {
     "id": "hash-map",
     "title": "散列函数计算的是哪一个位置？",
-    "body": "<p class=\"hash-lead\">散列（Hashing）：把关键字映射到有限的初始地址空间。</p><div class=\"hash-card\"><p class=\"hash-formula\">\\(h(k)=k\\bmod m\\)，本例 \\(m=7\\)，地址为 0–6。</p><p>\\(h(10)=3,\\ h(17)=3,\\ h(24)=3,\\ h(13)=6\\)。</p></div><table class=\"hash-table\"><thead><tr><th>对象</th><th>意义</th></tr></thead><tbody><tr><td>k</td><td>关键字（Key）</td></tr><tr><td>m</td><td>桶数组或槽位数组长度（容量）</td></tr><tr><td>h(k)</td><td>由关键字计算的初始候选地址</td></tr></tbody></table><p class=\"hash-note\">不同关键字可以有相同散列值；函数不必取遍全部地址。</p>",
+    "body": "<p class=\"hash-lead\">散列（Hashing）：把关键字映射到有限的初始地址空间。</p><div class=\"hash-card\"><p class=\"hash-formula\">\\(h(k)=k\\bmod m\\)，本例 \\(m=7\\)，地址为 0–6。</p><p>示范计算：\\(h(10)=3\\)。其余关键字的地址留到下一页独立计算。</p></div><table class=\"hash-table\"><thead><tr><th>对象</th><th>意义</th></tr></thead><tbody><tr><td>k</td><td>关键字（Key）</td></tr><tr><td>m</td><td>桶数组或槽位数组长度（容量）</td></tr><tr><td>h(k)</td><td>由关键字计算的初始候选地址</td></tr></tbody></table><p class=\"hash-note\">不同关键字可以有相同散列值；函数不必取遍全部地址。</p>",
     "section": "mapping",
     "role": "content",
     "goal": "建立 k、m、h(k) 的对象语义",
@@ -113,11 +113,11 @@ PAGES = json.loads(r'''[
   {
     "id": "chaining",
     "title": "链地址法把冲突记录保存在哪里？",
-    "body": "<p class=\"hash-lead\">链地址法（Separate Chaining）：数组的每个位置保存一个桶的入口。</p><table class=\"hash-table\"><thead><tr><th>桶下标</th><th>桶内关键字（按插入顺序）</th></tr></thead><tbody><tr><td>3</td><td>10 → 17 → 24</td></tr><tr><td>6</td><td>13</td></tr><tr><td>0、1、2、4、5</td><td>空桶</td></tr></tbody></table><div class=\"hash-card\"><strong>结构性质：</strong>键 k 的记录必须位于编号为 h(k) 的桶；同一桶允许多条记录。</div><p class=\"hash-note\">这里 m 是桶头数组长度，桶内链表结点不是数组槽位。</p>",
+    "body": "<div class=\"course-workspace course-workspace-stacked\" data-course-component=\"task-workspace\"><div class=\"course-input\" data-task-input><div class=\"hash-card\"><strong>给定输入</strong>：容量 \\(m=7\\)，\\(h(k)=k\\bmod7\\)；依次插入 \\(10,17,24,13\\)（互异的非负整数键）。</div><div class=\"hash-card\"><strong>规则</strong>：链地址法（Separate Chaining）中，每个数组位置是一个桶的链表入口；按给定顺序把记录接到所属桶尾部。</div></div><div class=\"course-task\"><div class=\"course-prompt\" data-task-prompt>先独立填写非空桶及桶内顺序；发生冲突时，为什么仍能保留全部记录？</div><details class=\"course-answer\" data-task-answer><summary>核对答案与理由</summary><div class=\"course-solution\"><table class=\"hash-table\"><thead><tr><th>桶下标</th><th>桶内记录（按插入顺序）</th></tr></thead><tbody><tr><td>3</td><td>10 → 17 → 24</td></tr><tr><td>6</td><td>13</td></tr><tr><td>0、1、2、4、5</td><td>空桶</td></tr></tbody></table><p><strong>解释：</strong>任何键 k 只能存放在桶 h(k) 中。桶中保存多条记录；桶头数组的位置不是一条记录的专用槽位。</p></div></details></div></div>",
     "section": "collision",
-    "role": "content",
+    "role": "exercise",
     "goal": "明确链地址中的桶与记录身份",
-    "activity": "讲述、观察与追问"
+    "activity": "独立构表、核对完整结构与归属不变量"
   },
   {
     "id": "chain-lookup",
@@ -131,11 +131,11 @@ PAGES = json.loads(r'''[
   {
     "id": "linear-probe",
     "title": "开放定址法怎样寻找后续槽位？",
-    "body": "<p class=\"hash-lead\">开放定址法（Open Addressing）：记录直接保存在数组槽位中。</p><div class=\"hash-card\"><p class=\"hash-formula\">线性探查：\\(p(k,i)=(h(k)+i)\\bmod m\\)，\\(i=0,1,\\ldots,m-1\\)。</p><p>发生冲突则尝试同一数组内的下一个槽位，环绕回到开头。</p></div><figure class=\"hash-figure\"><table class=\"hash-slots\"><thead><tr><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-mark\">10</td><td class=\"hash-mark\">17</td><td class=\"hash-mark\">24</td><td class=\"hash-mark\">13</td></tr></tbody></table><figcaption>线性探查构造结果：容量 7，下标 0–6。</figcaption></figure><p class=\"hash-note\">插入次序：10@3、17@4、24@5、13@6；最后一个键的初始地址是 6。</p>",
+    "body": "<div class=\"course-workspace course-workspace-stacked\" data-course-component=\"task-workspace\"><div class=\"course-input\" data-task-input><div class=\"hash-card\"><strong>给定输入</strong>：容量 \\(m=7\\)，\\(h(k)=k\\bmod7\\)；依次插入 \\(10,17,24,13\\)（互异的非负整数键）。</div><div class=\"hash-card\"><p><strong>规则</strong>：开放定址法（Open Addressing）的每个槽只存一条记录。</p><p>线性探查 \\(p(k,i)=(h(k)+i)\\bmod7\\)，\\(i=0,\\ldots,6\\)；冲突时继续下一槽（环绕）。</p></div><figure class=\"hash-figure\"><table class=\"hash-slots\"><thead><tr><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td></tr></tbody></table><figcaption>待填槽位：容量 7，下标 0–6（初始表为空）。</figcaption></figure></div><div class=\"course-task\"><div class=\"course-prompt\" data-task-prompt>按插入顺序独立填写最终数组，并给出每个键的初始地址与实际落位；何时必须继续探查？</div><details class=\"course-answer\" data-task-answer><summary>核对答案与理由</summary><div class=\"course-solution\"><table class=\"hash-table\"><thead><tr><th>键 k</th><th>初始地址 h(k)</th><th>实际槽位</th><th>探查轨迹</th></tr></thead><tbody><tr><td>10</td><td>3</td><td>3</td><td>3</td></tr><tr><td>17</td><td>3</td><td>4</td><td>3 → 4</td></tr><tr><td>24</td><td>3</td><td>5</td><td>3 → 4 → 5</td></tr><tr><td>13</td><td>6</td><td>6</td><td>6</td></tr></tbody></table><figure class=\"hash-figure\"><table class=\"hash-slots\"><thead><tr><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-mark\">10</td><td class=\"hash-mark\">17</td><td class=\"hash-mark\">24</td><td class=\"hash-mark\">13</td></tr></tbody></table><figcaption>线性探查构造结果：容量 7，下标 0–6。</figcaption></figure><p><strong>解释：</strong>所有操作都沿同一探查序列检查槽位；初始散列地址与最终存储地址可以不同。</p></div></details></div></div>",
     "section": "collision",
-    "role": "content",
+    "role": "exercise",
     "goal": "建立初始地址、探查序列和实际存储位置的关系",
-    "activity": "讲述、观察与追问"
+    "activity": "独立构造线性探查表、核对轨迹与完整状态"
   },
   {
     "id": "mechanism-compare",
@@ -185,7 +185,7 @@ PAGES = json.loads(r'''[
   {
     "id": "invariant",
     "title": "三种状态怎样共同保证操作正确？",
-    "body": "<p class=\"hash-lead\">维护同一探查序列，并保证已有关键字之前不会出现使查找提前停止的 EMPTY。</p><table class=\"hash-table\"><thead><tr><th>槽位状态</th><th>查找操作</th><th>插入操作</th></tr></thead><tbody><tr><td>OCCUPIED</td><td>比较 key；不匹配继续</td><td>检查是否重复；不匹配继续</td></tr><tr><td>DELETED</td><td>不能作为失败依据，继续</td><td>记住可复用位置；仍需查重</td></tr><tr><td>EMPTY</td><td>可以判定查找失败</td><td>此前已排除重复，必要时复用墓碑</td></tr></tbody></table><p class=\"hash-note\">始终限制探查次数不超过 m，避免满表或异常状态中无限循环。</p>",
+    "body": "<p class=\"hash-lead\">已存关键字在其探查路径上，不得被提前遇到的 EMPTY 隔断。</p>\n<div class=\"hash-pair\">\n<div class=\"hash-card\"><strong>三种状态与查找规则</strong>\n<table class=\"hash-table\"><thead><tr><th>状态</th><th>操作</th></tr></thead><tbody>\n<tr><td>OCCUPIED</td><td>比较键；不相等继续</td></tr>\n<tr><td>DELETED</td><td>继续，不能判定失败</td></tr>\n<tr><td>EMPTY</td><td>正确判定不存在</td></tr>\n</tbody></table></div>\n<div class=\"hash-card\"><strong>C11 查找分支节选</strong>\n<pre class=\"hash-code\">/* p 已由 position(key,i) 得到 */\nif (t->slot[p].state == EMPTY)\n    return -1;\nif (t->slot[p].state == OCCUPIED\n    && t->slot[p].key == key)\n    return (int)p;\n/* 其余情况继续探查 */</pre></div></div>\n<p class=\"hash-note\">循环最多执行 m 次；插入遇到 DELETED 要记住可复用位置，但仍须继续检查是否存在重复键（见下一页）。节选省略轨迹输出与计数。</p>",
     "section": "correctness",
     "role": "content",
     "goal": "建立插入、删除、查找共同保持的不变量",
@@ -228,6 +228,15 @@ PAGES = json.loads(r'''[
     "activity": "先算再核对"
   },
   {
+    "id": "cost-asl-fail",
+    "title": "失败查找的平均长度如何计算？",
+    "role": "exercise",
+    "section": "cost",
+    "goal": "在明确失败查询的概率分布后独立求 ASL，并与成功 ASL 区分",
+    "activity": "独立推演各初始地址的失败路径并解释均值口径",
+    "body": "<div class=\"course-workspace course-workspace-stacked\" data-course-component=\"task-workspace\"><div class=\"course-input\" data-task-input><div class=\"hash-card\"><strong>给定输入</strong>：容量 \\(m=7\\)，\\(h(k)=k\\bmod7\\)；依次插入 \\(10,17,24,13\\)（互异的非负整数键）。</div><figure class=\"hash-figure\"><table class=\"hash-slots\"><thead><tr><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-mark\">10</td><td class=\"hash-mark\">17</td><td class=\"hash-mark\">24</td><td class=\"hash-mark\">13</td></tr></tbody></table><figcaption>线性探查构造结果：容量 7，下标 0–6。</figcaption></figure><p class=\"hash-note\">表为插入四个键后的<strong>初始状态（尚未删除）</strong>。设失败查询的初始散列地址 \\(r=0,1,\\ldots,6\\) 各以 \\(1/7\\) 的概率出现；按检查槽位次数计费。</p></div><div class=\"course-task\"><div class=\"course-prompt\" data-task-prompt>对于七种初始地址，分别写出查找不存在关键字时的探查次数，再计算失败 ASL。为什么不能把它与上一页的成功 ASL 混为一谈？</div><details class=\"course-answer\" data-task-answer><summary>核对答案与理由</summary><div class=\"course-solution\"><table class=\"hash-table\"><thead><tr><th>失败查询的初始地址 r</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td>槽位探查次数</td><td>1</td><td>1</td><td>1</td><td>5</td><td>4</td><td>3</td><td>2</td></tr></tbody></table><p>\\(\\displaystyle ASL_{\\mathrm{unsucc}}=\\frac{1+1+1+5+4+3+2}{7}=\\frac{17}{7}\\)。该平均值以<strong>失败查询的初始地址均匀分布</strong>为前提；上一页 \\(7/4\\) 是对四个已存关键字等概率查询的成功 ASL，两者的概率空间不同。</p></div></details></div></div>"
+  },
+  {
     "id": "same-load",
     "title": "同样装载因子，查找代价也相同吗？",
     "body": "<div class=\"course-workspace course-workspace-stacked\" data-course-component=\"task-workspace\"><div class=\"course-input\" data-task-input><div class=\"hash-card\"><p>两组不同关键字按序插入，均用 \\(m=7\\)、\\(h(k)=k\\bmod7\\)、线性探查。</p><p>\\(S_1=(3,4,5,6)\\)，\\(S_2=(3,10,17,24)\\)。</p></div><figure class=\"hash-figure\"><table class=\"hash-slots\"><thead><tr><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead><tbody><tr><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"hash-empty\">—</td><td class=\"\">3/3</td><td class=\"\">4/10</td><td class=\"\">5/17</td><td class=\"\">6/24</td></tr></tbody></table><figcaption>每个占用槽依次展示 S1/S2 的记录键；最终占用位置相同。</figcaption></figure></div><div class=\"course-task\"><div class=\"course-prompt\" data-task-prompt>两组都是 \\(\\alpha=4/7\\)。计算两种情况下等概率成功 ASL，并说明不同原因。</div><details class=\"course-answer\" data-task-answer><summary>核对答案与理由</summary><div class=\"course-solution\"><p>\\(S_1\\)：所有记录初始地址就是实际位置，ASL=1。\\(S_2\\)：四个键初始地址均为 3，探查次数 1、2、3、4，ASL=2.5。</p><p>装载因子相同不足以确定查找成本；分布、散列函数和探查路径仍起作用。这里两表的失败查找长度不会仅因为成功 ASL 不同而自动不同。</p></div></details></div></div>",
@@ -239,7 +248,7 @@ PAGES = json.loads(r'''[
   {
     "id": "quadratic-note",
     "title": "跳过相邻槽位，就一定能找到空位吗？",
-    "body": "<p class=\"hash-lead\">二次探查是一种改变探查路径的方法，但需要说明具体规则和覆盖条件。</p><div class=\"hash-card\"><p>示例：\\(p(k,i)=(h(k)+i^2)\\bmod7\\)。初始地址为 4 时，访问序列为 <strong>4 → 5 → 1 → 6 → 6 → 1 → 5</strong>……</p><p>在这条序列里，部分槽位没有被访问；表有空位不等于此规则一定能找到。</p></div><p class=\"hash-note\">教材中另有表长与哈希取模常数不同的二次探测习题；演示和作业须以原题规定的增量、容量与终止规则为准。</p>",
+    "body": "<p class=\"hash-lead\">二次探查是一种改变探查路径的方法，但需要说明具体规则和覆盖条件。</p><div class=\"hash-card\"><p>示例：\\(p(k,i)=(h(k)+i^2)\\bmod7\\)。初始地址为 4 时，访问序列为 <strong>4 → 5 → 1 → 6 → 6 → 1 → 5</strong>……</p><p>在这条序列里，部分槽位没有被访问；表有空位不等于此规则一定能找到。</p></div><p class=\"hash-note\">教材选择题 (14) 使用表长 14、H(key)=key%11；应用题 (6) 指定平方增量及范围。计算初始地址和探查环绕时需分别使用题设函数与表容量；不要将本页示例的 i² 规则自动套用于所有题目。</p>",
     "section": "cost",
     "role": "content",
     "goal": "认识探查覆盖与冲突减少不是同一问题",
@@ -248,7 +257,7 @@ PAGES = json.loads(r'''[
   {
     "id": "expected-cost",
     "title": "为什么不能无条件说“散列查找 O(1)”？",
-    "body": "<table class=\"hash-table\"><thead><tr><th>主张</th><th>需要说明的条件</th></tr></thead><tbody><tr><td>一次具体查找</td><td>取决于冲突、探查路径、是否命中和操作历史；最坏可能 O(n)</td></tr><tr><td>常见的期望 O(1) 查找</td><td>需要适当的散列随机性/分布假设、装载因子控制和单位成本模型</td></tr><tr><td>开放定址的动态插入</td><td>墓碑及扩容可能影响成本；几何扩容的总重建代价可做摊还分析</td></tr><tr><td>与 AVL 的比较</td><td>AVL 有明确的最坏 O(log n) 结构保证，且能够支持有序范围查询</td></tr></tbody></table><p class=\"hash-note\">概率期望与操作序列摊还是不同的分析；本讲理解条件性，不要求推导通用散列完整证明。</p>",
+    "body": "<table class=\"hash-table\"><thead><tr><th>主张</th><th>需要说明的条件</th></tr></thead><tbody><tr><td>一次具体查找</td><td>开放定址最坏 O(m)（m 为槽位数），仅当 m=Θ(n) 才可写 O(n)；链地址法若 n 个键集中在一个桶，最坏 O(n)</td></tr><tr><td>常见的期望 O(1) 查找</td><td>需要适当的散列随机性/分布假设、装载因子控制和单位成本模型</td></tr><tr><td>开放定址的动态插入</td><td>墓碑及扩容可能影响成本；几何扩容的总重建代价可做摊还分析</td></tr><tr><td>与 AVL 的比较</td><td>AVL 有明确的最坏 O(log n) 结构保证，且能够支持有序范围查询</td></tr></tbody></table><p class=\"hash-note\">m 是容量、n 是有效记录数；不同机制与不同分析口径不能混用。概率期望不同于摊还分析，本讲不推导完整证明。</p>",
     "section": "cost",
     "role": "content",
     "goal": "分清单次、期望、摊还与最坏保证",
@@ -275,7 +284,7 @@ PAGES = json.loads(r'''[
   {
     "id": "code-bridge",
     "title": "数学探查过程在 C11 程序里对应什么？",
-    "body": "<p class=\"hash-lead\">用字段和操作对应数学规则；先预测输出，再运行检查。</p>\n<table class=\"hash-table\"><thead><tr><th>数学／结构对象</th><th>C11 实现</th><th>职责</th></tr></thead><tbody>\n<tr><td>\\(k\\)，\\(m\\)</td><td><code>key</code>，<code>CAP</code></td><td>关键字与槽位容量</td></tr>\n<tr><td>\\(p(k,i)\\)</td><td><code>position(key,i)</code></td><td>第 i 次探查的位置</td></tr>\n<tr><td>三种槽位状态</td><td><code>SlotState state</code></td><td>继续、比较或停止</td></tr>\n<tr><td>操作与计数</td><td><code>lookup/insert/erase</code>、<code>probes</code></td><td>查重、墓碑复用、轨迹核对</td></tr>\n</tbody></table>\n<div class=\"hash-card\"><pre class=\"hash-code\">gcc -std=c11 -Wall -Wextra -pedantic code/hash_demo.c -o hash_demo\n./hash_demo demo\n./hash_demo --self-test</pre></div>\n<p class=\"hash-note\">源文件可复制到自己的目录编译运行；命令中的相对路径按实际位置调整，无须 Git 仓库。</p>",
+    "body": "<p class=\"hash-lead\">把地址、状态、探查次数与实际 C11 程序逐项对应。</p>\n<table class=\"hash-table\"><thead><tr><th>数学对象</th><th>程序接口</th><th>对应的计算职责</th></tr></thead><tbody>\n<tr><td>\\(k\\)、\\(m\\)、\\(p(k,i)\\)</td><td><code>key</code>、<code>CAP</code>、<code>position()</code></td><td>确定下一槽位</td></tr>\n<tr><td>EMPTY / DELETED / OCCUPIED</td><td><code>SlotState</code>、<code>lookup()</code></td><td>判断命中、继续或失败（参见正确性部分）</td></tr>\n<tr><td>探查次数、更新契约</td><td><code>probes</code>、<code>insert()</code>、<code>erase()</code></td><td>记录路径并维护去重及墓碑</td></tr>\n</tbody></table>\n<div class=\"hash-card\"><strong>本地编译：</strong><code>gcc -std=c11 -Wall -Wextra code/hash_demo.c -o hash_demo</code></div>\n<p class=\"hash-note\">先预测，再运行 <code>./hash_demo demo</code> 和 <code>./hash_demo --self-test</code> 核对；源码可复制到个人电脑任意目录，命令中的相对路径按实际位置调整。</p>",
     "section": "choice",
     "role": "content",
     "goal": "建立数学状态与 C11 变量及程序输出的对应",
@@ -293,7 +302,7 @@ PAGES = json.loads(r'''[
   {
     "id": "homework",
     "title": "课后怎样预测、运行和核对？",
-    "body": "<p class=\"hash-lead\">A、B 为正式必做；扩展自学不提交。</p>\n<div class=\"hash-pair\">\n  <div class=\"hash-card\"><p><strong>A · 书本习题</strong></p><p>第 7 章选择题 (12)(13)(14)、应用题 (5)。附选择理由，并保留构表、探查与 ASL 的关键过程。</p></div>\n  <div class=\"hash-card\"><p><strong>B · C11 程序实践</strong></p><p>先预测删除 17、查找 24/31、插入 24/31 后的状态与路径；本地运行 <code>code/hash_demo.c</code> 的 <code>demo</code> 与 <code>--self-test</code>，解释预测与实测。</p></div>\n</div>\n<p class=\"hash-note\">自学／选做，不提交：应用题 (6)(7)、算法设计题 (6)。</p>\n<p class=\"hash-note\"><strong>提交与过程记录：</strong>飞书文档链接，附 3–5 行过程记录；只运行示例无需截图或另附代码。共同要求见 <code>../../assignments/homework-guide.md</code>（课程作业规范）；不要求在 Git 仓库运行。</p>\n<p class=\"hash-note\">教材题号仍须对照原题复核；正式要求以实际授课通知为准。</p>",
+    "body": "<p class=\"hash-lead\">A、B 为正式必做；扩展自学不提交。</p>\n<div class=\"hash-pair\">\n  <div class=\"hash-card\"><p><strong>A · 书本习题</strong></p><p>第 7 章选择题 (12)(13)(14)、应用题 (5)。附选择理由，并保留构表、探查与 ASL 的关键过程。</p></div>\n  <div class=\"hash-card\"><p><strong>B · C11 程序实践</strong></p><p>先预测删除 17、查找 24/31、插入 24/31 后的状态与路径；本地运行 <code>code/hash_demo.c</code> 的 <code>demo</code> 与 <code>--self-test</code>，解释预测与实测。</p></div>\n</div>\n<p class=\"hash-note\">自学／选做，不提交：应用题 (6)(7)、算法设计题 (6)。</p>\n<p class=\"hash-note\"><strong>提交与过程记录：</strong>飞书文档链接，附 3–5 行过程记录；只运行示例无需截图或另附代码。共同要求见 <code>../../assignments/homework-guide.md</code>（课程作业规范）；不要求在 Git 仓库运行。</p>\n<p class=\"hash-note\">题号依据仓库第 7 章逐题核对清单；教师正式使用前仍须检查原教材题设、二次探查约定与本周累计作业量。</p>",
     "section": null,
     "role": "closing",
     "goal": "明确 A/B 正式作业和提交、核对与代码使用边界",
