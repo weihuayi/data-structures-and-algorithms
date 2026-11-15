@@ -83,7 +83,7 @@ class HomeworkCExecutionTests(unittest.TestCase):
                         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             self.assertGreaterEqual(count, 16)
 
-    def test_d012_d016_actual_homework_programs(self):
+    def test_d012_d018_actual_homework_programs(self):
         cases = [
             ("d012-graph-traversal", "traversal_demo.c", (), "homework+BFS"),
             ("d013-mst-and-union-find", "mst_demo.c", (), "homework"),
@@ -91,6 +91,8 @@ class HomeworkCExecutionTests(unittest.TestCase):
             ("d015-topological-and-critical-path", "dependency_demo.c", ("homework",), ""),
             ("d016-search-order-and-asl", "search_demo.c", ("last",), ""),
             ("d016-search-order-and-asl", "search_demo.c", ("block28",), ""),
+            ("d018-hashing", "hash_demo.c", ("demo",), "After insertion:"),
+            ("d018-hashing", "hash_demo.c", ("--self-test",), "D018 self-test: PASS"),
         ]
         with tempfile.TemporaryDirectory(prefix="course-homework-") as tmp:
             compiled = {}
