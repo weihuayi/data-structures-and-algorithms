@@ -257,7 +257,7 @@ PAGES = json.loads(r'''[
   {
     "id": "expected-cost",
     "title": "为什么不能无条件说“散列查找 O(1)”？",
-    "body": "<table class=\"hash-table\"><thead><tr><th>主张</th><th>需要说明的条件</th></tr></thead><tbody><tr><td>一次具体查找</td><td>开放定址最坏 O(m)（m 为槽位数），仅当 m=Θ(n) 才可写 O(n)；链地址法若 n 个键集中在一个桶，最坏 O(n)</td></tr><tr><td>常见的期望 O(1) 查找</td><td>需要适当的散列随机性/分布假设、装载因子控制和单位成本模型</td></tr><tr><td>开放定址的动态插入</td><td>墓碑及扩容可能影响成本；几何扩容的总重建代价可做摊还分析</td></tr><tr><td>与 AVL 的比较</td><td>AVL 有明确的最坏 O(log n) 结构保证，且能够支持有序范围查询</td></tr></tbody></table><p class=\"hash-note\">m 是容量、n 是有效记录数；不同机制与不同分析口径不能混用。概率期望不同于摊还分析，本讲不推导完整证明。</p>",
+    "body": "<table class=\"hash-table\"><thead><tr><th>分析对象</th><th>结论成立的条件</th></tr></thead><tbody>\n<tr><td>单次最坏查找</td><td>开放定址 O(m)；若 m=Θ(n) 则 O(n)。链地址法最坏 O(n)</td></tr>\n<tr><td>期望 O(1) 查找</td><td>需要适当的散列分布假设、受控装载因子和单位成本模型</td></tr>\n<tr><td>动态维护</td><td>墓碑、扩容会改变实际成本；一次重建可能为 O(n)</td></tr>\n<tr><td>与 AVL 比较</td><td>AVL 最坏 O(log n)，并支持有序区间查询</td></tr>\n</tbody></table>\n<p class=\"hash-note\">m 是槽位容量，n 是有效记录数；单次最坏界、概率期望和摊还成本不能互相替代。</p>",
     "section": "cost",
     "role": "content",
     "goal": "分清单次、期望、摊还与最坏保证",
