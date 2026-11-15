@@ -13,6 +13,7 @@ import tempfile
 
 from build import DECKS, EXAMPLES, ROOT, PLAN_START, PLAN_END, load_deck, render_document
 from components import contract_checks
+from cognitive_checks import prediction_checks, storyboard_checks
 from dependencies import dependency_manifest
 from headers import header_checks
 from instructions import context_checks
@@ -68,6 +69,8 @@ def check_source(deck):
                                      'detail': 'New/adopted lessons must expose COURSE; only the explicit legacy baseline may defer migration'})
         if course is not None:
             result['checks'].extend(contract_checks(course, mod.SLIDES))
+            result['checks'].extend(prediction_checks(course, mod.SLIDES))
+            result['checks'].extend(storyboard_checks(deck, course))
             result['contract']['navigation'] = course.navigation
             result['contract']['navigationReason'] = course.navigation_reason
             result['contract']['pages'] = course.pages
@@ -113,7 +116,7 @@ def main(argv=None):
         parser.error('--static-only, --default-pages and --review-context-only are different scopes; choose one')
     validators = ['check.py', 'check-browser.cjs', 'review-context.cjs', 'headers.py', 'components.py', 'dependencies.py', 'legacy.json',
                   'impact.py', 'verify.py', 'legacy_baseline.py', 'package-lock.json',
-                  'instructions.py', 'navigation.py', 'review.py']
+                  'instructions.py', 'navigation.py', 'review.py', 'cognitive_checks.py']
     report = {'schemaVersion': 2, 'createdAt': datetime.now(timezone.utc).isoformat(),
               'mode': 'static-only' if args.static_only else 'default-pages' if args.default_pages else 'review-context' if args.review_context_only else 'full', 'python': sys.version.split()[0],
               'validationFiles': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in validators},

@@ -81,6 +81,8 @@ def dependency_manifest(deck, *, document=None, extra=(), root=ROOT):
     queue += context_paths(deck, root)
     if (deck / 'README.md').is_file():
         queue.append(deck / 'README.md')
+    if (deck / 'storyboard.md').is_file():
+        queue.append(deck / 'storyboard.md')
     queue += [p for url in parser.urls if (p := local_resource(deck, url)) is not None]
     queue += [(root / p).resolve() for p in extra]
     queue += [p for p in (deck / 'code').rglob('*') if p.is_file()] if (deck / 'code').exists() else []
@@ -110,4 +112,4 @@ def dependency_manifest(deck, *, document=None, extra=(), root=ROOT):
     files = dict(sorted(files.items()))
     return dict(sha256=hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest(),
                 files=files, missing=sorted(missing), outside=sorted(outside),
-                scope='Static local Python imports, local HTML/CSS resources, lesson code, design card, scoped instructions and declared DEPENDENCIES')
+                scope='Static local Python imports, local HTML/CSS resources, lesson code, design card, optional storyboard, scoped instructions and declared DEPENDENCIES')

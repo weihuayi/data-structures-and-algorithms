@@ -79,10 +79,11 @@ class CourseDeck:
         raise ValueError(f'Unknown section: {section_id}')
 
     def add(self, page_id, title, body, *, section=None, role='content', label='',
-            goal='', activity='讲述、观察与追问'):
+            goal='', activity='讲述、观察与追问', withheld_results=()):
         self.slides.append([title, body, self.label(section) if section else label])
         self.pages.append(dict(id=page_id, role=role, section=section,
-                               goal=goal, activity=activity))
+                               goal=goal, activity=activity,
+                                withheld_results=withheld_results))
 
     def outline(self, page_id='outline', title='本讲要解决哪些问题？'):
         self.add(page_id, title, '', role='outline', label='课程路线',

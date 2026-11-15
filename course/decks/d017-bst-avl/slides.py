@@ -56,7 +56,10 @@ PAGES = json.loads(r'''[
     "section": "bridge",
     "role": "exercise",
     "goal": "看见有序数组的更新成本",
-    "activity": "独立预测并核对"
+    "activity": "独立预测并核对",
+    "withheld_results": [
+      "插入25后"
+    ]
   },
   {
     "id": "part-bst",
@@ -146,7 +149,10 @@ PAGES = json.loads(r'''[
     "section": "height",
     "role": "exercise",
     "goal": "量化不同树形的路径开销",
-    "activity": "独立预测并核对"
+    "activity": "独立预测并核对",
+    "withheld_results": [
+      "3 和 7"
+    ]
   },
   {
     "id": "worst-shape",
@@ -227,7 +233,10 @@ PAGES = json.loads(r'''[
     "section": "avl",
     "role": "exercise",
     "goal": "用反例发现条件限制",
-    "activity": "独立预测并核对"
+    "activity": "独立预测并核对",
+    "withheld_results": [
+      "仍会失衡"
+    ]
   },
   {
     "id": "lr-double",
@@ -310,5 +319,6 @@ for item in PAGES:
     else:
         COURSE.add(item["id"], item["title"], item["body"], section=item["section"],
                    role=item["role"], goal=item["goal"], activity=item["activity"],
-                   label="课程导入" if item["role"] == "cover" else "")
+                   label="课程导入" if item["role"] == "cover" else "",
+                   withheld_results=item.get("withheld_results", ()))
 SLIDES = COURSE.finalize()
