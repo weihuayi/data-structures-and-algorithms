@@ -53,11 +53,42 @@ class D017R4Tests(unittest.TestCase):
             self.assertIn("data-task-prompt", body, page)
             self.assertIn("data-task-answer", body, page)
             self.assertIn('<svg class="d17-tree"', body, page)
-        self.assertIn("Binary Search Tree", self.by_id["bst-order"][1])
+        # A slide header is student-visible; do not require redundant body terminology.
+        self.assertIn("Binary Search Tree", "".join(self.by_id["bst-order"][:2]))
         self.assertIn("Adelson-Velsky", self.by_id["avl-definition"][1])
         self.assertIn("Balance Factor", self.by_id["bf-calculate"][1])
         self.assertIn("left, *right", self.by_id["bst-node-links"][1])
         self.assertIn("Node *middle", self.by_id["rotation-order"][1])
+
+    def test_c11_code_previews_have_readable_contrast(self):
+        """A present DOM/code string is not sufficient if CSS makes it invisible."""
+        for page_id in ("bst-node-links", "rotation-order", "homework"):
+            body = self.by_id[page_id][1]
+            self.assertRegex(body, r'<pre class="d17-code"><code>[^<]+</code></pre>')
+        self.assertIn("typedef struct Node", self.by_id["bst-node-links"][1])
+
+        css = self.by_id["cover"][1]
+        rule = re.search(r"[.]deck [.]d017 [.]d17-code[{]([^{}]+)[}]", css)
+        self.assertIsNotNone(rule, "Find the actual lesson-specific code style")
+        declarations = dict(
+            item.strip().split(":", 1)
+            for item in rule.group(1).split(";") if ":" in item
+        )
+        # The base pre style uses pale text for a dark background; this
+        # lesson overrides the background, so it must override color too.
+        fg, bg = declarations.get("color"), declarations.get("background")
+        self.assertRegex(fg or "", r"^#[0-9a-fA-F]{6}$")
+        self.assertRegex(bg or "", r"^#[0-9a-fA-F]{6}$")
+
+        def luminance(color):
+            rgb = [int(color[i:i+2], 16) / 255 for i in (1, 3, 5)]
+            linear = [x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4
+                      for x in rgb]
+            return sum(c * weight for c, weight in zip(linear, (0.2126, 0.7152, 0.0722)))
+
+        lighter, darker = sorted((luminance(fg), luminance(bg)), reverse=True)
+        contrast = (lighter + 0.05) / (darker + 0.05)
+        self.assertGreaterEqual(contrast, 7.0, "C11 examples must remain legible on projection")
 
     def test_predicted_results_remain_hidden(self):
         marked = {p["id"] for p in self.pages if p.get("withheld_results")}
