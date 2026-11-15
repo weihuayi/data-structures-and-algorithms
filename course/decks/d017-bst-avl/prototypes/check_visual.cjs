@@ -18,6 +18,8 @@ const save = async (page,id,w,h,state) =>
 
 async function main(){
   fs.mkdirSync(out, {recursive:true});
+  // Bundle the exact standalone HTML under review alongside viewport evidence.
+  fs.copyFileSync(file, path.join(out, 'r4-five-page-review.html'));
   const browser = await chromium.launch({headless:true});
   try{
     for(const v of viewports){
