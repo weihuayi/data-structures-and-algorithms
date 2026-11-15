@@ -11,7 +11,7 @@ from instructions import CONTEXT_FILES
 
 VALIDATION = {'tools/deck/check.py', 'tools/deck/check_homework.py', 'tools/deck/check-browser.cjs', 'tools/deck/review-context.cjs',
               'tools/deck/dependencies.py', 'tools/deck/impact.py', 'tools/deck/verify.py',
-              'tools/deck/legacy_baseline.py', 'tools/deck/legacy.json'}
+              'tools/deck/legacy_baseline.py', 'tools/deck/legacy.json', 'tools/deck/cognitive_checks.py'}
 VALIDATION |= {'tools/deck/review.py', 'tools/deck/instructions.py', 'tools/deck/navigation.py',
                '.github/workflows/deck-check.yml'}
 POLICY = set(CONTEXT_FILES)
