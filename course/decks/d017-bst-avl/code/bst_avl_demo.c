@@ -78,10 +78,21 @@ static void run_avl(void){
     printf("AVL_LR root=%d height=%d rotations=%u inorder:",p->key,p->height,rotations);
     inorder(p);puts("");release(p);
 }
+static void test_rotations(void) {
+    const int sequences[][3]={{30,20,16},{16,20,30},{30,16,20},{16,30,20}};
+    const unsigned expected[]={1,1,2,2};
+    for(int i=0;i<4;i++){
+        rotations=0;
+        Node*p=build(sequences[i],3,1);
+        assert(p&&p->key==20&&p->height==2&&rotations==expected[i]);
+        assert(ordered(p,LLONG_MIN,LLONG_MAX)&&balanced(p));
+        release(p);
+    }
+}
 int main(int argc,char**argv){
     if(argc!=2){fprintf(stderr,"usage: %s bst|avl|test\n",argv[0]);return 2;}
     if(!strcmp(argv[1],"bst")){run_bst();return 0;}
     if(!strcmp(argv[1],"avl")){run_avl();return 0;}
-    if(!strcmp(argv[1],"test")){run_bst();run_avl();puts("ALL_TESTS_PASSED");return 0;}
+    if(!strcmp(argv[1],"test")){run_bst();run_avl();test_rotations();puts("ALL_TESTS_PASSED");return 0;}
     fprintf(stderr,"unknown mode: %s\n",argv[1]);return 2;
 }
