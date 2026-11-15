@@ -20,5 +20,6 @@ Deck 是为真实课堂组织的一条相对完整的教学叙事。Deck ID 表�
 | D014 | 最短路径：距离怎样更新，何时确定？ | [`d014-shortest-path/`](d014-shortest-path/) |
 | D015 | 拓扑排序与关键路径：依赖关系怎样决定顺序与工期？ | [`d015-topological-and-critical-path/`](d015-topological-and-critical-path/) |
 | D016 | 查找：有序信息怎样减少比较？ | [d016-search-order-and-asl/](d016-search-order-and-asl/) |
+| D017 | 树表查找：BST 与 AVL（T2 待审阅初稿） | [d017-bst-avl/](d017-bst-avl/) |
 
-当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007 → D008 → D009 → D010 → D011 → D012 → D013 → D014 → D015 → D016。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。
+当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007 → D008 → D009 → D010 → D011 → D012 → D013 → D014 → D015 → D016 → D017。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。
