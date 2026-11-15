@@ -1,5 +1,5 @@
 /* D018: linear probing, tombstones and finite termination, C11. */
-#include <assert.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,10 +9,13 @@ typedef enum { EMPTY, OCCUPIED, DELETED } SlotState;
 typedef struct { int key; SlotState state; } Slot;
 typedef struct { Slot slot[CAP]; } HashTable;
 typedef enum { INSERTED, EXISTS, TABLE_FULL } InsertResult;
+static void require(bool valid) {
+    if (!valid) { fputs("D018 check failed\n", stderr); exit(EXIT_FAILURE); }
+}
 
 static unsigned start(int key) {
     /* The lesson deliberately limits keys to nonnegative integers. */
-    assert(key >= 0);
+    require(key >= 0);
     return (unsigned)key % CAP;
 }
 static unsigned position(int key, unsigned probe) {
@@ -77,40 +80,40 @@ static void dump(const HashTable *t) {
 }
 static void self_test(void) {
     HashTable t; unsigned probes; reset(&t);
-    assert(lookup(&t, 24, &probes, false) == -1 && probes == 1);
-    assert(insert(&t, 10) == INSERTED);
-    assert(insert(&t, 17) == INSERTED);
-    assert(insert(&t, 24) == INSERTED);
-    assert(insert(&t, 13) == INSERTED);
-    assert(t.slot[3].key == 10 && t.slot[4].key == 17 &&
+    require(lookup(&t, 24, &probes, false) == -1 && probes == 1);
+    require(insert(&t, 10) == INSERTED);
+    require(insert(&t, 17) == INSERTED);
+    require(insert(&t, 24) == INSERTED);
+    require(insert(&t, 13) == INSERTED);
+    require(t.slot[3].key == 10 && t.slot[4].key == 17 &&
            t.slot[5].key == 24 && t.slot[6].key == 13);
-    assert(lookup(&t, 24, &probes, false) == 5 && probes == 3);
-    assert(erase(&t, 17) && t.slot[4].state == DELETED);
-    assert(lookup(&t, 24, &probes, false) == 5 && probes == 3);
-    assert(lookup(&t, 31, &probes, false) == -1 && probes == 5);
-    assert(insert(&t, 24) == EXISTS);
-    assert(insert(&t, 31) == INSERTED && t.slot[4].key == 31);
-    assert(lookup(&t, 31, &probes, false) == 4 && probes == 2);
-    assert(!erase(&t, 99));
-    assert(insert(&t, 3) == INSERTED);
-    assert(insert(&t, 4) == INSERTED);
-    assert(insert(&t, 5) == INSERTED);
-    assert(insert(&t, 100) == TABLE_FULL);
-    assert(lookup(&t, 100, &probes, false) == -1 && probes == CAP);
-    assert(erase(&t, 13));
-    assert(insert(&t, 100) == INSERTED); /* Reuse tombstone in otherwise full table. */
-    assert(insert(&t, 100) == EXISTS);
+    require(lookup(&t, 24, &probes, false) == 5 && probes == 3);
+    require(erase(&t, 17) && t.slot[4].state == DELETED);
+    require(lookup(&t, 24, &probes, false) == 5 && probes == 3);
+    require(lookup(&t, 31, &probes, false) == -1 && probes == 5);
+    require(insert(&t, 24) == EXISTS);
+    require(insert(&t, 31) == INSERTED && t.slot[4].key == 31);
+    require(lookup(&t, 31, &probes, false) == 4 && probes == 2);
+    require(!erase(&t, 99));
+    require(insert(&t, 3) == INSERTED);
+    require(insert(&t, 4) == INSERTED);
+    require(insert(&t, 5) == INSERTED);
+    require(insert(&t, 100) == TABLE_FULL);
+    require(lookup(&t, 100, &probes, false) == -1 && probes == CAP);
+    require(erase(&t, 13));
+    require(insert(&t, 100) == INSERTED); /* Reuse tombstone in otherwise full table. */
+    require(insert(&t, 100) == EXISTS);
     puts("D018 self-test: PASS");
 }
 static void demo(void) {
     HashTable t; unsigned probes; reset(&t);
     const int keys[] = {10, 17, 24, 13};
     for (unsigned i = 0; i < sizeof(keys)/sizeof(keys[0]); ++i)
-        assert(insert(&t, keys[i]) == INSERTED);
+        require(insert(&t, keys[i]) == INSERTED);
     puts("After insertion:"); dump(&t);
     printf("find(24): "); (void)lookup(&t, 24, &probes, true);
     printf("probes=%u\n", probes);
-    assert(erase(&t, 17)); puts("After erase(17):"); dump(&t);
+    require(erase(&t, 17)); puts("After erase(17):"); dump(&t);
     printf("find(24): "); (void)lookup(&t, 24, &probes, true);
     printf("probes=%u\n", probes);
     printf("find(31): "); (void)lookup(&t, 31, &probes, true);
