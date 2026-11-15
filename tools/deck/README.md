@@ -153,7 +153,7 @@ python3 tools/deck/build.py D001
 
 对真正要求学生先独立预测的页面，可以在 `CourseDeck.add(..., role='exercise', withheld_results=('结果片段',))` 中声明**不应出现在标题／默认可见正文的结果片段**。例如 D017 `compare-path` 声明 `'3 和 7'`，`lr-single-fails` 声明 `'仍会失衡'`。检查器解析折叠区默认状态，若该片段出现在默认可见标题、图注或正文则报告 `prediction-outcomes/<page-id>` 失败；在已收起的答案区出现是允许的。该声明由作者根据任务决定，并非自动发现所有同义表达或完成结果。未声明的预测页面必须继续人工检查，讲解页不机械隐藏结论。
 
-如课件独立维护 `storyboard.md`，可用 D017 风格的一行一页面 ID 表格（例如 `| \x60page-id\x60／问题 | ... |`）与 `slides.py` 实际页面 ID 对应；只读检查核验 ID 集合、重复和顺序，**不要求标题或认知解释逐字一致**。没有独立 Storyboard 的历史课件不参与该项检查。变更页面认知职责时仍需教师审阅并在 Storyboard 中说明；纯文本一致无法证明认知连续性。独立 Storyboard 现在进入课件依赖指纹与影响分析。
+如课件独立维护 `storyboard.md`，可用 D017 风格的一行一页面 ID 表格（例如在表格行首以反引号标识稳定页面 ID `page-id`，随后用「／」分隔页面标题）与 `slides.py` 实际页面 ID 对应；只读检查核验 ID 集合、重复和顺序，**不要求标题或认知解释逐字一致**。没有独立 Storyboard 的历史课件不参与该项检查。变更页面认知职责时仍需教师审阅并在 Storyboard 中说明；纯文本一致无法证明认知连续性。独立 Storyboard 现在进入课件依赖指纹与影响分析。
 
 `verify.py` 的 `verification.json` 新增 `diagnostics` 只读定位摘要：保留原始 `runs` 及所有阶段日志，按 `blocking` / `historical` 分组、标出页码、稳定页面 ID、投影尺寸、具体检查项和可用证据路径。摘要最多展示每类 12 项并记录总数及省略数；不能用摘要替换原始报告。只有历史基线确证后的旧页发现才能标为 `historical`，机器状态仍按原 `scoped-pass-with-legacy-findings` 等定义计算。
 
