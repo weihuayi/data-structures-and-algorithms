@@ -55,9 +55,9 @@ class CognitiveCheckTests(unittest.TestCase):
             course.add('task', '提出问题', '<p>活动</p>', goal='探索')
             self.assertEqual(storyboard_checks(path, course), [])
             story = path/'storyboard.md'
-            story.write_text('| \\x60intro\\x60／旧标题 | 入门 | 情境 | 接续 |\n'
-                             '| \\x60task\\x60／候选问题 | 先修 | 活动 | 后继 |\n'
-                             .replace('\\x60', chr(96)), encoding='utf-8')
+            story.write_text('| ' + chr(96) + 'intro' + chr(96) + '／旧标题 | 入门 | 情境 | 接续 |\n'
+                             '| ' + chr(96) + 'task' + chr(96) + '／候选问题 | 先修 | 活动 | 后继 |\n',
+                             encoding='utf-8')
             good = storyboard_checks(path, course)
             self.assertTrue(all(c['status']=='pass' for c in good))
             story.write_text(story.read_text().replace('task', 'obsolete'),encoding='utf-8')

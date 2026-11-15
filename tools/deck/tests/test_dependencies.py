@@ -53,6 +53,20 @@ class DependencyTests(unittest.TestCase):
             self.assertIn('input.json',result['files'])
             self.assertIn('lesson/missing.png',result['missing'])
 
+    def test_optional_storyboard_is_a_content_dependency(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder); deck=root/'lesson'; deck.mkdir()
+            (deck/'slides.py').write_text('SLIDES=[]\n')
+            without=dependency_manifest(deck,document='',root=root)
+            story=deck/'storyboard.md'; story.write_text('One design path\n')
+            first=dependency_manifest(deck,document='',root=root)
+            self.assertNotEqual(without['sha256'],first['sha256'])
+            self.assertIn('lesson/storyboard.md',first['files'])
+            story.write_text('Revised design path\n')
+            second=dependency_manifest(deck,document='',root=root)
+            self.assertNotEqual(first['sha256'],second['sha256'])
+
+
     def test_components_do_not_force_legacy_migration(self):
         impact=analyze(['tools/deck/components.css'])
         self.assertIn('D014',impact['full'])

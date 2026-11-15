@@ -14,6 +14,58 @@ from impact import analyze, git_changes
 from review import content_snapshot, evidence_files
 
 
+def diagnostic_summary(output, records, *, sample_limit=12):
+    """Preserve raw run results; add bounded, source-linked failure locations."""
+    result = dict(blockingCount=0, historicalCount=0, blocking=[], historical=[], omitted=0)
+    for run in records:
+        if run['returncode'] == 0:
+            continue
+        phase = run['name']
+        historical = 'classification' in run
+        key = 'historical' if historical else 'blocking'
+        count_key = 'historicalCount' if historical else 'blockingCount'
+        found = []
+        report_file = output / phase / 'report.json'
+        if report_file.is_file():
+            try:
+                report = json.loads(report_file.read_text(encoding='utf-8'))
+                found.extend(dict(phase=phase, check=c.get('check'), detail=c.get('detail'),
+                                  evidence=f'{phase}/report.json')
+                             for c in report.get('contextChecks', ()) if c.get('status') == 'fail')
+                for deck in report.get('decks', ()):
+                    found.extend(dict(phase=phase, deck=deck.get('deck'), check=c.get('check'),
+                                      page=c.get('page'), pageId=c.get('pageId'),
+                                      detail=c.get('detail'), evidence=f'{phase}/report.json')
+                                 for c in deck.get('checks', ()) if c.get('status') == 'fail')
+            except (OSError, ValueError, TypeError) as exc:
+                found.append(dict(phase=phase, detail='Unreadable machine report: ' + str(exc),
+                                  evidence=f'{phase}/report.json'))
+        browser_file = output / phase / 'browser-report.json'
+        if browser_file.is_file():
+            try:
+                browser = json.loads(browser_file.read_text(encoding='utf-8'))
+                for c in browser.get('checks', ()):
+                    if c.get('status') == 'fail':
+                        shot = c.get('screenshot')
+                        found.append(dict(phase=phase, deck=c.get('deck'), page=c.get('page'),
+                                          pageId=c.get('pageId'), viewport=c.get('viewport'),
+                                          state=c.get('state'), check=c.get('check'),
+                                          detail=c.get('detail'),
+                                          evidence=(phase + '/' + shot) if shot else f'{phase}/browser-report.json'))
+            except (OSError, ValueError, TypeError) as exc:
+                found.append(dict(phase=phase, detail='Unreadable browser report: ' + str(exc),
+                                  evidence=f'{phase}/browser-report.json'))
+        if not found:
+            found.append(dict(phase=phase, check='phase-result',
+                              detail=f'Exit {run["returncode"]}; inspect {phase}.log',
+                              evidence=phase + '.log'))
+        result[count_key] += len(found)
+        available = max(0, sample_limit - len(result[key]))
+        result[key].extend(found[:available])
+        result['omitted'] += len(found) - available
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base', default='HEAD')
@@ -76,15 +128,25 @@ def main():
         codes.append(2)
     status = ('fail' if any(code not in (0, 2) for code in codes) else 'incomplete' if 2 in codes
               else 'static-only-pass' if args.static_only else 'scoped-pass-with-legacy-findings' if legacy_comparison else 'scoped-pass')
+    diagnostics = diagnostic_summary(output, records)
     report = dict(status=status, createdAt=datetime.now(timezone.utc).isoformat(), base=args.base, baseSha=base_sha,
                   revision=revision, evidenceFiles=evidence_files(output),
                   deliveryStatus='pending-review', contentChangedDuringRun=changed_during_run,
                   legacyComparison=legacy_comparison,
-                  scope=impact, runs=records,
+                  scope=impact, runs=records, diagnostics=diagnostics,
                   aiReview='Not inferred. Use review.py init/check after explicit content and visual self-review.',
                   limits=['scoped-pass is not full interaction verification of every legacy lesson.',
                           'No new AI session or classroom learning effects were tested by this command.'])
     (output / 'verification.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+    for label in ('blocking', 'historical'):
+        count = diagnostics['blockingCount' if label == 'blocking' else 'historicalCount']
+        if count:
+            print(f'{label}: {count} finding(s); report has up to 12 locations', flush=True)
+            for issue in diagnostics[label][:5]:
+                location = ' '.join(str(issue[x]) for x in ('deck', 'pageId', 'viewport')
+                                    if issue.get(x) is not None)
+                print(f'  {issue["phase"]} {location} {issue.get("check", "")}: '
+                      f'{issue.get("detail", "")}; {issue["evidence"]}', flush=True)
     print(f'{status}: {output / "verification.json"}')
     return 1 if status == 'fail' else 2 if status == 'incomplete' else 0
 
