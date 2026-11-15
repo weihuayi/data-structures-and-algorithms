@@ -21,26 +21,31 @@ def diagnostic_summary(output, records, *, sample_limit=12):
         if run['returncode'] == 0:
             continue
         phase = run['name']
+        # Stage names are log labels; check.py writes reports under separate folders.
+        folder = {'adopted-full': 'full',
+                  'legacy-review-context': 'review-context',
+                  'legacy-defaults': 'defaults',
+                  'legacy-baseline': 'baseline'}.get(phase, phase)
         historical = 'classification' in run
         key = 'historical' if historical else 'blocking'
         count_key = 'historicalCount' if historical else 'blockingCount'
         found = []
-        report_file = output / phase / 'report.json'
+        report_file = output / folder / 'report.json'
         if report_file.is_file():
             try:
                 report = json.loads(report_file.read_text(encoding='utf-8'))
                 found.extend(dict(phase=phase, check=c.get('check'), detail=c.get('detail'),
-                                  evidence=f'{phase}/report.json')
+                                  evidence=f'{folder}/report.json')
                              for c in report.get('contextChecks', ()) if c.get('status') == 'fail')
                 for deck in report.get('decks', ()):
                     found.extend(dict(phase=phase, deck=deck.get('deck'), check=c.get('check'),
                                       page=c.get('page'), pageId=c.get('pageId'),
-                                      detail=c.get('detail'), evidence=f'{phase}/report.json')
+                                      detail=c.get('detail'), evidence=f'{folder}/report.json')
                                  for c in deck.get('checks', ()) if c.get('status') == 'fail')
             except (OSError, ValueError, TypeError) as exc:
                 found.append(dict(phase=phase, detail='Unreadable machine report: ' + str(exc),
-                                  evidence=f'{phase}/report.json'))
-        browser_file = output / phase / 'browser-report.json'
+                                  evidence=f'{folder}/report.json'))
+        browser_file = output / folder / 'browser-report.json'
         if browser_file.is_file():
             try:
                 browser = json.loads(browser_file.read_text(encoding='utf-8'))
@@ -51,10 +56,10 @@ def diagnostic_summary(output, records, *, sample_limit=12):
                                           pageId=c.get('pageId'), viewport=c.get('viewport'),
                                           state=c.get('state'), check=c.get('check'),
                                           detail=c.get('detail'),
-                                          evidence=(phase + '/' + shot) if shot else f'{phase}/browser-report.json'))
+                                          evidence=(folder + '/' + shot) if shot else f'{folder}/browser-report.json'))
             except (OSError, ValueError, TypeError) as exc:
                 found.append(dict(phase=phase, detail='Unreadable browser report: ' + str(exc),
-                                  evidence=f'{phase}/browser-report.json'))
+                                  evidence=f'{folder}/browser-report.json'))
         if not found:
             found.append(dict(phase=phase, check='phase-result',
                               detail=f'Exit {run["returncode"]}; inspect {phase}.log',

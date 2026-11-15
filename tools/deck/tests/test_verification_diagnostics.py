@@ -12,7 +12,7 @@ class DiagnosticSummaryTests(unittest.TestCase):
     def test_browser_failure_has_stable_page_location_and_screenshot(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)
-            full=root/'adopted-full'; full.mkdir()
+            full=root/'full'; full.mkdir()
             (full/'browser-report.json').write_text(json.dumps({
                 'status':'fail','checks':[
                     {'deck':'d017-bst-avl','page':9,'pageId':'bst-insert',
@@ -29,11 +29,11 @@ class DiagnosticSummaryTests(unittest.TestCase):
             self.assertEqual(out['historicalCount'],0)
             self.assertEqual(out['blocking'][0]['pageId'],'bst-insert')
             self.assertEqual(out['blocking'][0]['viewport'],'1280x720')
-            self.assertEqual(out['blocking'][0]['evidence'],'adopted-full/d017-1280x720-p9.png')
+            self.assertEqual(out['blocking'][0]['evidence'],'full/d017-1280x720-p9.png')
 
     def test_historical_failure_is_kept_separate_and_raw_result_retained(self):
         with tempfile.TemporaryDirectory() as folder:
-            root=Path(folder); old=root/'legacy-defaults'; old.mkdir()
+            root=Path(folder); old=root/'defaults'; old.mkdir()
             (old/'browser-report.json').write_text(json.dumps({'checks':[
                 {'deck':'d001-problem-representation','page':2,'pageId':None,
                  'viewport':'1280x720','state':'initial','check':'projection-layout',
@@ -50,7 +50,7 @@ class DiagnosticSummaryTests(unittest.TestCase):
             out=diagnostic_summary(Path(folder),[{'name':'semantic','returncode':1}])
             self.assertEqual(out['blockingCount'],1)
             self.assertEqual(out['blocking'][0]['evidence'],'semantic.log')
-            full=Path(folder)/'adopted-full';full.mkdir()
+            full=Path(folder)/'full';full.mkdir()
             (full/'browser-report.json').write_text(json.dumps({'checks':[
                 {'status':'fail','check':'fake'} for _ in range(15)]}),encoding='utf-8')
             result=diagnostic_summary(Path(folder),[{'name':'adopted-full','returncode':1}],sample_limit=3)
