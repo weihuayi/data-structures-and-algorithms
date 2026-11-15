@@ -14,9 +14,14 @@ class CognitiveCheckTests(unittest.TestCase):
         mod = load_deck(DECKS / 'd017-bst-avl')
         checks = prediction_checks(mod.COURSE, mod.SLIDES)
         self.assertEqual({c['check'] for c in checks},
-                         {'prediction-outcomes/compare-path',
+                         {'prediction-outcomes/update-array',
+                          'prediction-outcomes/bst-check',
+                          'prediction-outcomes/bst-transfer',
+                          'prediction-outcomes/bst-delete-two',
+                          'prediction-outcomes/compare-path',
+                          'prediction-outcomes/bf-every-node',
                           'prediction-outcomes/lr-single-fails',
-                          'prediction-outcomes/update-array'})
+                          'prediction-outcomes/independent-avl'})
         self.assertTrue(all(c['status'] == 'pass' for c in checks))
 
     def test_p1_regressions_detect_old_title_and_lead(self):
