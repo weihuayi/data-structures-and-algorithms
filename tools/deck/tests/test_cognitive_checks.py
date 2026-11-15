@@ -42,6 +42,46 @@ class CognitiveCheckTests(unittest.TestCase):
         self.assertIn('结果 3 和 7', initially_visible(
             html.replace('<summary>核对答案与理由</summary>', '<summary>结果 3 和 7</summary>')))
 
+    def test_inline_formatting_preserves_prediction_outcome_continuity(self):
+        """Regression: visible <strong>/<em>/<span> cannot split a secret phrase."""
+        for formatted in ('仍会<strong>失衡</strong>',
+                          '<em>仍会</em>失衡',
+                          '仍<span class="emphasis">会</span><strong>失衡</strong>',
+                          '仍会&#x5931;<strong>衡</strong>'):
+            with self.subTest(markup=formatted):
+                self.assertIn('仍会失衡', initially_visible('<p>' + formatted + '</p>'))
+                course = CourseDeck()
+                course.add('prediction', '预测旋转结果',
+                           task_workspace('<p>原始树</p>', '<p>' + formatted + '</p>',
+                                          '<p>反馈：仍会失衡</p>'),
+                           role='exercise', goal='先独立判断',
+                           withheld_results=('仍会失衡',))
+                self.assertEqual(prediction_checks(course, course.slides)[0]['status'],
+                                 'fail')
+
+    def test_rendered_block_boundaries_do_not_create_false_positive(self):
+        for markup in ('<p>仍会</p><p>失衡</p>',
+                       '<div>仍会</div><div>失衡</div>',
+                       '<p>仍会<br>失衡</p>',
+                       '<table><tr><td>仍会</td><td>失衡</td></tr></table>',
+                       '<svg><text x="0">仍会</text><text x="20">失衡</text></svg>'):
+            with self.subTest(markup=markup):
+                text = initially_visible(markup)
+                self.assertNotIn('仍会失衡', text)
+                self.assertIn('仍会 失衡', text)
+        self.assertIn('仍会失衡', initially_visible(
+            '<p><span>仍会</span><span>失衡</span></p>'))
+
+    def test_visibility_still_respects_closed_details_and_script_style(self):
+        html = ('<p>任务</p><details><summary>查看核对</summary>'
+                '<p>仍会<strong>失衡</strong></p></details>'
+                '<script>仍会失衡</script><style>.x{content:"仍会失衡"}</style>')
+        shown = initially_visible(html)
+        self.assertIn('查看核对', shown)
+        self.assertNotIn('仍会失衡', shown)
+        opened = html.replace('<details>', '<details open>', 1)
+        self.assertIn('仍会失衡', initially_visible(opened))
+
     def test_declared_results_only_on_exercises(self):
         c = CourseDeck()
         c.add('content', '讲解', '<p>例题</p>', goal='观察', withheld_results=('结果',))
