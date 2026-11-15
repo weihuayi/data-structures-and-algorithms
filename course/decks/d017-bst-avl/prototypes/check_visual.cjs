@@ -26,6 +26,9 @@ async function main(){
       const page = await browser.newPage({viewport:v,deviceScaleFactor:1});
       for(const id of ids){
         await page.goto(pathToFileURL(file).href + '#' + id);
+        // Same-document fragment navigation does not reinitialize a page.
+        // Reload per case to reset any previously expanded <details> answer.
+        await page.reload({waitUntil: 'load'});
         await page.locator('section.slide.active[data-page-id="' + id + '"]').waitFor();
         const data = await page.evaluate(() => {
           const main=document.querySelector('.viewport'), current=document.querySelector('section.slide.active');
