@@ -78,6 +78,27 @@ static void run_avl(void){
     printf("AVL_LR root=%d height=%d rotations=%u inorder:",p->key,p->height,rotations);
     inorder(p);puts("");release(p);
 }
+static void run_avl27(void){
+    /* R4 independent transfer: start with the five-node AVL and insert 27. */
+    const int initial[]={30,20,40,10,25};
+    rotations=0;
+    Node*p=build(initial,5,1);
+    assert(p->key==30&&p->left&&p->left->key==20&&p->right&&p->right->key==40);
+    assert(p->left->left&&p->left->left->key==10);
+    assert(p->left->right&&p->left->right->key==25);
+    assert(rotations==0&&balanced(p));
+    p=avl_insert(p,27);
+    assert(rotations==2);
+    assert(p->key==25&&p->height==3);
+    assert(p->left&&p->left->key==20&&p->left->left&&p->left->left->key==10);
+    assert(p->left->right==NULL);
+    assert(p->right&&p->right->key==30&&p->right->left&&p->right->left->key==27);
+    assert(p->right->right&&p->right->right->key==40);
+    assert(ordered(p,LLONG_MIN,LLONG_MAX)&&balanced(p));
+    printf("AVL_27 root=%d height=%d rotations=%u inorder:",p->key,p->height,rotations);
+    inorder(p);puts("");
+    release(p);
+}
 static void test_rotations(void) {
     const int sequences[][3]={{30,20,16},{16,20,30},{30,16,20},{16,30,20}};
     const unsigned expected[]={1,1,2,2};
@@ -90,9 +111,10 @@ static void test_rotations(void) {
     }
 }
 int main(int argc,char**argv){
-    if(argc!=2){fprintf(stderr,"usage: %s bst|avl|test\n",argv[0]);return 2;}
+    if(argc!=2){fprintf(stderr,"usage: %s bst|avl|avl27|test\n",argv[0]);return 2;}
     if(!strcmp(argv[1],"bst")){run_bst();return 0;}
     if(!strcmp(argv[1],"avl")){run_avl();return 0;}
-    if(!strcmp(argv[1],"test")){run_bst();run_avl();test_rotations();puts("ALL_TESTS_PASSED");return 0;}
+    if(!strcmp(argv[1],"avl27")){run_avl27();return 0;}
+    if(!strcmp(argv[1],"test")){run_bst();run_avl();run_avl27();test_rotations();puts("ALL_TESTS_PASSED");return 0;}
     fprintf(stderr,"unknown mode: %s\n",argv[1]);return 2;
 }
