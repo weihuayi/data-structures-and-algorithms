@@ -90,6 +90,47 @@ class D017R4Tests(unittest.TestCase):
         contrast = (lighter + 0.05) / (darker + 0.05)
         self.assertGreaterEqual(contrast, 7.0, "C11 examples must remain legible on projection")
 
+    def test_inorder_introduced_before_two_distinct_deletions(self):
+        pages = {item["id"]: item for item in self.pages}
+        self.assertLess(EXPECTED.index("bst-order"), EXPECTED.index("bst-delete-cases"))
+        self.assertLess(EXPECTED.index("bst-delete-cases"), EXPECTED.index("bst-delete-two"))
+        definition = self.by_id["bst-order"][1]
+        self.assertIn("中序遍历", definition)
+        self.assertIn("左子树 → 结点 → 右子树", definition)
+        self.assertIn("中序关键字递增", definition)
+
+        single_title, single_body, _ = self.by_id["bst-delete-cases"]
+        self.assertIn("删除 27", single_title)
+        self.assertIn("删除结点 27", single_body)
+        self.assertIn("20 的右链接由 27 改指向 25", single_body)
+        self.assertIn("重新从完整 T1", single_body)
+
+        two_title, two_body, _ = self.by_id["bst-delete-two"]
+        self.assertIn("删除根30", two_title)
+        initial = two_body.split("<summary>核对答案与理由</summary>", 1)[0]
+        self.assertIn("中序前驱", initial)
+        self.assertIn("完整 T1", initial)
+        self.assertNotIn("中序前驱为", initial)
+        self.assertIn("中序前驱为", two_body.split("<summary>核对答案与理由</summary>", 1)[1])
+
+    def test_math_typesetting_on_conceptual_pages(self):
+        """Mathematical relationships must use KaTeX delimiters, not plain pseudo-formulas."""
+        required = {
+            "build-shape-chain": [r"\(16&lt;20&lt;27", r"\(h=7\)"],
+            "worst-shape": [r"\(O(h)\)", r"\(O(n)\)", r"\(\not\Rightarrow"],
+            "height-observe": [r"\(h(v)=1+\max\{", r"h(L(v))"],
+            "avl-definition": [r"\(\lvert h(L(v))"],
+            "bf-calculate": [r"\(\mathrm{BF}(v)=h(L(v))", r"\(\mathrm{BF}(v)\in"],
+            "structure-choice": [r"\(O(\log n)\)"],
+            "synthesis": [r"\(\lvert\mathrm{BF}(v)\rvert"],
+        }
+        for page_id, fragments in required.items():
+            body = self.by_id[page_id][1]
+            for fragment in fragments:
+                with self.subTest(page=page_id,fragment=fragment):
+                    self.assertIn(fragment, body)
+        self.assertTrue(self.deck.MATH, "The deck must load the KaTeX renderer")
+
     def test_predicted_results_remain_hidden(self):
         marked = {p["id"] for p in self.pages if p.get("withheld_results")}
         self.assertEqual(marked,
