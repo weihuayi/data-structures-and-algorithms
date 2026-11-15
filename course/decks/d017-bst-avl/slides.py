@@ -299,7 +299,7 @@ PAGES = json.loads(r'''[
     "title": "中间子树B换了位置，为什么顺序不变？",
     "section": "avl",
     "role": "content",
-    "body": "<div class=\"d017\"><p class=\"d17-lead\">一般右旋需要保留整个子树A、B、C的关键字范围，并将中间子树B正确重接。</p><div class=\"d17-cols\"><div class=\"d17-panel\"><h3>结构约束（整棵子树）</h3><div class=\"d17-formula\">\\(A\\prec y\\prec B\\prec z\\prec C\\)</div><p class=\"d17-note\">这里 \\(\\prec\\) 表示在中序序列中位于前面（子树表示一组有序关键字）。旋转前 \\(z\\) 为局部根，\\(y\\) 是其左孩子，\\(B\\) 是 \\(y\\) 的右子树。</p><p class=\"d17-note\">旋转后 \\(y\\) 为局部根，\\(z\\) 为 \\(y\\) 的右孩子，\\(B\\) 改接到 \\(z\\) 的左子树位置。</p></div><div class=\"d17-panel\"><h3>对应的最小C11链接调整</h3><pre class=\"d17-code\"><code>Node *y = z-&gt;left;\nNode *middle = y-&gt;right;\ny-&gt;right = z;\nz-&gt;left = middle;\nfix(z); fix(y);\nreturn y;</code></pre><p class=\"d17-note\">调用者还要让旧父链接或根指针指向返回的新局部根y。</p></div></div></div>",
+    "body": "<div class=\"d017\"><p class=\"d17-lead\">一般右旋需要保留整个子树A、B、C的关键字范围，并将中间子树B正确重接。</p><div class=\"d17-cols\"><div class=\"d17-panel\"><h3>结构约束（整棵子树）</h3><div class=\"d17-formula\">\\(\\operatorname{inorder}: A,\\ y,\\ B,\\ z,\\ C\\)</div><p class=\"d17-note\">\\(A,B,C\\) 分别表示对应子树的中序关键字序列；在旋转前后，这五段序列的连接顺序不变。旋转前 \\(z\\) 为局部根，\\(y\\) 是其左孩子，\\(B\\) 是 \\(y\\) 的右子树。</p><p class=\"d17-note\">旋转后 \\(y\\) 为局部根，\\(z\\) 为 \\(y\\) 的右孩子，\\(B\\) 改接到 \\(z\\) 的左子树位置。</p></div><div class=\"d17-panel\"><h3>对应的最小C11链接调整</h3><pre class=\"d17-code\"><code>Node *y = z-&gt;left;\nNode *middle = y-&gt;right;\ny-&gt;right = z;\nz-&gt;left = middle;\nfix(z); fix(y);\nreturn y;</code></pre><p class=\"d17-note\">调用者还要让旧父链接或根指针指向返回的新局部根y。</p></div></div></div>",
     "goal": "解释中间子树重接仍保持BST顺序",
     "activity": "子树范围与C11字段映射",
     "withheld_results": []
