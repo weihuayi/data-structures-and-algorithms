@@ -112,7 +112,7 @@ async function run(config) {
           }
           return {checked, failures, uncovered};
         });
-        add('code-contrast', !result.failures.length, JSON.stringify({checked:result.checked, failures:result.failures}));
+        if (result.checked) add('code-contrast', !result.failures.length, JSON.stringify({checked:result.checked, failures:result.failures}));
         if (result.uncovered.length) report.checks.push({...location, check:'code-contrast-coverage',
           status:'uncovered', detail:JSON.stringify(result.uncovered)});
       }
