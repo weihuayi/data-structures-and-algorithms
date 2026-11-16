@@ -78,6 +78,107 @@ static void dump(const HashTable *t) {
                    i == CAP-1 ? "" : "  ");
     puts("");
 }
+/* Chain-addressing example: head array and linked records, no dynamic allocation. */
+typedef struct ChainNode {
+    int key;
+    struct ChainNode *next;
+} ChainNode;
+typedef struct {
+    ChainNode *head[CAP];
+    ChainNode node[4];
+} ChainTable;
+static void chain_reset(ChainTable *ct) { memset(ct, 0, sizeof(*ct)); }
+static void chain_append(ChainTable *ct, unsigned slot, int key) {
+    require(slot < 4);
+    ChainNode *n = &ct->node[slot];
+    n->key = key; n->next = NULL;
+    ChainNode **link = &ct->head[start(key)];
+    while (*link) link = &(*link)->next;
+    *link = n;
+}
+static bool chain_find(const ChainTable *ct, int key, unsigned *comparisons) {
+    *comparisons = 0;
+    for (const ChainNode *n = ct->head[start(key)]; n != NULL; n = n->next) {
+        ++*comparisons;
+        if (n->key == key) return true;
+    }
+    return false;
+}
+static void chain_dump(const ChainTable *ct) {
+    for (unsigned b = 0; b < CAP; ++b) {
+        printf("bucket[%u] head -> ", b);
+        for (const ChainNode *n = ct->head[b]; n != NULL; n = n->next)
+            printf("%d -> ", n->key);
+        puts("NULL");
+    }
+}
+static void chain_self_test(void) {
+    ChainTable ct; unsigned comparisons = 0;
+    const int keys[] = {10, 17, 24, 13};
+    chain_reset(&ct);
+    for (unsigned i = 0; i < 4; ++i) chain_append(&ct, i, keys[i]);
+    require(ct.head[3] == &ct.node[0]);
+    require(ct.node[0].next == &ct.node[1]);
+    require(ct.node[1].next == &ct.node[2]);
+    require(ct.node[2].next == NULL);
+    require(ct.head[6] == &ct.node[3]);
+    require(chain_find(&ct, 24, &comparisons) && comparisons == 3);
+    require(!chain_find(&ct, 31, &comparisons) && comparisons == 3);
+}
+static void chain_demo(void) {
+    ChainTable ct; unsigned comparisons;
+    const int keys[] = {10, 17, 24, 13};
+    chain_reset(&ct);
+    for (unsigned i = 0; i < 4; ++i) chain_append(&ct, i, keys[i]);
+    puts("Chain table (append to bucket tail):");
+    chain_dump(&ct);
+    printf("chain find(24): %s", chain_find(&ct, 24, &comparisons) ? "HIT" : "MISS");
+    printf(", comparisons=%u\n", comparisons);
+    printf("chain find(31): %s", chain_find(&ct, 31, &comparisons) ? "HIT" : "MISS");
+    printf(", comparisons=%u\n", comparisons);
+}
+static void build_demo(void) {
+    HashTable t; reset(&t);
+    const int keys[] = {10, 17, 24, 13};
+    for (unsigned n = 0; n < 4; ++n) {
+        int key = keys[n];
+        printf("insert(%d): check ", key);
+        for (unsigned i = 0; i < CAP; ++i) {
+            unsigned p = position(key, i);
+            printf("%s%u", i ? " -> " : "", p);
+            if (t.slot[p].state == EMPTY) break;
+        }
+        puts(" (only checks so far)");
+        require(insert(&t, key) == INSERTED);
+        dump(&t); /* Actual write happens only after finding the empty slot. */
+    }
+}
+static void scenario_demo(void) {
+    HashTable correct, wrong; unsigned probes;
+    const int keys[] = {10, 17, 24, 13};
+    reset(&correct);
+    for (unsigned i = 0; i < 4; ++i) require(insert(&correct, keys[i]) == INSERTED);
+    puts("A: valid table before deletion:");
+    dump(&correct);
+    wrong = correct;
+    wrong.slot[4].state = EMPTY; /* Deliberately INCORRECT deletion; never continue from W. */
+    puts("W: WRONG deletion makes slot 4 EMPTY (counterexample only):");
+    dump(&wrong);
+    printf("W find(24): ");
+    require(lookup(&wrong, 24, &probes, true) == -1 && probes == 2);
+    puts("Return to A; do not use W as the next valid state.");
+    require(erase(&correct, 17)); /* Tombstone preserves the search path. */
+    puts("B: valid tombstone deletion:");
+    dump(&correct);
+    printf("B find(24): ");
+    require(lookup(&correct, 24, &probes, true) == 5 && probes == 3);
+    printf("B find(31): ");
+    require(lookup(&correct, 31, &probes, true) == -1 && probes == 5);
+    require(insert(&correct, 24) == EXISTS);
+    require(insert(&correct, 31) == INSERTED);
+    puts("C: after checking duplicates and inserting 31:");
+    dump(&correct);
+}
 static void self_test(void) {
     HashTable t; unsigned probes; reset(&t);
     require(lookup(&t, 24, &probes, false) == -1 && probes == 1);
@@ -103,6 +204,12 @@ static void self_test(void) {
         fail_sum += probes;
     }
     require(succ_sum == 7 && fail_sum == 17);
+    /* An incorrect EMPTY deletion loses key 24 (intentional W counterexample). */
+    HashTable wrong = t;
+    wrong.slot[4].state = EMPTY;
+    require(lookup(&wrong, 24, &probes, false) == -1 && probes == 2);
+    require(t.slot[4].state == OCCUPIED); /* W never replaces valid A. */
+    chain_self_test();
     require(lookup(&t, 24, &probes, false) == 5 && probes == 3);
     require(erase(&t, 17) && t.slot[4].state == DELETED);
     require(lookup(&t, 24, &probes, false) == 5 && probes == 3);
@@ -139,8 +246,14 @@ static void demo(void) {
     puts("After insert(31):"); dump(&t);
 }
 int main(int argc, char **argv) {
-    if (argc > 1 && strcmp(argv[1], "--self-test") == 0) self_test();
-    else if (argc == 1 || (argc > 1 && strcmp(argv[1], "demo") == 0)) demo();
-    else { fputs("usage: hash_demo [demo|--self-test]\n", stderr); return 2; }
+    if (argc == 1 || (argc == 2 && strcmp(argv[1], "demo") == 0)) demo();
+    else if (argc == 2 && strcmp(argv[1], "build") == 0) build_demo();
+    else if (argc == 2 && strcmp(argv[1], "chain") == 0) chain_demo();
+    else if (argc == 2 && strcmp(argv[1], "scenarios") == 0) scenario_demo();
+    else if (argc == 2 && strcmp(argv[1], "--self-test") == 0) self_test();
+    else {
+        fputs("usage: hash_demo [demo|build|chain|scenarios|--self-test]\n", stderr);
+        return 2;
+    }
     return 0;
 }
