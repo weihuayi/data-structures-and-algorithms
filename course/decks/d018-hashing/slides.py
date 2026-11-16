@@ -320,7 +320,7 @@ PAGES = json.loads(r'''[
   {
     "id": "homework",
     "title": "课后怎样预测、运行和核对？",
-    "body": "<p class=\"hash-lead\">A、B 为正式必做。先独立预测，再运行与核对；本地执行不要求 Git 仓库。</p><div class=\"hash-pair\"><div class=\"hash-card\"><strong>A · 教材习题</strong><p>第 7 章选择题 (12)(13)(14)、应用题 (5)。说明选项依据，保留构表与探查必要过程；注意题设散列取模常数和表容量可能不同。</p></div><div class=\"hash-card\"><strong>B · C11 实践</strong><p>先预测初始 A、错误删除 W、合法 B、查找 24/31 与插入 24/31 的行为；分别运行 <code>chain</code>、<code>scenarios</code>、<code>demo</code>、<code>--self-test</code>，解释 DEL 继续、EMPTY 终止及墓碑复用前查重的理由。</p></div></div><p class=\"hash-note\">选做不提交：应用题 (6)(7)、算法设计题 (6)。二次探查以各题实际增量规则为准。</p><p class=\"hash-note\">提交：飞书文档链接，包含 3–5 行过程记录及至少一项预测与实测核对依据；仅运行示例无需截图或附代码。共同要求见 <code>../../assignments/homework-guide.md</code>；本周累计负担待教师确认。</p>",
+    "body": "<p class=\"hash-lead\">A、B 为正式必做。先独立预测，再运行与核对；本地执行不要求 Git 仓库。</p><div class=\"hash-pair\"><div class=\"hash-card\"><strong>A · 教材习题</strong><p>第 7 章选择题 (12)(13)(14)、应用题 (5)。说明选项依据，保留构表与探查必要过程；注意题设散列取模常数和表容量可能不同。</p></div><div class=\"hash-card\"><strong>B · C11 实践</strong><p>先预测初始 A、错误删除 W、合法 B、查找 24/31 与插入 24/31 的行为；使用 <code>code/hash_demo.c</code> 编译得到的程序，分别运行 <code>chain</code>、<code>build</code>、<code>scenarios</code>、<code>demo</code>、<code>--self-test</code>，解释 DEL 继续、EMPTY 终止及墓碑复用前查重的理由。</p></div></div><p class=\"hash-note\">选做不提交：应用题 (6)(7)、算法设计题 (6)。二次探查以各题实际增量规则为准。</p><p class=\"hash-note\">提交：飞书文档链接，包含 3–5 行过程记录及至少一项预测与实测核对依据；仅运行示例无需截图或附代码。共同要求见 <code>../../assignments/homework-guide.md</code>；本周累计负担待教师确认。</p>",
     "section": null,
     "role": "closing",
     "goal": "明确 A/B 正式作业和提交、核对与代码使用边界",
