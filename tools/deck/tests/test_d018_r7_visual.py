@@ -42,7 +42,7 @@ class D018R7VisualStructureTests(unittest.TestCase):
         self.assertIn("独立计算 h(17)", mapping)
         chain = self.body["chain-lookup"]
         self.assertIn("hash-v2-chainsvg", chain)
-        self.assertIn('viewBox="0 0 1080 312"', chain)
+        self.assertIn('viewBox="0 0 1080 260"', chain)
         self.assertEqual(chain.count('class="hash-r7-bucket-head'), 7)
         self.assertEqual(chain.count('class="hash-r7-chain-node"'), 4)
         for key in ("10", "17", "24", "13"):
