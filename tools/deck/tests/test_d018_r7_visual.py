@@ -63,5 +63,51 @@ class D018R7VisualStructureTests(unittest.TestCase):
         self.assertIn("DELETED", self.body["probe-delete-tombstone"])
 
 
+    def test_full_lesson_typography_and_learning_regions(self):
+        css = self.body["cover"]
+        self.assertIn("R7 full-lesson extension", css)
+        self.assertIn(".deck .slide .hash-lesson{max-width:none;width:100%", css)
+        self.assertIn("font-size:clamp(21px,1.68vw,27px)", css)
+        self.assertIn("font-size:clamp(24px,1.85vw,29px)", css)
+        self.assertIn("font-size:clamp(16px,1.2vw,19px)", css)
+        self.assertIn("font-size:clamp(28px,2.3vw,36px)", css)
+        self.assertIn("font-size:clamp(20px,1.55vw,24px)", css)
+        self.assertIn('data-page-id="invariant"', css)
+        self.assertIn("grid-template-columns:1fr;gap:6px", css)
+
+    def test_p1_chain_diagrams_match_reviewed_p12_semantics(self):
+        from html.parser import HTMLParser
+
+        class ChainSVGParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.svgs = []
+                self.current = None
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == "svg":
+                    self.current = {"buckets": 0, "nodes": 0, "viewbox": attributes.get("viewbox")}
+                if self.current is None:
+                    return
+                if tag == "rect" and "hash-r7-bucket-head" in attributes.get("class", ""):
+                    self.current["buckets"] += 1
+                if tag == "rect" and "hash-r7-chain-node" in attributes.get("class", ""):
+                    self.current["nodes"] += 1
+
+            def handle_endtag(self, tag):
+                if tag == "svg" and self.current is not None:
+                    self.svgs.append(self.current)
+                    self.current = None
+
+        parser = ChainSVGParser()
+        parser.feed(self.body["chaining"])
+        self.assertEqual([x["buckets"] for x in parser.svgs], [7, 7])
+        self.assertEqual([x["nodes"] for x in parser.svgs], [1, 4])
+        self.assertEqual([x["viewbox"] for x in parser.svgs], ["0 0 1080 209", "0 0 1080 260"])
+        self.assertIn("hash-r7-chain-page", self.body["chaining"])
+        self.assertIn("hash-r7-chain-page", self.body["chain-lookup"])
+
+
 if __name__ == "__main__":
     unittest.main()
