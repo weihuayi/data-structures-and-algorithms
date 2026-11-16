@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D018 R5｜散列操作真实视觉原型 · P2 / P4</title>
+<style>
+  :root { color-scheme: light; --ink:#16344e; --muted:#526d81; --line:#cedce8; --blue:#1767a7; --blue-soft:#e7f3fc; --surface:#f5f9fd; --orange:#a96618; --orange-soft:#fff1d9; --red:#af3840; --red-soft:#ffeaeb; --green:#23715b; --green-soft:#e6f6ef; --shadow:0 14px 36px rgba(25,59,84,.08); }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:#e7eef5; color:var(--ink); font-family:'Noto Sans CJK SC','Noto Sans SC','Microsoft YaHei','PingFang SC',system-ui,sans-serif; }
+  body { min-width:920px; }
+  button { font:inherit; cursor:pointer; }
+  button:focus-visible { outline:3px solid #e2a13f; outline-offset:3px; }
+  .shell { min-height:100vh; display:flex; flex-direction:column; gap:13px; padding:14px clamp(14px,2.3vw,36px) 12px; }
+  .head { display:flex; justify-content:space-between; align-items:center; gap:22px; max-width:1510px; width:100%; margin:auto auto 0; }
+  .identity { display:flex; align-items:baseline; gap:15px; white-space:nowrap; }
+  .eyebrow { font-size:13px; font-weight:750; color:var(--blue); letter-spacing:.06em; }
+  .brand { font-size:20px; font-weight:800; }
+  .constant { color:#637f94; font-size:13px; font-weight:750; white-space:nowrap; }
+  .tabs { display:flex; gap:5px; padding:5px; background:#d6e5f1; border-radius:13px; }
+  .tab { padding:10px 19px; border:0; color:#47647a; border-radius:9px; background:transparent; font-weight:750; font-size:15px; white-space:nowrap; }
+  .tab[aria-selected="true"] { background:white; color:var(--ink); box-shadow:0 2px 8px rgba(26,62,89,.1); }
+  .slide { max-width:1510px; width:100%; margin:0 auto; background:white; border:1px solid #cbdbe8; border-radius:18px; box-shadow:var(--shadow); padding:clamp(16px,2.2vw,32px) clamp(20px,2.5vw,40px); display:flex; flex-direction:column; gap:13px; min-height:0; flex:1; }
+  .slide-top { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .slide-kicker { color:var(--blue); font-size:14px; font-weight:850; letter-spacing:.025em; }
+  .slide h1 { margin:5px 0 0; font-size:clamp(25px,2.32vw,35px); line-height:1.24; letter-spacing:-.02em; }
+  .step-counter { flex:none; font-size:13px; font-weight:750; color:#526d81; padding:8px 13px; background:var(--surface); border:1px solid var(--line); border-radius:30px; }
+  .context { display:flex; align-items:center; gap:16px; justify-content:space-between; border:1px solid var(--line); background:var(--surface); border-radius:12px; padding:13px 17px; }
+  .prompt { font-size:clamp(17px,1.48vw,23px); font-weight:750; line-height:1.35; max-width:75%; }
+  .formula { flex:none; font-size:clamp(16px,1.42vw,22px); font-weight:760; white-space:nowrap; color:#285476; }
+  .main { display:grid; grid-template-columns:minmax(0,1.48fr) minmax(315px,.72fr); gap:16px; flex:1; min-height:0; }
+  .panel { border:1px solid var(--line); border-radius:13px; padding:15px 16px; background:#fff; min-width:0; }
+  .stage { display:flex; flex-direction:column; justify-content:space-between; gap:13px; }
+  .panel-label { font-size:13px; color:var(--muted); letter-spacing:.03em; font-weight:800; }
+  .object-line { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:58px; }
+  .key-card { border:1px solid #99b5ca; background:var(--blue-soft); border-radius:10px; padding:8px 14px; font-size:17px; font-weight:750; }
+  .key-card em { font-style:normal; font-size:25px; color:var(--blue); margin-left:7px; }
+  .target { font-size:16px; color:var(--muted); font-weight:700; }
+  .target strong { color:var(--blue); font-size:23px; margin-left:6px; }
+  .table-wrap { padding:8px 0 7px; }
+  .array { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
+  .slot-wrap { display:flex; flex-direction:column; align-items:stretch; gap:8px; min-width:0; }
+  .index { text-align:center; font-size:17px; color:var(--muted); font-variant-numeric:tabular-nums; font-weight:850; }
+  .slot { height:clamp(68px,10.3vh,96px); display:flex; flex-direction:column; align-items:center; justify-content:center; border:2px solid #bdcfde; border-radius:10px; background:#f6f9fc; position:relative; }
+  .slot .value { font-size:clamp(25px,2.6vw,36px); font-weight:850; line-height:1.12; font-variant-numeric:tabular-nums; }
+  .slot .state { font-size:11px; font-weight:850; line-height:1; margin-top:5px; color:#6d8496; }
+  .slot.is-current { border-color:var(--blue); background:var(--blue-soft); box-shadow:0 0 0 3px rgba(23,103,167,.1); }
+  .slot.is-error { border-color:var(--red); background:var(--red-soft); }
+  .slot.is-tomb { border-color:#d7a054; background:var(--orange-soft); }
+  .slot .value.long { font-size:16px; letter-spacing:-.025em; }
+  .table-legend { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; color:var(--muted); font-size:12px; }
+  .legend-item { display:flex; align-items:center; gap:6px; }
+  .key { width:10px; height:10px; border:1px solid #9bb5c7; border-radius:3px; display:inline-block; background:#f6f9fc; }
+  .key.blue { background:var(--blue-soft); border-color:var(--blue); }.key.orange{background:var(--orange-soft);border-color:#d7a054}.key.red{background:var(--red-soft);border-color:var(--red)}
+  .probe { border-top:1px solid #d8e4ef; padding-top:13px; min-height:65px; }
+  .probe-title { font-size:13px; color:var(--muted); font-weight:800; margin-bottom:8px; }
+  .path { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .visit { font-size:17px; min-width:36px; text-align:center; border-radius:8px; padding:5px 10px; background:#eaf1f7; font-weight:850; color:#345b76; }
+  .visit.current { background:var(--blue); color:white; }
+  .visit.final { background:var(--green-soft); color:var(--green); border:1px solid #a9d9c5; }
+  .arrow { font-weight:800; font-size:18px; color:#6e8ba1; }
+  .empty-path { color:#91a6b5; font-size:15px; font-weight:650; }
+  .reason { display:flex; flex-direction:column; gap:12px; background:#f9fbfd; }
+  .narrative { font-size:clamp(19px,1.65vw,24px); font-weight:800; line-height:1.37; }
+  .evidence { font-size:16px; color:#37556d; line-height:1.58; }
+  .micro-rule { padding:10px 12px; border-left:4px solid #7fa9c7; border-radius:5px; background:#eef5fb; font-size:15px; line-height:1.5; }
+  .result { font-size:17px; font-weight:800; padding:10px 13px; border-radius:10px; border:1px solid #bcd9ca; background:var(--green-soft); color:var(--green); }
+  .result.error { border-color:#e9b9bc; background:var(--red-soft); color:var(--red); }
+  .result.neutral { border-color:#c7d8e8; background:#eff5fb; color:#355c7d; }
+  .muted { font-size:14px; color:var(--muted); line-height:1.4; }
+  .footer { max-width:1510px; width:100%; margin:0 auto; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+  .footleft { color:#537086; font-size:13px; font-weight:650; }
+  .controls { display:flex; align-items:center; gap:9px; }
+  .button { padding:10px 18px; border-radius:9px; border:1px solid #a9bfce; color:var(--ink); background:#fff; font-weight:800; font-size:15px; min-height:42px; }
+  .button.primary { border-color:var(--blue); background:var(--blue); color:white; }
+  .button:disabled { opacity:.38; cursor:not-allowed; }
+  .segment { font-variant-numeric:tabular-nums; font-size:14px; font-weight:850; color:#49677d; padding:0 6px; }
+  .invariant { padding:12px 14px; background:#fff6e6; border:1px solid #f0d7a9; border-radius:10px; color:#835319; font-weight:800; font-size:17px; line-height:1.5; }
+  .branch-hint { font-size:13px; color:#a35d29; background:#fff4e5; border:1px solid #e9c591; padding:5px 10px; border-radius:18px; font-weight:800; }
+  @media (max-height:780px){ .shell{gap:9px;padding-top:9px;padding-bottom:9px}.head .brand{font-size:18px}.tab{padding:8px 15px}.slide{padding:14px 23px;gap:10px}.context{padding:10px 13px}.panel{padding:12px 13px}.main{gap:12px}.stage{gap:8px}.object-line{min-height:45px}.slot{height:64px}.probe{padding-top:9px;min-height:52px}.reason{gap:8px}.evidence{font-size:15px}.micro-rule{padding:8px 10px;font-size:14px}.result{padding:8px 10px}.footer .button{padding:8px 14px;min-height:37px} }
+  @media (max-width:1050px){ .slide{padding:17px}.main{grid-template-columns:minmax(0,1.4fr) minmax(270px,.75fr)}.slot{height:68px}.array{gap:5px}.slot .value{font-size:24px} }
+  @media print { body{min-width:0;background:white}.shell{padding:0}.head,.footer{display:none}.slide{min-height:0;border:none;box-shadow:none}.reason,.stage{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="head">
+    <div class="identity"><span class="eyebrow">D018 / R5 · PROTOTYPE</span><span class="brand">散列｜操作机制与正确性</span><span class="constant">m=7 · h(k)=k mod 7</span></div>
+    <div class="tabs" role="tablist" aria-label="选择原型">
+      <button class="tab" type="button" role="tab" data-mode="P2" aria-selected="true">P2 · 首次线性探查</button>
+      <button class="tab" type="button" role="tab" data-mode="P4" aria-selected="false">P4 · 删除正确性</button>
+    </div>
+  </header>
+  <main class="slide" aria-label="幻灯片原型">
+    <div class="slide-top"><div><div id="kicker" class="slide-kicker"></div><h1 id="title"></h1></div><span id="stepCounter" class="step-counter"></span></div>
+    <div class="context"><div id="question" class="prompt"></div><div id="formula" class="formula"></div></div>
+    <div class="main">
+      <section class="panel stage" aria-label="散列表当前状态">
+        <div class="panel-label" id="stateLabel"></div>
+        <div class="object-line"><div id="currentKey" class="key-card"></div><div id="target" class="target"></div></div>
+        <div class="table-wrap"><div id="array" class="array" aria-label="槽位 0 到 6"></div></div>
+        <div class="table-legend"><span class="legend-item"><i class="key"></i>EMPTY</span><span class="legend-item"><i class="key blue"></i>当前检查位置</span><span class="legend-item"><i class="key orange"></i>DELETED</span><span class="legend-item"><i class="key red"></i>错误分支</span></div>
+        <div class="probe"><div class="probe-title">本次操作的访问路径</div><div id="path" class="path"></div></div>
+      </section>
+      <aside class="panel reason" aria-label="当前步骤的计算依据与教师引导">
+        <div class="panel-label">当前计算判断</div>
+        <div id="narrative" class="narrative"></div>
+        <div id="evidence" class="evidence"></div>
+        <div id="microRule" class="micro-rule"></div>
+        <div id="result" class="result neutral"></div>
+        <div id="extra" class="muted"></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="footer"><div class="footleft">键盘 ← → 控制步骤 · 教师手动揭示 · 默认不展示完成答案</div><div class="controls"><button id="reset" class="button" type="button">重置场景</button><button id="prev" class="button" type="button">上一步</button><span class="segment" id="fraction"></span><button id="next" class="button primary" type="button">下一步 · 揭示</button></div></footer>
+</div>
+<script>
+'use strict';
+/* These are explicit educational scene states, not a complete hash-table implementation.
+   Professional correctness is independently tested by check_visual.cjs. */
+const EMPTY = null;
+const A = [null,null,null,10,17,24,13];
+const W = [null,null,null,10,null,24,13];
+const B = [null,null,null,10,'DEL',24,13];
+const P2_SCENES = [
+  {code:'P2.1', title:'第一次遇到冲突之前，我们知道什么？',question:'已有 10 存在位置 3，现在要插入关键字 17。它应先检查哪里？',formula:'m = 7 · h(17) = 3',stateLabel:'初始数组 · 只含关键字 10',slots:[null,null,null,10,null,null,null],key:17,operation:'插入',mark:[],path:[],narrative:'请先独立判断',evidence:'计算 17 的初始散列地址。已知位置 3 保存着 10；暂不公布下一步结果。',rule:'待处理键在表外。计算地址不等于已写入记录。',result:'预测阶段 · 未揭示实际落位',resultType:'neutral',extra:'教师请先停留，学生答出首次检查位置后再点击“下一步”。'},
+  {code:'P2.2',title:'为什么不能把 17 写入位置 3？',question:'检查位置 3：槽位已经被 10 占用。能覆盖 10 吗？',formula:'p(17,0) = 3',stateLabel:'首次检查 · 地址 3 发生冲突',slots:[null,null,null,10,null,null,null],key:17,operation:'插入',mark:[3],path:[3],narrative:'候选位置不等于可用位置',evidence:'位置 3 保存着不同的有效关键字 10，直接覆盖将破坏字典中的已有记录。',rule:'OCCUPIED 且关键字不同 → 按规则继续探查。',result:'尚未插入 17',resultType:'neutral',extra:'当前只是检查槽位 3，并未暂存或写入 17。'},
+  {code:'P2.3',title:'下一次探查为何到达位置 4？',question:'继续探查：当 i 从 0 变为 1，下一候选槽位是哪一个？',formula:'p(17,1) = (3+1)%7 = 4',stateLabel:'第二次检查 · 位置 4 为空',slots:[null,null,null,10,null,null,null],key:17,operation:'插入',mark:[4],path:[3,4],narrative:'探查位置可以不同于初始地址',evidence:'位置 4 为 EMPTY，满足插入位置要求。此时仍处于检查阶段，尚未写入 17。',rule:'定位到可写入槽位后，才执行存储。',result:'找到可用位置：4',resultType:'neutral',extra:'蓝色标记表示“当前正在检查”，而非记录已经存放在那里。'},
+  {code:'P2.4',title:'完成插入：初始地址与实际位置为何不同？',question:'根据已经验证的探查路径，完成 17 的插入。',formula:'h(17) = 3 → 实际位置 4',stateLabel:'完成状态 · 插入 10、17',slots:[null,null,null,10,17,null,null],key:17,operation:'完成插入',mark:[4],path:[3,4],narrative:'17 最终存放在位置 4',evidence:'从地址 3 出发，因冲突继续检查位置 4，确认 EMPTY 后才将 17 写入。',rule:'查找 17 也必须从相同的初始地址出发并遵守同一探查序列。',result:'已插入 17，未覆盖 10',resultType:'ok',extra:'下一项独立任务应从此部分状态出发，插入 24、13；不要再次完整示范。'}
+];
+const P4_SCENES = [
+  {code:'P4.1',title:'删除 17 后，查找 24 还能正确吗？',question:'原表中 24 存在于位置 5。若删除 17 后将位置 4 直接设为 EMPTY，会怎样？',formula:'h(24) = 3',stateLabel:'状态 A · 正确初始表',slots:A,key:24,operation:'查找 · 假设删除 17',mark:[],path:[],narrative:'先预测错误方案的后果',evidence:'已知原来查找 24 的路径是 3 → 4 → 5。现在考察“把 17 所在槽位直接清空”的候选删除规则。',rule:'本页展示的是待验证假设，尚未执行删除。',result:'预测阶段 · 先判断后揭示',resultType:'neutral',extra:'教师不应提前显示失败结论。请学生先画出假设删除后的查找路径。'},
+  {code:'P4.2',title:'错误删除造成了什么可观察的矛盾？',question:'假设直接把位置 4 设为 EMPTY，再从地址 3 查找 24。',formula:'3 → 4 (EMPTY) · 停止',stateLabel:'状态 W · 错误分支（不是合法后续状态）',slots:W,key:24,operation:'查找 24',mark:[4],error:[4],path:[3,4],narrative:'查找被错误地提前终止',evidence:'位置 4 变成 EMPTY，查找在这里报告失败；但关键字 24 事实上仍保存在位置 5。',rule:'“已删除记录”不能直接等同于“允许查找失败停止”。',result:'错误结果：判定 24 不存在',resultType:'error',extra:'W 是反事实错误分支。下一步必须恢复到 A，不能沿 W 继续做正确插入。'},
+  {code:'P4.3',title:'如何同时满足删除与后续查找的要求？',question:'回到初始合法表 A：17 必须被删除，24 又必须继续能够被找到。',formula:'两个约束 · delete(17) / find(24)',stateLabel:'恢复状态 A · 重新选择删除规则',slots:A,key:17,operation:'删除 17',mark:[4],path:[],narrative:'删除操作必须维护后续查找的正确性',evidence:'错误方案已经被否定。现在要区分“位置没有有效记录”和“查找应当停止”两种含义。',rule:'对已存记录，探查到其实际位置之前不能被 EMPTY 错误截断。',result:'待选择一种保持性质的状态',resultType:'neutral',extra:'这里明确恢复到 A，错误分支 W 不会成为下一次正确操作的输入。'},
+  {code:'P4.4',title:'墓碑怎样保留原来的查找路径？',question:'将位置 4 标为 DELETED 后，再查找 24，结果如何？',formula:'3 → 4 (DEL) → 5',stateLabel:'状态 B · 正确的墓碑删除',slots:B,key:24,operation:'查找 24',mark:[5],path:[3,4,5],narrative:'DELETED 要继续探查，而不是停止',evidence:'17 已不再是有效记录，但位置 4 仍允许查找越过它，到位置 5 找到 24。',rule:'DELETED 与 EMPTY 的区别由正确性需要决定，而非界面颜色决定。',result:'正确结果：在位置 5 找到 24',resultType:'ok',extra:'本页验证删除后的一个已有关键字仍然可查；还不能代替全部操作正确性证明。'},
+  {code:'P4.5',title:'从反例归纳怎样的结构不变量？',question:'为什么 W 会漏查，而 B 不会？尝试说明共同的查找条件。',formula:'p(k,i) = (h(k)+i)%m',stateLabel:'保持状态 B · 由具体路径抽象性质',slots:B,key:24,operation:'归纳正确性',mark:[3,4,5],path:[3,4,5],narrative:'已有记录的探查前缀不能被 EMPTY 截断',evidence:'对于已存关键字 k，从初始地址到其实际槽位的探查路径前缀中，不能出现会导致过早停止的 EMPTY。',rule:'查找遇 EMPTY 可失败；遇 DELETED 继续；OCCUPIED 比较关键字。',result:'得到可用于解释程序判断的性质',resultType:'ok',extra:'后续要用新键 31 和重复键 24 检验失败终止、墓碑复用与去重；本原型不替代这些检验。'}
+];
+const modes = {P2:P2_SCENES,P4:P4_SCENES};
+let mode='P2',step=0;
+const byId=id=>document.getElementById(id);
+function render() {
+ const scenes=modes[mode],s=scenes[step];
+ document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.mode===mode)));
+ byId('kicker').textContent = mode==='P2' ? 'P2 · 线性探查｜必要示范 → 局部预测' : 'P4 · 删除正确性｜反例 → 修复 → 不变量';
+ byId('title').textContent=s.title;
+ byId('stepCounter').textContent=s.code+' / '+scenes.length+' 步';
+ byId('question').textContent=s.question;byId('formula').textContent=s.formula;
+ byId('stateLabel').textContent=s.stateLabel;
+ byId('currentKey').innerHTML=`${s.operation} · key <em>${s.key}</em>`;
+ byId('target').innerHTML=`<span>初始地址</span><strong>${s.key%7}</strong>`;
+ byId('narrative').textContent=s.narrative;byId('evidence').textContent=s.evidence;
+ byId('microRule').textContent=s.rule;byId('extra').textContent=s.extra;
+ const result=byId('result');result.textContent=s.result;result.className='result '+(s.resultType==='error'?'error':s.resultType==='neutral'?'neutral':'');
+ byId('array').innerHTML=s.slots.map((val,i)=>{
+    const err=(s.error||[]).includes(i),current=(s.mark||[]).includes(i),deleted=val==='DEL';
+    const cls=err?'is-error':deleted?'is-tomb':current?'is-current':'';
+    const v=val==null?'—':val==='DEL'?'DELETED':val;
+    const state=val==null?'EMPTY':val==='DEL'?'DELETED':'OCCUPIED';
+    return `<div class="slot-wrap"><div class="index">${i}</div><div class="slot ${cls}" data-slot="${i}" data-state="${state}"><div class="value ${String(v).length>3?'long':''}">${v}</div><div class="state">${state==='OCCUPIED'?'有效记录':state==='DELETED'?'墓碑':'空槽'}</div></div></div>`;
+ }).join('');
+ const path=byId('path');path.innerHTML=s.path.length?s.path.map((i,j)=>`${j?'<span class="arrow" aria-hidden="true">→</span>':''}<span class="visit ${j===s.path.length-1?(s.resultType==='ok'?'final':'current'):''}">${i}</span>`).join(''):'<span class="empty-path">等待学生预测，尚未显示路径</span>';
+ byId('prev').disabled=step===0;byId('next').disabled=step===scenes.length-1;
+ byId('fraction').textContent=(step+1)+' / '+scenes.length;
+ document.body.dataset.mode=mode;document.body.dataset.step=String(step);document.body.dataset.scene=s.code;
+}
+function switchMode(m){if(modes[m]){mode=m;step=0;render();}}
+function next(){if(step<modes[mode].length-1){step++;render();}}
+function prev(){if(step>0){step--;render();}}
+for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchMode(b.dataset.mode));
+byId('next').addEventListener('click',next);byId('prev').addEventListener('click',prev);byId('reset').addEventListener('click',()=>{step=0;render();});
+document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,select,[contenteditable=true]'))return;if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+window.D018Prototype={switchMode,next,prev,getState:()=>({mode,step,scene:modes[mode][step]})};
+render();
+</script>
+</body>
+</html>
