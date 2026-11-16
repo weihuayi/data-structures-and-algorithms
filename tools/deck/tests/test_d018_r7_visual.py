@@ -109,5 +109,33 @@ class D018R7VisualStructureTests(unittest.TestCase):
         self.assertIn("hash-r7-chain-page", self.body["chain-lookup"])
 
 
+    @unittest.skipUnless(__import__("shutil").which("node"), "Node.js is unavailable")
+    def test_rendered_typography_in_browser_when_driver_available(self):
+        """A real Chromium calculation complements CSS source assertions."""
+        import os
+        import subprocess
+        import tempfile
+        import shutil
+        driver = TOOL / "node_modules" / "playwright"
+        if not driver.exists() and not os.environ.get("PLAYWRIGHT_MODULE") and not os.environ.get("DECK_PLAYWRIGHT_MODULE"):
+            self.skipTest("Playwright not installed; stand-alone audit remains available")
+        script = DECK / "prototypes" / "check_r7_visual.cjs"
+        self.assertTrue(script.is_file())
+        with tempfile.TemporaryDirectory(prefix="d018-r7-browser-audit-") as tmp:
+            run = subprocess.run(
+                ["node", str(script), tmp],
+                cwd=TOOL.parents[1],
+                capture_output=True,
+                text=True,
+                timeout=180,
+                check=False,
+            )
+            self.assertEqual(run.returncode, 0, run.stdout + "\n" + run.stderr)
+            self.assertIn("102 slide/viewport combinations", run.stdout)
+            report = __import__("json").loads((Path(tmp) / "visual-scale-audit.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(report["viewports"]), 3)
+            self.assertTrue(all(len(v["slides"]) == 34 for v in report["viewports"]))
+
+
 if __name__ == "__main__":
     unittest.main()
