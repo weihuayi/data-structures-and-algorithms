@@ -20,7 +20,7 @@ const views=[[1280,720],[1440,900],[2048,1107]];
 const minSizes={
  '.hash-r7-cover-lead':27,
  '.hash-r7-cover-sequence':21,
- '.hash-lead':24.5,
+ '.hash-lead':23.5,
  '.hash-note':16.5,
  '.hash-v2-intro':20.5,
  '.hash-v2-cell strong':27.5,
