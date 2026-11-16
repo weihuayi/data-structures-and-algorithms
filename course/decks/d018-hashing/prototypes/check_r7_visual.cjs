@@ -14,8 +14,8 @@ const html=path.join(root,'index.html');
 const output=path.resolve(process.argv[2]||path.join(os.tmpdir(),'d018-r7-visual'));
 const targets=[
   {id:'cover',n:1,required:{'.hash-r7-cover-lead':27,'.hash-r7-cover-sequence':21,'.hash-r7-cover-note':17}},
-  {id:'detect-collision',n:9,required:{'.hash-lead':23,'.course-prompt':23,'.hash-v2-cell strong':28,'.hash-v2-state':14.5,'.hash-v2-figure figcaption':17}},
-  {id:'chain-lookup',n:12,required:{'.hash-v2-intro':20,'.course-prompt':23},svg:{'.hash-r7-bucket-label':16,'.hash-r7-chain-key':20,'.hash-r7-chain-next':15,'.hash-r7-chain-null':17}}
+  {id:'detect-collision',n:9,required:{'.hash-lead':23,'.course-prompt':23,'.hash-v2-cell strong':28,'.hash-v2-state':16.5,'.hash-v2-figure figcaption':17}},
+  {id:'chain-lookup',n:12,required:{'.hash-v2-intro':20,'.course-prompt':23},svg:{'.hash-r7-bucket-label':16,'.hash-r7-chain-key':20,'.hash-r7-chain-next':17,'.hash-r7-chain-null':17}}
 ];
 async function check(){
   assert(fs.existsSync(html),'D018 index.html not found; run the repo builder first');
