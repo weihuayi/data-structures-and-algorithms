@@ -28,6 +28,12 @@ test('browser checker distinguishes good pages, failures and uncovered interacti
   try {
     const cases = [
       ['good', fixture(player + '<details><summary>Answer</summary><p>Result</p></details><details class="teacher-note"><summary>Note</summary><p>Explanation</p></details><code>\\(literal\\)</code>'), 'pass', null],
+      ['code-contrast-good', fixture('<pre style="background:#f0f6fb;color:#193f60"><code>typedef struct Node { int key; } Node;</code></pre>'), 'pass', null],
+      ['code-contrast-low', fixture('<pre style="background:#f0f6fb;color:#f0f6ff"><code>typedef struct Node { int key; } Node;</code></pre>'), 'fail', 'code-contrast'],
+      ['code-contrast-inherited', fixture('<div style="color:#f0f6ff"><pre style="background:#f0f6fb"><code>Node *left, *right;</code></pre></div>'), 'fail', 'code-contrast'],
+      ['code-contrast-unknown', fixture('<pre style="background:linear-gradient(white,gray);color:black">int key;</pre>'), 'incomplete', 'code-contrast-coverage'],
+      ['code-contrast-ancestor-opacity', fixture('<div style="opacity:.1"><pre style="background:white;color:black">int key;</pre></div>'), 'incomplete', 'code-contrast-coverage'],
+      ['code-contrast-highlight', fixture('<pre style="background:white;color:black"><code>int <span style="color:white">key;</span></code></pre>'), 'incomplete', 'code-contrast-coverage'],
       ['overflow', fixture('<div style="height:1500px">Tall</div>'), 'fail', 'projection-layout'],
       ['math', fixture('<p>\\(x+1\\)</p>'), 'fail', 'math-rendering'],
       ['button', fixture(player, `<script>document.querySelector('[data-step="next"]').onclick=e=>e.stopPropagation();</script>`), 'fail', 'step-state'],
