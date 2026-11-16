@@ -122,8 +122,13 @@ class D018R7VisualStructureTests(unittest.TestCase):
         script = DECK / "prototypes" / "check_r7_visual.cjs"
         self.assertTrue(script.is_file())
         with tempfile.TemporaryDirectory(prefix="d018-r7-browser-audit-") as tmp:
+            # When invoked by the standard CI verification, keep evidence
+            # under its report root so the upload includes 2048px screenshots.
+            ci_root = Path(tempfile.gettempdir()) / "course-verification"
+            evidence = ci_root / "r7-visual-audit" if (ci_root / "impact.json").is_file() else Path(tmp)
+            evidence.mkdir(parents=True, exist_ok=True)
             run = subprocess.run(
-                ["node", str(script), tmp],
+                ["node", str(script), str(evidence)],
                 cwd=TOOL.parents[1],
                 capture_output=True,
                 text=True,
@@ -132,7 +137,8 @@ class D018R7VisualStructureTests(unittest.TestCase):
             )
             self.assertEqual(run.returncode, 0, run.stdout + "\n" + run.stderr)
             self.assertIn("102 slide/viewport combinations", run.stdout)
-            report = __import__("json").loads((Path(tmp) / "visual-scale-audit.json").read_text(encoding="utf-8"))
+            report = __import__("json").loads((evidence / "visual-scale-audit.json").read_text(encoding="utf-8"))
+            print(run.stdout.strip())
             self.assertEqual(len(report["viewports"]), 3)
             self.assertTrue(all(len(v["slides"]) == 34 for v in report["viewports"]))
 
