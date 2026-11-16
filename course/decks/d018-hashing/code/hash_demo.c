@@ -87,7 +87,14 @@ typedef struct {
     ChainNode *head[CAP];
     ChainNode node[4];
 } ChainTable;
-static void chain_reset(ChainTable *ct) { memset(ct, 0, sizeof(*ct)); }
+static void chain_reset(ChainTable *ct) {
+    /* ISO C does not require an all-bits-zero pointer to equal NULL. */
+    for (unsigned i = 0; i < CAP; ++i) ct->head[i] = NULL;
+    for (unsigned i = 0; i < 4; ++i) {
+        ct->node[i].key = 0;
+        ct->node[i].next = NULL;
+    }
+}
 static void chain_append(ChainTable *ct, unsigned slot, int key) {
     require(slot < 4);
     ChainNode *n = &ct->node[slot];
