@@ -100,6 +100,26 @@ async function run(config) {
               if (rgba[3] !== 0) { unsupported = true; break; }
             }
             if (!background && !unsupported) background = [255, 255, 255, 1];
+            // An opaque local background can still be composited with its
+            // surroundings when an ancestor has opacity or a CSS filter.
+            for (let n = pre.parentElement; n; n = n.parentElement) {
+              const css = getComputedStyle(n);
+              if (+css.opacity < 1 || css.filter !== 'none' || css.mixBlendMode !== 'normal') {
+                unsupported = true; break;
+              }
+            }
+            // Uniform text color is assumed only when visible text-bearing
+            // descendants do not override color or background independently.
+            const baseline = getComputedStyle(text);
+            for (const n of text.querySelectorAll('*')) {
+              const directText = [...n.childNodes].some(child => child.nodeType === Node.TEXT_NODE && child.textContent.trim());
+              if (!directText) continue;
+              const css = getComputedStyle(n);
+              if (css.color !== baseline.color || css.backgroundColor !== 'rgba(0, 0, 0, 0)' ||
+                  css.backgroundImage !== 'none' || +css.opacity < 1) {
+                unsupported = true; break;
+              }
+            }
             const name = pre.className || 'pre';
             if (!color || color[3] !== 1 || unsupported || !background) {
               uncovered.push({name, reason:'Non-opaque color, opacity, image or blended background'});
