@@ -73,7 +73,7 @@ async function run(config) {
         // This does not prove projected readability or detect complex compositing.
         const result = await slide.evaluate(root => {
           const parse = value => {
-            const m = value.match(/^rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)(?:\\s*,\\s*([\\d.]+))?\\s*\\)$/);
+            const m = value.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/);
             return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null;
           };
           const luminance = rgb => {
