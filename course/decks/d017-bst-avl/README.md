@@ -103,7 +103,7 @@ T0/T1/T2是为设计和跨页一致性设定的状态标识，学生侧应以“
 
 ## 八、依据、限制与未决
 
-依据包括教师对旧第1、4、5、8、10、11、12、14页的具体评审、已确认的R1–R3和R4-C1–C5、现行37页`slides.py`及C11、[课程共性契约](../../../docs/design/deck-contract.md)、[课件协作约定](../AGENTS.md)、[修订方法](../../../docs/design/deck-revision-guide.md)以及D008、D009、D016的已记录设计结论。讨论线程准确URL尚待补录，不虚构出处。
+依据包括教师对旧第1、4、5、8、10、11、12、14页的具体评审、已确认的R1–R3和R4-C1–C5、现行37页`slides.py`及C11、[课程共性契约](../../../docs/design/deck-contract.md)、[课件协作约定](../AGENTS.md)、[修订方法](../../../docs/design/deck-revision-guide.md)以及D008、D009、D016的已记录设计结论。D017 备课讨论的[对话来源](https://chatgpt.com/g/g-p-6ade72518d288191be859cfb3e71db1b-shu-ju-jie-gou-yu-suan-fa-ke-cheng-jian-she/c/6aefe6e2-0cc0-83ea-9fde-8c5c97b8105e)已由教师明确提供；PR #30、#38—#40 的课程检查与证据边界见[R5 交付审计](../../../docs/design/d017-r5-delivery-evidence-audit.md)。
 
 **尚未取得的证据**：37页90分钟真实教学节奏、全部页面的教师后排可读性评审、前驱含左孩子的理解负担、插入27任务的学生表现和实际迁移能力。工程检查通过不等于教学目标已实现。
 
