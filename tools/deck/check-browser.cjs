@@ -68,6 +68,54 @@ async function run(config) {
           await page.locator('main').evaluate(el => el.scrollTo({top:0,behavior:'instant'}));
         }
       }
+      async function codeContrast(slide) {
+        // Narrow visual check: visible code blocks with uniform opaque CSS backgrounds.
+        // This does not prove projected readability or detect complex compositing.
+        const result = await slide.evaluate(root => {
+          const parse = value => {
+            const m = value.match(/^rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)(?:\\s*,\\s*([\\d.]+))?\\s*\\)$/);
+            return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null;
+          };
+          const luminance = rgb => {
+            const c = rgb.slice(0, 3).map(x => {
+              x /= 255; return x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4;
+            });
+            return .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+          };
+          const failures = [], uncovered = [];
+          let checked = 0;
+          for (const pre of root.querySelectorAll('pre')) {
+            const box = pre.getBoundingClientRect();
+            if (!box.width || !box.height || getComputedStyle(pre).visibility !== 'visible') continue;
+            const text = pre.querySelector('code') || pre;
+            if (!text.textContent.trim()) continue;
+            const color = parse(getComputedStyle(text).color);
+            let background = null, unsupported = false;
+            for (let n = text; n; n = n.parentElement) {
+              const css = getComputedStyle(n);
+              if (css.backgroundImage !== 'none' || +css.opacity < 1) { unsupported = true; break; }
+              const rgba = parse(css.backgroundColor);
+              if (!rgba) { unsupported = true; break; }
+              if (rgba[3] === 1) { background = rgba; break; }
+              if (rgba[3] !== 0) { unsupported = true; break; }
+            }
+            if (!background && !unsupported) background = [255, 255, 255, 1];
+            const name = pre.className || 'pre';
+            if (!color || color[3] !== 1 || unsupported || !background) {
+              uncovered.push({name, reason:'Non-opaque color, opacity, image or blended background'});
+              continue;
+            }
+            const a = luminance(color), b = luminance(background);
+            const ratio = (Math.max(a,b) + .05) / (Math.min(a,b) + .05);
+            checked++;
+            if (ratio < 4.5) failures.push({name, ratio:+ratio.toFixed(2), text:text.textContent.trim().slice(0,60)});
+          }
+          return {checked, failures, uncovered};
+        });
+        add('code-contrast', !result.failures.length, JSON.stringify({checked:result.checked, failures:result.failures}));
+        if (result.uncovered.length) report.checks.push({...location, check:'code-contrast-coverage',
+          status:'uncovered', detail:JSON.stringify(result.uncovered)});
+      }
       async function taskInputs(slide, print = false) {
         const replacements = await slide.locator('[data-review-replaceable]').evaluateAll(ns => ns.map(n => ({
           reason:n.getAttribute('data-review-replaceable').trim(),preview:n.classList.contains('tree-preview'),
@@ -165,6 +213,7 @@ async function run(config) {
           await layout(false, true);
           }
           await taskInputs(slide);
+          await codeContrast(slide);
           if (reviewOnly) await capture(false,true);
           if (config.scope === 'default-pages') continue;
           if (!reviewOnly) {
@@ -215,6 +264,7 @@ async function run(config) {
             if (reviewOnly) reviewDisclosures++;
             add('disclosure-open', await detail.getAttribute('open') !== null, await summary.innerText());
             await taskInputs(slide);
+            await codeContrast(slide);
             const teacher = await detail.evaluate(el => el.classList.contains('teacher-note'));
             const taskAnswer = await detail.getAttribute('data-task-answer') !== null;
             const reviewDetail = await detail.evaluate((el,selector) => Boolean(el.closest(selector)), AREAS);
