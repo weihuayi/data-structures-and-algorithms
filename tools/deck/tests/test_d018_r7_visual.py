@@ -57,7 +57,7 @@ class D018R7VisualStructureTests(unittest.TestCase):
                          ".hash-r7-chain-next"):
             self.assertIn(required, css)
         self.assertIn("font-size:clamp(24px,1.85vw,29px)", css)
-        self.assertIn("font-size:clamp(15px,1.12vw,18px)", css)
+        self.assertIn("font-size:clamp(17px,1.18vw,20px)", css)
         # Fail rather than silently replacing the old program or homework content.
         self.assertIn("code/hash_demo.c", self.body["homework"])
         self.assertIn("DELETED", self.body["probe-delete-tombstone"])
