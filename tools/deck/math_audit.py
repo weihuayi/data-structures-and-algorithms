@@ -25,13 +25,13 @@ IGNORE_TAGS = frozenset(
 )
 MATH_DELIMITERS = ((r"\(", r"\)"), (r"\[", r"\]"))
 PATTERNS = (
-    ("hash-function", re.compile(r"(?<![\w])(?:h|H)\s*\(\s*(?:k|key|\d+)\s*\)")),
-    ("probe-function", re.compile(r"(?<![\w])p\s*\(\s*(?:k|\d+)\s*,\s*(?:i|\d+)\s*\)")),
+    ("hash-function", re.compile(r"(?<![A-Za-z0-9_])(?:h|H)\s*\(\s*(?:k|key|\d+)\s*\)")),
+    ("probe-function", re.compile(r"(?<![A-Za-z0-9_])p\s*\(\s*(?:k|\d+)\s*,\s*(?:i|\d+)\s*\)")),
     ("asymptotic-bound", re.compile(
-        r"(?<![\w])(?:O|Ω|Θ)\s*\(\s*(?:1|m|n|log\s*n|n\s*\^\s*\d+|g\(n\))\s*\)"
+        r"(?<![A-Za-z0-9_])(?:O|Ω|Θ)\s*\(\s*(?:1|m|n|log\s*n|n\s*\^\s*\d+|g\(n\))\s*\)"
     )),
     ("numeric-assignment", re.compile(
-        r"(?<![\w])(?:ASL|m|n|r|α)\s*=\s*(?:\d+(?:\.\d+)?|[0-9]\/[0-9])"
+        r"(?<![A-Za-z0-9_])(?:ASL|m|n|r|α)\s*=\s*(?:\d+(?:\.\d+)?|[0-9]\/[0-9])"
     )),
 )
 
