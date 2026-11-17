@@ -121,6 +121,33 @@ class D018R8Tests(unittest.TestCase):
         self.assertIn("R8: Same actual outline fonts", self.html)
         self.assertIn("hash-r8-homework-code", self.html)
 
+    def test_actual_browser_fonts_and_three_viewport_layout(self):
+        """Verify the real computed fonts, not just source CSS declarations."""
+        import json
+        import os
+        import shutil
+        import subprocess
+        import tempfile
+
+        if not shutil.which("node"):
+            self.skipTest("Node unavailable")
+        driver = TOOL / "node_modules" / "playwright"
+        if not driver.exists() and not os.environ.get("PLAYWRIGHT_MODULE") and not os.environ.get("DECK_PLAYWRIGHT_MODULE"):
+            self.skipTest("Playwright unavailable in this environment")
+        script = D018 / "prototypes" / "check_r8_visual.cjs"
+        self.assertTrue(script.is_file())
+        with tempfile.TemporaryDirectory(prefix="d018-r8-browser-") as tmp:
+            ci_root = Path(tempfile.gettempdir()) / "course-verification"
+            evidence = ci_root / "r8-visual-audit" if (ci_root / "impact.json").exists() else Path(tmp)
+            evidence.mkdir(parents=True, exist_ok=True)
+            args = ["node", str(script), str(evidence)]
+            run = subprocess.run(args, cwd=TOOL.parents[1], capture_output=True, text=True, timeout=180)
+            self.assertEqual(run.returncode, 0, run.stdout + "\n" + run.stderr)
+            self.assertIn("R8 visual PASS", run.stdout)
+            report = json.loads((evidence / "r8-visual-report.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(report["viewports"]), 3)
+            self.assertEqual(len(report["screenshots"]), 12)
+
     @staticmethod
     def _slide(html,id_):
         # Page-scoped CSS is physically embedded in cover's <style> within <main>.
