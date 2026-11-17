@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 DECK_TOOL = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DECK_TOOL))
@@ -59,6 +60,49 @@ class D017R4Tests(unittest.TestCase):
         self.assertIn("Balance Factor", self.by_id["bf-calculate"][1])
         self.assertIn("left, *right", self.by_id["bst-node-links"][1])
         self.assertIn("Node *middle", self.by_id["rotation-order"][1])
+
+    def test_r6_bf_question_uses_one_emphasis_border(self):
+        body = self.by_id["bf-every-node"][1]
+        question = "只检查根30就够了吗？还应检查哪些内部结点？"
+        self.assertIn(
+            '<div class="course-prompt" data-task-prompt>' + question + '</div>',
+            body)
+        self.assertNotIn('<div class="d17-question">' + question + '</div>', body)
+        self.assertIn('data-task-answer', body)
+
+    def test_r6_general_right_rotation_preserves_subtree_structure(self):
+        body = self.by_id["rotation-order"][1]
+        match = re.search(r'<svg class="d17-tree"[^>]*>.*?</svg>', body, re.S)
+        self.assertIsNotNone(match, "The general rotation must include both trees")
+        svg = ET.fromstring(match.group())
+        states = {g.attrib["data-rotation-state"]: g for g in svg.iter()
+                  if "data-rotation-state" in g.attrib}
+        self.assertEqual(set(states), {"before", "after"})
+        expected = {
+            "before": {"z-y", "z-C", "y-A", "y-B"},
+            "after": {"y-A", "y-z", "z-B", "z-C"},
+        }
+        for state, edges in expected.items():
+            with self.subTest(state=state):
+                tree = states[state]
+                self.assertEqual(
+                    {e.attrib["data-edge"] for e in tree.iter()
+                     if "data-edge" in e.attrib}, edges)
+                self.assertEqual(
+                    {n.attrib["data-node"] for n in tree.iter()
+                     if "data-node" in n.attrib}, {"y", "z"})
+                self.assertEqual(
+                    {n.attrib["data-subtree"] for n in tree.iter()
+                     if "data-subtree" in n.attrib}, {"A", "B", "C"})
+                # Nodes are circles; entire subtrees are triangular shapes.
+                for n in tree.iter():
+                    if "data-node" in n.attrib:
+                        self.assertTrue(any(c.tag.endswith("circle") for c in n))
+                    if "data-subtree" in n.attrib:
+                        self.assertTrue(any(c.tag.endswith("path") for c in n))
+        for phrase in ("不是单个结点", "中序关键字序列", "Node *middle",
+                       "z-&gt;left = middle", r"\\(\\operatorname{inorder}"):
+            self.assertIn(phrase, body)
 
     def test_c11_code_previews_have_readable_contrast(self):
         """A present DOM/code string is not sufficient if CSS makes it invisible."""
