@@ -78,6 +78,9 @@ class D018R9Tests(unittest.TestCase):
             ("probe-function", "<p>p(17,1)=4；访问下一个槽。</p>"),
             ("asymptotic-bound", "<p>最坏 O(n)；期望 O(1)。</p>"),
             ("numeric-assignment", "<p>令 m=7、r=3。</p>"),
+            ("hash-function", "<p>计算h(17)而不是直接读出位置。</p>"),
+            ("asymptotic-bound", "<p>最坏O(n)，并非无条件O(1)。</p>"),
+            ("numeric-assignment", "<p>令m=7作为容量。</p>"),
             ("unclosed-math", r"<p>计算 \(h(17)=3。</p>")
         ]
         for expected, markup in cases:
