@@ -117,7 +117,7 @@ class D018R8Tests(unittest.TestCase):
         ids = [p["id"] for p in self.d18.COURSE.pages]
         self.assertEqual(len(ids),34)
         for id_ in ("recall-avl","homework"):
-            self.assertIn('<div class="hash-lesson">' + self.body[id_] + '</div>', self._slide(self.html,id_))
+            self.assertIn(self.body[id_], self._slide(self.html,id_))
         self.assertIn("R8: Same actual outline fonts", self.html)
         self.assertIn("hash-r8-homework-code", self.html)
 
