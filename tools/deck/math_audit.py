@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Opt-in audit of unmarked mathematical notation in Deck prose.
+r"""Opt-in audit of unmarked mathematical notation in Deck prose.
 
 This diagnoses only high-confidence candidates. It does not mutate slides or
 infer mathematical correctness. LaTeX already delimited with \(..\) or \[..],
