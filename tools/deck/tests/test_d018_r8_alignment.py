@@ -123,9 +123,12 @@ class D018R8Tests(unittest.TestCase):
 
     @staticmethod
     def _slide(html,id_):
-        start = html.index('data-page-id="' + id_ + '"')
-        end = html.index("</section>",start)
-        return html[start:end]
+        # CSS selectors in the cover can contain data-page-id references.
+        main_start = html.index("<main>")
+        main = html[main_start:html.index("</main>",main_start)]
+        start = main.index('data-page-id="' + id_ + '"')
+        end = main.index("</section>",start)
+        return main[start:end]
 
 
 if __name__ == "__main__":
