@@ -75,7 +75,7 @@ class D017R4Tests(unittest.TestCase):
             with self.subTest(page=page_id):
                 self.assertNotRegex(
                     body,
-                    r'<div class="course-prompt"[^>]*>\\s*<div class="d17-question">',
+                    r'<div class="course-prompt"[^>]*>\s*<div class="d17-question">',
                     "A nested question frame produces two emphasis borders")
                 if '<div class="course-prompt"' in body:
                     actual.add(page_id)
