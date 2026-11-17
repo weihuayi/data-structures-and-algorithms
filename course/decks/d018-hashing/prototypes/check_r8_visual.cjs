@@ -11,7 +11,8 @@ const {pathToFileURL}=require('node:url');
 const d018=path.resolve(__dirname,'..');
 const d017=path.resolve(__dirname,'../../d017-bst-avl');
 const output=path.resolve(process.argv[2]||path.join(os.tmpdir(),'d018-r8-visual'));
-const {chromium}=require(process.env.PLAYWRIGHT_MODULE||process.env.DECK_PLAYWRIGHT_MODULE||'playwright');
+const localDriver=path.resolve(__dirname,'../../../../tools/deck/node_modules/playwright');
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||process.env.DECK_PLAYWRIGHT_MODULE||(fs.existsSync(localDriver)?localDriver:'playwright'));
 const selectors={
  number:'.course-outline-number',
  title:'.course-outline-topic strong',
