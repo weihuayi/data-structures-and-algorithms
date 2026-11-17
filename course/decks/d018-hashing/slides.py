@@ -320,7 +320,7 @@ PAGES = json.loads(r'''[
   {
     "id": "homework",
     "title": "课后怎样预测、运行和核对？",
-    "body": "<div class=\"hash-r8-homework\"><p><strong>A · 教材作业（必做）</strong>：第 7 章选择题 (12)(13)(14)、应用题 (5)。写明选项依据，保留必要构表及探查过程；注意题设的取模常数可能不同于表容量。</p><p><strong>B · C11 程序实践（必做）</strong>：先预测状态 A、错误 W、合法 B、查找与插入 24/31；再编译运行 <code>code/hash_demo.c</code> 中的相关示例核对，解释 DEL 继续、EMPTY 终止及墓碑复用前查重的原因。</p><pre class=\"hash-r8-homework-code\"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/hash_demo.c -o d018_demo\n./d018_demo chain\n./d018_demo build\n./d018_demo scenarios\n./d018_demo demo\n./d018_demo --self-test</code></pre><p class=\"hash-r8-homework-note\">A/B 均为正式必做；B 保留预测、运行核对与解释，并记录 3–5 行过程。按<a href=\"../../assignments/homework-guide.md\">作业规范</a>提交飞书文档链接；可以在个人电脑运行，不要求在 Git 仓库中执行。</p><p class=\"hash-r8-homework-note\">选做不提交：应用题 (6)(7)、算法设计题 (6)；二次探查增量以各题约定为准。请结合本周作业总量控制负担。</p></div>",
+    "body": "<div class=\"hash-r8-homework\"><p><strong>A · 教材作业（必做）</strong>：第 7 章选择题 (12)(13)(14)、应用题 (5)。写明选项依据，保留必要构表及探查过程；注意题设的取模常数可能不同于表容量。</p><p><strong>B · C11 程序实践（必做）</strong>：先预测状态 A、错误 W、合法 B、查找与插入 24/31；再编译运行 <code>code/hash_demo.c</code> 中的相关示例核对，解释 DEL 继续、EMPTY 终止及墓碑复用前查重的原因。</p><pre class=\"hash-r8-homework-code\"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/hash_demo.c -o d018_demo\n./d018_demo chain\n./d018_demo build\n./d018_demo scenarios\n./d018_demo demo\n./d018_demo --self-test</code></pre><p class=\"hash-r8-homework-note\">A/B 均为正式必做；B 保留预测、运行核对与解释，并附 3–5 行过程记录。按<a href=\"../../assignments/homework-guide.md\">作业规范</a>提交飞书文档链接；可以在个人电脑运行，不要求在 Git 仓库中执行。</p><p class=\"hash-r8-homework-note\">选做不提交：应用题 (6)(7)、算法设计题 (6)；二次探查增量以各题约定为准。请结合本周作业总量控制负担。</p></div>",
     "section": null,
     "role": "closing",
     "goal": "明确 A/B 正式作业和提交、核对与代码使用边界",
