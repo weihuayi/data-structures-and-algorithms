@@ -101,7 +101,7 @@ class D017R4Tests(unittest.TestCase):
                     if "data-subtree" in n.attrib:
                         self.assertTrue(any(c.tag.endswith("path") for c in n))
         for phrase in ("不是单个结点", "中序关键字序列", "Node *middle",
-                       "z-&gt;left = middle", r"\\(\\operatorname{inorder}"):
+                       "z-&gt;left = middle", r"\(\operatorname{inorder}"):
             self.assertIn(phrase, body)
 
     def test_c11_code_previews_have_readable_contrast(self):
