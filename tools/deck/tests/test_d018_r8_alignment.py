@@ -123,10 +123,15 @@ class D018R8Tests(unittest.TestCase):
 
     @staticmethod
     def _slide(html,id_):
-        # CSS selectors in the cover can contain data-page-id references.
+        # Page-scoped CSS is physically embedded in cover's <style> within <main>.
+        # Match actual <section> tags, never bare data-page-id text in CSS.
         main_start = html.index("<main>")
         main = html[main_start:html.index("</main>",main_start)]
-        start = main.index('data-page-id="' + id_ + '"')
+        pattern = r'<section class="slide"[^>]*data-page-id="' + re.escape(id_) + r'"'
+        hit = re.search(pattern,main)
+        if hit is None:
+            raise AssertionError("Missing generated slide section: " + id_)
+        start = hit.start()
         end = main.index("</section>",start)
         return main[start:end]
 
