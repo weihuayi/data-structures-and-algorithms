@@ -61,14 +61,33 @@ class D017R4Tests(unittest.TestCase):
         self.assertIn("left, *right", self.by_id["bst-node-links"][1])
         self.assertIn("Node *middle", self.by_id["rotation-order"][1])
 
-    def test_r6_bf_question_uses_one_emphasis_border(self):
-        body = self.by_id["bf-every-node"][1]
-        question = "只检查根30就够了吗？还应检查哪些内部结点？"
+    def test_r6_all_task_questions_use_one_emphasis_border(self):
+        """Avoid stacking the outer course-prompt border and inner d17-question border."""
+        task_pages = {
+            "recall-sorted", "update-array", "bst-check", "bst-transfer",
+            "bst-delete-two", "compare-path", "bf-every-node",
+            "lr-single-fails", "independent-avl",
+        }
+        actual = set()
+        for page in self.pages:
+            page_id = page["id"]
+            body = self.by_id[page_id][1]
+            with self.subTest(page=page_id):
+                self.assertNotRegex(
+                    body,
+                    r'<div class="course-prompt"[^>]*>\s*<div class="d17-question">',
+                    "A nested question frame produces two emphasis borders")
+                if '<div class="course-prompt"' in body:
+                    actual.add(page_id)
+                    self.assertIn('data-task-prompt', body)
+                    self.assertIn('data-task-answer', body)
+        self.assertEqual(actual, task_pages)
         self.assertIn(
-            '<div class="course-prompt" data-task-prompt>' + question + '</div>',
-            body)
-        self.assertNotIn('<div class="d17-question">' + question + '</div>', body)
-        self.assertIn('data-task-answer', body)
+            '<div class="course-prompt" data-task-prompt>只检查根30就够了吗？还应检查哪些内部结点？</div>',
+            self.by_id["bf-every-node"][1])
+        # Independent explanatory emphasis is intentional; do not remove it.
+        for page_id in ("bst-order", "need-balance", "synthesis"):
+            self.assertIn('class="d17-question"', self.by_id[page_id][1])
 
     def test_r6_general_right_rotation_preserves_subtree_structure(self):
         body = self.by_id["rotation-order"][1]
