@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D019</title><link rel="stylesheet" href="../../../../tools/deck/deck.css"><link rel="stylesheet" href="../../../../tools/deck/components.css"><link rel="stylesheet" href="preview.css"></head><body class="deck"><header><span class="brand">数据结构与算法 · D019-PROTO</span><nav><select id="slide-select"></select><button id="read">连续阅读</button></nav></header><main><section class="slide" id="slide-1" data-page-id="insertion-trace" data-role="content"><div class="slide-inner"><p class="kicker">候选第08页 · 第二阶段：插入排序</p><h2>保存待插入记录后，原来的记录怎样右移？</h2>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D019-PROTO｜D019｜插入、划分与排序机制 · 三页隔离原型</title><link rel="stylesheet" href="../../../../tools/deck/deck.css"><link rel="stylesheet" href="../../../../tools/deck/components.css"><link rel="stylesheet" href="preview.css"></head><body class="deck"><header><span class="brand">数据结构与算法 · D019-PROTO</span><nav aria-label="课件工具"><select id="slide-select" aria-label="跳转页面"></select><button id="read">连续阅读</button></nav></header><noscript>请启用浏览器 JavaScript 以使用翻页与演示功能。</noscript><main><section class="slide" id="slide-1" data-title="保存待插入记录后，原来的记录怎样右移？" data-page-id="insertion-trace" data-role="content"><div class="slide-inner"><p class="kicker">候选第08页 · 第二阶段：插入排序</p><h2>保存待插入记录后，原来的记录怎样右移？</h2>
 <div class="d019-preview">
   <p class="lead">已知前三条记录 <strong>2、4、7</strong> 有序。将下一条记录 <strong>3</strong> 插入适当位置。</p>
   <div class="d019-panel">
@@ -9,7 +9,7 @@
   </div>
   <p class="d019-note">□ 表示逻辑空位；当前数组与暂存记录共同保持记录身份。只有完成一轮插入后，才声明新的有序前缀。</p>
 </div>
-</div></section><section class="slide" id="slide-2" data-page-id="partition-independent" data-role="exercise"><div class="slide-inner"><p class="kicker">候选第23页 · 第四阶段：快速排序</p><h2>换一个输入，你能独立完成第一次划分吗？</h2><div class="d019-preview"><div class="course-workspace course-workspace-stacked" data-course-component="task-workspace"><div class="course-input" data-task-input>
+</div></section><section class="slide" id="slide-2" data-title="换一个输入，你能独立完成第一次划分吗？" data-page-id="partition-independent" data-role="exercise"><div class="slide-inner"><p class="kicker">候选第23页 · 第四阶段：快速排序</p><h2>换一个输入，你能独立完成第一次划分吗？</h2><div class="d019-preview"><div class="course-workspace course-workspace-stacked" data-course-component="task-workspace"><div class="course-input" data-task-input>
 <div class="d019-panel">
   <div class="d019-row"><strong>初始输入（核对时持续可见）</strong><span>枢轴关键字：<strong>5</strong></span></div>
   <div class="d019-array d019-small-array" style="--count:9" id="partition-input" data-required-context="独立题初始数组"></div>
@@ -20,7 +20,7 @@
 <textarea id="d019-student-input" class="d019-student" placeholder="我的预测、枢轴位置与推理依据……"></textarea></div><details class="course-answer" data-task-answer><summary>核对答案与理由</summary><div class="course-solution">
 <p><strong>枢轴最终下标：<span id="partition-index">—</span></strong></p>
 <div id="partition-output" class="d019-array d019-small-array" style="--count:9" aria-label="完整划分结果"></div>
-<p>枢轴左侧关键字均不大于 5，右侧均不小于 5，所以枢轴已处于合法的最终位置。左右内部仍未排序，但跨区域的大小关系已经成立。</p></div></details></div></div></div></div></section><section class="slide" id="slide-3" data-page-id="mechanism-map" data-role="content"><div class="slide-inner"><p class="kicker">候选第29页 · 第五阶段：机制综合</p><h2>它们都在排序，但各自已经保证了什么？</h2>
+<p>枢轴左侧关键字均不大于 5，右侧均不小于 5，所以枢轴已处于合法的最终位置。左右内部仍未排序，但跨区域的大小关系已经成立。</p></div></details></div></div></div></div></section><section class="slide" id="slide-3" data-title="它们都在排序，但各自已经保证了什么？" data-page-id="mechanism-map" data-role="content"><div class="slide-inner"><p class="kicker">候选第29页 · 第五阶段：机制综合</p><h2>它们都在排序，但各自已经保证了什么？</h2>
 <div class="d019-preview">
   <p class="lead">不要只记操作步骤。先问：<strong>每一轮之后，究竟已经建立了什么性质？</strong></p>
   <div class="d019-compare">
@@ -31,4 +31,4 @@
   <div class="d019-chain"><span>执行操作</span> → <span>建立性质</span> → <span>说明为什么最终正确</span></div>
   <p class="d019-narrative">课堂追问：前缀已经有序的记录，与已经位于最终位置的记录，是同一回事吗？</p>
 </div>
-</div></section></main><footer><span>← → 翻页</span><div><button id="prev">上一页</button> <span id="page"></span> <button id="next">下一页</button></div></footer><script src="../../../../tools/deck/deck.js"></script><script src="trace.js"></script><script src="preview.js"></script></body></html>
+</div></section></main><footer><span>← → 翻页 · 菜单跳页 · F11 可全屏</span><div><button id="prev">上一页</button> <span id="page" aria-live="polite"></span> <button id="next">下一页</button></div><div id="progress" class="progress"></div></footer><script src="../../../../tools/deck/deck.js"></script><script src="trace.js"></script><script src="preview.js"></script></body></html>
