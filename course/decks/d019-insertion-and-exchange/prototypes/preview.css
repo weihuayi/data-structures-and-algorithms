@@ -1,0 +1,38 @@
+/* Scoped teaching presentation over shared tools/deck/deck.css & components.css. */
+.deck .d019-preview{--d019-bluewash:#eaf3fb;--d019-line:#abc6dc;--d019-amber:#fff0de;--d019-green:#e6f3ed;max-width:1350px;margin:auto}
+.deck .slide[data-page-id="insertion-trace"],.deck .slide[data-page-id="partition-independent"],.deck .slide[data-page-id="mechanism-map"]{padding-top:clamp(12px,2.2vh,25px);padding-bottom:12px}
+.deck .slide[data-page-id="insertion-trace"] h2,.deck .slide[data-page-id="partition-independent"] h2,.deck .slide[data-page-id="mechanism-map"] h2{font-size:clamp(32px,2.9vw,49px);margin-bottom:clamp(9px,1.4vh,18px)}
+.deck .d019-preview p{font-size:clamp(20px,1.6vw,26px);line-height:1.43;margin:8px 0}
+.deck .d019-preview .lead{font-size:clamp(21px,1.65vw,27px);line-height:1.38;border-left:5px solid var(--blue);background:var(--d019-bluewash);padding:10px 15px;margin:0 0 14px;max-width:none}
+.deck .d019-panel{background:#f8fbfe;border:1.5px solid var(--d019-line);border-radius:12px;padding:clamp(12px,1.4vw,20px);margin:10px 0}
+.deck .d019-array{display:grid;grid-template-columns:repeat(var(--count),minmax(0,1fr));gap:8px;margin:13px 0}
+.deck .d019-slot{min-width:0;min-height:clamp(69px,8.5vh,108px);border:2px solid var(--d019-line);background:#eaf3fb;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.deck .d019-slot .index{font-size:clamp(14px,1.05vw,18px);line-height:1.1;color:var(--muted)}
+.deck .d019-slot strong{font-size:clamp(26px,2.25vw,40px);line-height:1.12;tabular-nums:true}
+.deck .d019-slot.hole,.deck .d019-slot.pivot{background:var(--d019-amber);border-color:#bb812a}
+.deck .d019-slot.left{background:var(--d019-green);border-color:#92bea7}
+.deck .d019-slot.right{background:#e5f0fb;border-color:#8ebbdc}
+.deck .d019-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.deck .d019-row strong,.deck .d019-row span{font-size:clamp(18px,1.45vw,24px)}
+.deck .d019-narrative{font-size:clamp(21px,1.65vw,27px);line-height:1.42;border-left:5px solid var(--blue);background:var(--d019-bluewash);padding:10px 16px;margin:10px 0}
+.deck .d019-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.deck .d019-controls button{font-size:clamp(17px,1.2vw,23px);min-height:39px}
+.deck .d019-note{font-size:clamp(16px,1.2vw,20px)!important;color:var(--muted);line-height:1.35!important}
+.deck .d019-preview .course-workspace-stacked{grid-template-columns:minmax(0,1fr);gap:5px}
+.deck .d019-preview .course-task{min-width:0}
+.deck .d019-preview .course-prompt{font-size:clamp(20px,1.55vw,26px);line-height:1.4;background:var(--d019-bluewash);border-left:5px solid var(--blue);padding:10px 15px;margin-top:7px}
+.deck .d019-preview .course-answer{margin:6px 0 0}
+.deck .d019-preview .course-solution p{font-size:clamp(18px,1.42vw,23px)}
+.deck .d019-preview .d019-student{width:100%;font-size:18px;min-height:58px;max-height:115px;resize:vertical;border:1.5px solid #9bb6ca;border-radius:8px;padding:8px 12px;margin-top:3px;background:white}
+.deck .d019-preview .d019-small-array .d019-slot{min-height:clamp(54px,6.7vh,78px)}
+.deck .d019-preview .d019-small-array .d019-slot strong{font-size:clamp(24px,1.9vw,34px)}
+.deck .d019-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1.3vw,19px);margin:13px 0}
+.deck .d019-card{min-width:0;background:#f8fbfe;border:1.5px solid var(--d019-line);border-radius:11px;padding:15px}
+.deck .d019-card h3{font-size:clamp(22px,1.85vw,29px);margin:0 0 12px;color:#225b84}
+.deck .d019-card .sequence{font-size:clamp(22px,1.75vw,29px);font-weight:700;border-radius:8px;padding:12px 8px;background:#eaf3fb;text-align:center;margin:8px 0 15px;white-space:nowrap}
+.deck .d019-card .sequence i{font-style:normal;color:#a2530f;background:#fff0de;padding:5px 8px;border-radius:5px}
+.deck .d019-card strong{font-size:clamp(20px,1.65vw,26px)}
+.deck .d019-card p{font-size:clamp(18px,1.32vw,22px);line-height:1.4}
+.deck .d019-chain{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:15px;font-size:clamp(20px,1.55vw,25px);margin:16px 0}
+.deck .d019-chain span{background:var(--d019-bluewash);border:1px solid var(--d019-line);border-radius:8px;padding:8px 13px}
+@media(max-height:760px) and (min-width:901px){.deck .d019-panel{padding:10px 14px;margin:6px 0}.deck .d019-array{margin:8px 0}.deck .d019-slot{min-height:72px}.deck .d019-narrative{margin:6px 0}.deck .d019-card{padding:11px}.deck .d019-card .sequence{margin:6px 0 10px}}
