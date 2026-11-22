@@ -22,7 +22,7 @@ def main():
     if not other and exit_code==0 and b.get('status')=='pass':
         print('PASS: standard D019 browser checks fully supported')
         return
-    allowed={(8,'1280x720'),(21,'1280x720'),(8,'1440x900'),(21,'1440x900')}
+    allowed={(8,'1280x720'),(22,'1280x720'),(8,'1440x900'),(22,'1440x900')}
     actual={(x.get('page'),x.get('viewport')) for x in other}
     if exit_code!=2 or r.get('status')!='incomplete' or b.get('status')!='incomplete':
         raise SystemExit('Unexpected standard checker failure / incomplete result')

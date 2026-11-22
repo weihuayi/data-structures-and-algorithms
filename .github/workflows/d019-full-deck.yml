@@ -32,7 +32,7 @@ jobs:
           cd tools/deck
           npx playwright install --with-deps chromium
           sudo apt-get install -y fonts-noto-cjk
-      - name: Generate 33-page formal D019 using shared CourseDeck renderer
+      - name: Generate 34-page formal D019 using shared CourseDeck renderer
         run: python3 tools/deck/build.py D019
       - name: Check independent C11 examples and storyboard
         run: python3 -m unittest discover -s tools/deck/tests -p 'test_d019_deck.py' -v
