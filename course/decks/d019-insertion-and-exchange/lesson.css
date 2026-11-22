@@ -64,3 +64,19 @@
  .deck .d19-lesson .course-answer .course-solution{display:none}
  .deck .d19-lesson .d19-demo{break-inside:avoid}
 }
+
+/* R1: complexity notation is a small, persistent semantic reminder, not a fourth main panel. */
+.deck .d19-lesson .d19-complexity-legend{display:flex;flex-wrap:wrap;justify-content:space-between;gap:7px 16px;margin:6px 0 1px;padding:8px 12px;border:1px solid #b4cee0;background:#f4f9fd;border-radius:7px;font-size:clamp(16px,1.13vw,20px);line-height:1.35}
+.deck .d19-lesson .d19-complexity-legend span{white-space:nowrap}
+/* Homework follows the D017/D018 reading order: A, B, commands, submission, optional. */
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework{max-width:1330px;margin:0 auto}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p{font-size:clamp(20px,1.49vw,26px);line-height:1.43;margin:8px 0}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p.d19-homework-note{font-size:clamp(17px,1.23vw,22px);line-height:1.4;color:var(--muted);margin:8px 0}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework pre{font-size:clamp(17px,1.23vw,23px);line-height:1.35;margin:8px 0;padding:12px 18px}
+.deck .slide[data-page-id="shell-gaps"] .d19-lesson .d19-box p{font-size:clamp(19px,1.44vw,24px)}
+@media(max-height:760px) and (min-width:901px){
+ .deck .slide[data-page-id="insertion-cost"] .d19-lesson .d19-complexity-legend{padding:5px 10px;margin-top:3px}
+ .deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p{font-size:clamp(18px,1.38vw,23px);margin:5px 0}
+ .deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p.d19-homework-note{font-size:clamp(16px,1.15vw,20px);margin:4px 0}
+ .deck .slide[data-page-id="homework"] .d19-lesson .d19-homework pre{padding:8px 14px;margin:5px 0;font-size:clamp(16px,1.1vw,21px)}
+}
