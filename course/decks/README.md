@@ -22,5 +22,6 @@ Deck 是为真实课堂组织的一条相对完整的教学叙事。Deck ID 表�
 | D016 | 查找：有序信息怎样减少比较？ | [d016-search-order-and-asl/](d016-search-order-and-asl/) |
 | D017 | 树表查找：BST 与 AVL（T2 待审阅初稿） | [d017-bst-avl/](d017-bst-avl/) |
 | D018 | 散列：映射与工程权衡（T2 待审阅初稿） | [d018-hashing/](d018-hashing/) |
+| D019 | 排序：插入、交换与划分分治（T1 待教师审阅） | [d019-insertion-and-exchange/](d019-insertion-and-exchange/) |
 
-当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007 → D008 → D009 → D010 → D011 → D012 → D013 → D014 → D015 → D016 → D017 → D018。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。
+当前建议顺序为 D001 → D002 → D003 → D004 → D005 → D006 → D007 → D008 → D009 → D010 → D011 → D012 → D013 → D014 → D015 → D016 → D017 → D018 → D019。实际某学期的推进位置记录在 `course/offerings/<offering>/`，不通过移动或重命名 Deck 表达。
