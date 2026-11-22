@@ -40,8 +40,13 @@ jobs:
         run: node course/decks/d019-insertion-and-exchange/prototypes/test_trace.cjs
       - name: Verify single official A/B homework entry
         run: python3 tools/deck/check_homework.py
-      - name: Run standard all-page D019 browser validation
-        run: python3 tools/deck/check.py D019 --screenshots all --output /tmp/d019-course-check
+      - name: Run and audit standard all-page D019 browser validation
+        run: |
+          set +e
+          python3 tools/deck/check.py D019 --screenshots all --output /tmp/d019-course-check
+          status=$?
+          set -e
+          python3 course/decks/d019-insertion-and-exchange/tests/check_shared_scope.py /tmp/d019-course-check/report.json "$status"
       - name: Run additional full-storyboard and custom-player browser validation
         run: node course/decks/d019-insertion-and-exchange/tests/check_browser.cjs
       - name: Verify generated HTML and README page registry are synchronized
