@@ -1,0 +1,66 @@
+/* D019-specific expression layer; course typography, navigation and task-workspace remain shared. */
+.deck .slide[data-section-id] .d19-lesson,.deck .d19-lesson{max-width:1440px;margin-inline:auto;--d19-blue:#175f96;--d19-edge:#b8cee0;--d19-pale:#edf5fc;--d19-green:#e6f3ed;--d19-orange:#fff1df}
+.deck .d19-lesson p{font-size:clamp(20px,1.53vw,26px);line-height:1.47;margin:7px 0}
+.deck .d19-lesson .d19-lead{font-size:clamp(24px,1.9vw,33px);line-height:1.44;border-left:6px solid var(--blue);background:var(--wash);padding:12px 17px;margin:4px 0 14px}
+.deck .d19-lesson .d19-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch;margin:12px 0}
+.deck .d19-lesson .d19-columns>*{min-width:0}
+.deck .d19-lesson .d19-box{background:#f7fafd;border:1.5px solid var(--d19-edge);border-radius:10px;padding:13px 17px;min-width:0;margin:9px 0}
+.deck .d19-lesson .d19-box h3{color:#225b84;font-size:clamp(23px,1.75vw,31px);line-height:1.35;margin:0 0 9px}
+.deck .d19-lesson .d19-box p{font-size:clamp(20px,1.5vw,26px);line-height:1.46}
+.deck .d19-lesson .d19-highlight{background:#eaf3fb;border-left:5px solid var(--blue);padding:13px 17px;margin:12px 0;font-size:clamp(21px,1.58vw,27px);line-height:1.47}
+.deck .d19-lesson .d19-footnote{font-size:clamp(17px,1.22vw,22px)!important;color:var(--muted);line-height:1.48!important;margin-top:10px!important}
+.deck .d19-lesson .d19-cells{display:grid;grid-template-columns:repeat(var(--n,7),minmax(0,1fr));gap:8px;margin:10px 0;align-items:stretch}
+.deck .d19-lesson .d19-cell{background:#ecf5fc;border:2px solid #b4cadd;border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:0;min-height:79px;padding:6px 2px;gap:2px}
+.deck .d19-lesson .d19-index{font-size:clamp(16px,1.15vw,21px);line-height:1.15;color:#526c7e;font-variant-numeric:tabular-nums}
+.deck .d19-lesson .d19-cell strong{font-size:clamp(30px,2.55vw,46px);line-height:1.1;font-weight:760;font-variant-numeric:tabular-nums}
+.deck .d19-lesson .d19-cell small{font-size:clamp(14px,1.2vw,20px);line-height:1.2;color:#225b84}
+.deck .d19-lesson .d19-cell.d19-marked,.deck .d19-lesson .d19-cell.d19-hole{background:var(--d19-orange);border-color:#cc8c48}
+.deck .d19-lesson .d19-cell.d19-local{background:#dcebf8;border-color:#6fa5ce}
+.deck .d19-lesson .d19-cell.d19-fixed{background:var(--d19-green);border-color:#75a891}
+.deck .d19-lesson .d19-chain{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0}
+.deck .d19-lesson .d19-chain span{background:var(--d19-pale);padding:10px 14px;border:1px solid var(--d19-edge);border-radius:9px;font-size:clamp(19px,1.48vw,25px);font-weight:650}
+.deck .d19-lesson .d19-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:7px 0}
+.deck .d19-lesson .d19-compare .d19-box{margin:0;padding:12px}
+.deck .d19-lesson .d19-compare .d19-box p{font-size:clamp(18px,1.38vw,24px);line-height:1.44}
+.deck .d19-lesson pre.d19-code{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:clamp(17px,1.2vw,23px);line-height:1.42;white-space:pre-wrap;overflow-wrap:anywhere;color:#f2f7ff;background:#18354e;border:0;padding:15px 20px;border-radius:9px;margin:9px 0}
+.deck .d19-lesson code:not(pre code){background:#e9eff6;padding:.06em .22em;border-radius:5px;font-size:.92em;overflow-wrap:anywhere}
+.deck .d19-lesson .d19-task .course-workspace,.deck .d19-lesson.d19-task .course-workspace{display:grid;grid-template-columns:1fr;gap:8px;align-items:start}
+.deck .d19-lesson .course-input,.deck .d19-lesson .course-task{min-width:0}
+.deck .d19-lesson .course-prompt{background:#edf5fc;border-left:5px solid var(--blue);font-size:clamp(22px,1.65vw,28px);line-height:1.42;padding:12px 18px}
+.deck .d19-lesson .course-answer{margin:7px 0 0;padding:7px 12px}
+.deck .d19-lesson .course-answer summary{font-size:clamp(19px,1.38vw,24px);cursor:pointer}
+.deck .d19-lesson .course-answer .course-solution{padding:6px 10px}
+.deck .d19-lesson .course-answer p{font-size:clamp(19px,1.4vw,24px)}
+.deck .d19-lesson textarea.d19-answer-input{display:block;width:100%;min-height:66px;max-height:125px;margin-top:9px;font-size:clamp(16px,1.15vw,20px);padding:10px 13px;resize:vertical;border:1.5px solid #a6bdce;border-radius:7px;background:white;color:var(--ink)}
+.deck .d19-lesson .d19-demo{background:#f8fbfd;border:1.5px solid var(--d19-edge);border-radius:10px;padding:13px 18px;margin:10px 0}
+.deck .d19-lesson .d19-demo-top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;font-size:clamp(19px,1.45vw,24px)}
+.deck .d19-lesson .d19-demo .d19-cells{margin:13px 0}
+.deck .d19-lesson .d19-buttons{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}
+.deck .d19-lesson .d19-buttons button{font-size:clamp(18px,1.22vw,23px);padding:8px 15px;min-height:40px}
+.deck .d19-lesson .d19-demo .d19-highlight{margin:7px 0;min-height:65px}
+.deck .slide[data-page-id="cover"]{padding-top:clamp(20px,5vh,70px)}
+.deck .slide[data-page-id="mechanism-map"] .d19-lesson .d19-box h3{font-size:clamp(22px,1.7vw,28px)}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-box{margin:7px 0;padding:10px 16px}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-box p{font-size:clamp(19px,1.38vw,23px);line-height:1.4}
+@media(max-height:760px) and (min-width:901px){
+ .deck .slide:has(.d19-lesson){padding-top:2vh;padding-bottom:1vh}
+ .deck .slide:has(.d19-lesson) h2{font-size:clamp(33px,2.8vw,51px);margin-bottom:11px}
+ .deck .slide:has(.d19-lesson) .kicker{margin-bottom:7px}
+ .deck .d19-lesson .d19-box{padding:10px 14px;margin:6px 0}
+ .deck .d19-lesson .d19-box h3{margin-bottom:5px}
+ .deck .d19-lesson .d19-highlight{padding:9px 13px;margin:7px 0}
+ .deck .d19-lesson .d19-cell{min-height:65px}
+ .deck .d19-lesson .d19-cells{margin:6px 0}
+ .deck .d19-lesson .d19-columns{gap:14px;margin:7px 0}
+ .deck .d19-lesson .d19-compare .d19-box{padding:9px}
+ .deck .d19-lesson .d19-demo{padding:9px 13px;margin:7px 0}
+}
+@media(max-width:900px){
+ .deck .d19-lesson .d19-columns,.deck .d19-lesson .d19-compare{grid-template-columns:1fr}
+ .deck .d19-lesson .d19-cell{min-height:56px}
+ .deck .d19-lesson .d19-cells{gap:4px}
+}
+@media print{
+ .deck .d19-lesson .course-answer .course-solution{display:none}
+ .deck .d19-lesson .d19-demo{break-inside:avoid}
+}
