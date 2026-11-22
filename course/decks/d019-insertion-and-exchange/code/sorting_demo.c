@@ -58,8 +58,8 @@ static void binary_insertion(Record *a,size_t n,Counters *c,bool verbose) {
     }
 }
 static void shell(Record *a,size_t n,Counters *c,bool verbose) {
-    /* This is an explicit classroom gap sequence, not a universal claim. */
-    const size_t gaps[]={5,3,1};
+    /* Teaching gap sequence 2,1 for both slide examples; no universal time bound. */
+    const size_t gaps[]={2,1};
     for(size_t g=0;g<sizeof gaps/sizeof gaps[0];g++) {
         const size_t gap=gaps[g];
         if(gap>=n)continue;
