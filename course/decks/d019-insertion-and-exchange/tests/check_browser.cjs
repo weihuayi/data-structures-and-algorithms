@@ -21,8 +21,8 @@ const viewportSet=[[1280,720],[1440,900],[2048,1107]];
    const page=await browser.newPage({viewport:{width,height}});
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.setContent(html,{waitUntil:'load'});
-   assert.equal(await page.locator('.slide').count(),33);
-   for(let i=0;i<33;i++){
+   const total=34; assert.equal(await page.locator('.slide').count(),total);
+   for(let i=0;i<total;i++){
     await page.selectOption('#slide-select',String(i));
     const o=await page.evaluate(()=>{let m=document.querySelector('main'),s=document.querySelector('.slide.active');return{id:s.dataset.pageId,w:m.scrollWidth,cw:m.clientWidth,h:m.scrollHeight,ch:m.clientHeight}});
     assert(o.w<=o.cw+2,`horizontal overflow ${o.id} ${width}x${height}`);
@@ -30,7 +30,7 @@ const viewportSet=[[1280,720],[1440,900],[2048,1107]];
     assert.equal(await page.locator('.slide.active').count(),1);
    }
    for(const pid of ['stability-task','insertion-independent','bubble-stop-task','partition-independent','cost-diagnosis']){
-    await page.selectOption('#slide-select',String(['stability-task','insertion-independent','bubble-stop-task','partition-independent','cost-diagnosis'].indexOf(pid)===0?4:pid==='insertion-independent'?9:pid==='bubble-stop-task'?16:pid==='partition-independent'?22:29));
+    await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll((nodes,target)=>nodes.findIndex(n=>n.dataset.pageId===target),pid)));
     const card=page.locator(`[data-page-id="${pid}"]`);
     const a=card.locator('details.course-answer');
     assert.equal(await a.getAttribute('open'),null,`answer prematurely open ${pid}`);
@@ -46,19 +46,19 @@ const viewportSet=[[1280,720],[1440,900],[2048,1107]];
     assert(dims[0]<=dims[1]+2,`expanded horizontal overflow ${pid}`);
     await a.locator('summary').click();
    }
-   await page.selectOption('#slide-select','7');
+   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='insertion-trace')));
    for(let i=0;i<4;i++)await page.click('#ins-next');
    assert.match(await page.locator('#ins-stage').innerText(),/5\/5/);
-   assert.equal((await page.locator('#ins-array strong').allInnerTexts()).join(','),'2,3,4,7,6');
+   assert.equal((await page.locator('#ins-array strong').allInnerTexts()).join(','),'2,5,6,7,8');
    await page.click('#ins-reset');assert.match(await page.locator('#ins-stage').innerText(),/1\/5/);
-   await page.selectOption('#slide-select','20');
+   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='partition-trace')));
    for(let i=0;i<5;i++)await page.click('#quick-next');
    assert.equal((await page.locator('#quick-array strong').allInnerTexts()).join(','),'1,3,2,4,8,6,7');
    await page.click('#quick-reset');
    assert.equal(await page.locator('#quick-array strong').first().innerText(),'□');
    assert.deepEqual(errors,[]);
    await page.close();
-   console.log(`PASS D019 browser: ${width}x${height}; 33 default pages, 5 tasks, both custom players`);
+   console.log(`PASS D019 browser: ${width}x${height}; 34 default pages, 5 tasks, both custom players`);
   }
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});
