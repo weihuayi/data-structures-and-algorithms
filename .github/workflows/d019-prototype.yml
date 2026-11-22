@@ -1,0 +1,38 @@
+name: D019 isolated prototype checks
+
+on:
+  pull_request:
+    paths:
+      - 'course/decks/d019-insertion-and-exchange/prototypes/**'
+      - 'tools/deck/**'
+      - '.github/workflows/d019-prototype.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install pinned browser and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Generate preview through shared course components
+        run: python3 course/decks/d019-insertion-and-exchange/prototypes/build_preview.py
+      - name: Verify deterministic sorting traces
+        run: node course/decks/d019-insertion-and-exchange/prototypes/test_trace.cjs
+      - name: Verify all three preview pages in Chromium
+        run: node course/decks/d019-insertion-and-exchange/prototypes/check_preview.cjs
+      - name: Check generated preview is up to date
+        run: git diff --exit-code -- course/decks/d019-insertion-and-exchange/prototypes/index.html

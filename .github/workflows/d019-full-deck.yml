@@ -1,0 +1,62 @@
+name: D019 complete deck checks
+
+on:
+  pull_request:
+    paths:
+      - 'course/decks/d019-insertion-and-exchange/**'
+      - 'course/decks/README.md'
+      - 'tools/deck/tests/test_d019_deck.py'
+      - 'tools/deck/**'
+      - '.github/workflows/d019-full-deck.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  d019-complete:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install pinned Chromium and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Generate 33-page formal D019 using shared CourseDeck renderer
+        run: python3 tools/deck/build.py D019
+      - name: Check independent C11 examples and storyboard
+        run: python3 -m unittest discover -s tools/deck/tests -p 'test_d019_deck.py' -v
+      - name: Check pure algorithm JS state and identities
+        run: node course/decks/d019-insertion-and-exchange/prototypes/test_trace.cjs
+      - name: Verify single official A/B homework entry
+        run: python3 tools/deck/check_homework.py
+      - name: Run and audit standard all-page D019 browser validation
+        run: |
+          set +e
+          python3 tools/deck/check.py D019 --screenshots all --output /tmp/d019-course-check
+          status=$?
+          set -e
+          python3 course/decks/d019-insertion-and-exchange/tests/check_shared_scope.py /tmp/d019-course-check/report.json "$status"
+      - name: Run additional full-storyboard and custom-player browser validation
+        run: node course/decks/d019-insertion-and-exchange/tests/check_browser.cjs
+      - name: Verify generated HTML and README page registry are synchronized
+        run: |
+          git diff --exit-code -- course/decks/d019-insertion-and-exchange/index.html
+          git diff --exit-code -- course/decks/d019-insertion-and-exchange/README.md
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d019-complete-review
+          path: /tmp/d019-course-check
+          retention-days: 14
