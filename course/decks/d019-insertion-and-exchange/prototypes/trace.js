@@ -36,9 +36,9 @@
     a[0]=null;frame('暂存枢轴');
     while(low<high){
       while(low<high&&a[high].key>=pivot.key)high--;
-      if(low<high){a[low]=a[high];a[high]=null;frame('从右向左填补空位');}
+      if(low<high){a[low]=a[high];a[high]=null;low++;frame('从右向左搬移并推进左指针');}
       while(low<high&&a[low].key<=pivot.key)low++;
-      if(low<high){a[high]=a[low];a[low]=null;frame('从左向右填补空位');}
+      if(low<high){a[high]=a[low];a[low]=null;high--;frame('从左向右搬移并退回右指针');}
     }
     a[low]=pivot;frame('枢轴归位');
     if(!a.slice(0,low).every(x=>x.key<=pivot.key)||!a.slice(low+1).every(x=>x.key>=pivot.key)||!sameIds(a,orig))throw Error('Partition postcondition failed');

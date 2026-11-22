@@ -30,16 +30,21 @@ def L(expr):
 
 def columns(*items):return '<div class="d19-columns">'+''.join(items)+'</div>'
 
-def arrays(values, *, names=None, labels=None, marked=(), settled=(), locally_sorted=(), id_=None):
+def arrays(values, *, names=None, labels=None, marked=(), settled=(), locally_sorted=(), groups=None, id_=None):
     """Static sequence: label/index are separate from value, classes carry semantic meaning."""
     label=labels or list(range(len(values)))
+    if groups is not None and len(groups)!=len(values):
+        raise ValueError('Each array entry needs its own gap group')
     cls='d19-cells'
     cells=[]
     for i,x in enumerate(values):
         state=(' d19-fixed' if i in settled else ' d19-local' if i in locally_sorted else ' d19-marked' if i in marked else '')
+        if groups is not None:
+            state += ' d19-gap-'+escape(str(groups[i]).lower())
         value=str(x) if x is not None else '□'
         tag=escape(str(names[i])) if names is not None else ''
-        cells.append(f'<div class="d19-cell{state}"><span class="d19-index">{escape(str(label[i]))}</span><strong>{escape(value)}</strong>{f"<small>{tag}</small>" if tag else ""}</div>')
+        group_tag=(f'<span class="d19-group-tag">{escape(str(groups[i]))}组</span>' if groups is not None else '')
+        cells.append(f'<div class="d19-cell{state}"><span class="d19-index">{escape(str(label[i]))}</span><strong>{escape(value)}</strong>{f"<small>{tag}</small>" if tag else ""}{group_tag}</div>')
     attrs=f' id="{id_}"' if id_ else ''
     return f'<div class="{cls}" style="--n:{len(values)}"{attrs}>'+''.join(cells)+'</div>'
 
@@ -83,7 +88,7 @@ add('stability-task','两个结果都排好了：哪一个稳定？',task(
 ),'contract',goal='在新输入上区分正确性与稳定性',activity='先独立判断，再核对',role='exercise',withheld=['甲稳定；乙不稳定'])
 COURSE.start_section('insertion')
 add('sorted-prefix','插入一条新记录，怎样复用已有顺序？',content(
-    box('直接插入排序（Insertion Sort）的一轮',arrays([2,6,7,5,8],marked=[3])
+    box('直接插入排序（Insertion Sort）的一轮',arrays([2,6,7,5,1],marked=[3])
         +P('前 '+L('i=3')+' 条记录 '+L(r'[2,6,7]')+' 已按关键字有序；下一条记录的关键字为 '+L('x=5')+'，其下标为 '+L('3')+'。'))
     +'<div class="d19-highlight"><strong>基本操作：</strong>暂存待插入记录；把有序前缀中大于它的记录依次右移，再填入空出的位置。</div>'
     +P('问题：把 '+L('5')+' 插入后，前 '+L('4')+' 条记录应是什么？此时旧前缀中的记录是否都已最终就位？')
@@ -91,17 +96,17 @@ add('sorted-prefix','插入一条新记录，怎样复用已有顺序？',conten
 add('insertion-trace','暂存记录之后，怎样把更大的记录右移？',content(
     '<p class="d19-lead">已排序前缀 '+L(r'[2,6,7]')+'；下一条记录为 '+L('5')+'。逐步预测需要移动哪些记录。</p>'
     +'<div class="d19-demo"><div class="d19-demo-top"><strong id="ins-stage">状态 1/5</strong><span id="ins-held">暂存：无</span></div>'
-    +'<div id="ins-array" class="d19-cells" style="--n:5" aria-live="polite">'+arrays([2,6,7,5,8])+'</div>'
+    +'<div id="ins-array" class="d19-cells" style="--n:5" aria-live="polite">'+arrays([2,6,7,5,1])+'</div>'
     +'<div id="ins-note" class="d19-highlight" aria-live="polite">下一步暂存待插入记录。</div>'
     +'<div class="d19-buttons"><button type="button" id="ins-prev">上一步</button><button type="button" id="ins-next">下一步</button><button type="button" id="ins-reset">重置</button></div></div>'
     +'<p class="d19-footnote">□ 是逻辑空位，不是数组中的特殊关键字；暂存与数组合起来仍保留全部记录。完成本轮插入后，才形成新的有序前缀。</p>'
 ),'insertion',goal='准确推演暂存、后移、填入的动态执行状态',activity='分步预测、演示、核对')
 add('insertion-invariant','为什么插入后，有序前缀能扩大一条？',content(
-    box('本轮开始：前 '+L('i')+' 条记录有序',arrays([2,6,7,5,8],marked=[3])
-        +P('这里 '+L('i=3')+'；暂存 '+L('x=5')+'。只把前缀中关键字<strong>严格大于</strong> '+L('x')+' 的记录右移。'))
-    +box('本轮完成：前 '+L('i+1')+' 条记录有序',arrays([2,5,6,7,8],locally_sorted=[0,1,2,3])
-        +P('记录 '+L('7')+'、'+L('6')+' 依次右移；将 '+L('x')+' 写回后，已处理前缀扩大为 '+L('[2,5,6,7]')+'。'))
-    +'<div class="d19-highlight"><strong>循环不变量：</strong>每轮开始时，已处理前缀内部有序，记录未丢失或复制。单元素前缀成立；插入保持该性质；所有记录处理完后得到全局有序序列。</div>'
+    columns(box('本轮开始：前 '+L('i')+' 条记录有序',arrays([2,6,7,5,1],marked=[3])
+        +P('这里 '+L('i=3')+'；暂存 '+L('x=5')+'。只把前缀中关键字<strong>严格大于</strong> '+L('x')+' 的记录右移。')),
+            box('本轮完成：前 '+L('i+1')+' 条记录有序',arrays([2,5,6,7,1],locally_sorted=[0,1,2,3])
+        +P('记录 '+L('7')+'、'+L('6')+' 依次右移；写回 '+L('x')+' 后，前缀为 '+L('[2,5,6,7]')+'。末尾的 '+L('1')+' 未处理，整体仍无序。')))
+    +'<div class="d19-highlight"><strong>循环不变量：</strong>每轮开始时，已处理前缀有序且记录保持。单元素前缀成立；每轮插入保持性质；处理完所有记录后，全序列有序。</div>'
 ),'insertion',goal='用初始化、保持与终止解释直接插入排序正确性')
 add('insertion-independent','换一个输入，你能独立完成直接插入吗？',task(
     box('输入：下标从 0 开始，相同关键字有不同身份',arrays([5,2,4,2,3],names=['a','b','c','d','e'])
@@ -132,8 +137,8 @@ add('binary-insertion','能否用折半查找减少插入前的比较？',conten
 ),'insertion',goal='建立折半插入动机，并辨明比较与移动两类成本')
 add('shell-gaps','为什么希尔排序先按较大增量分组？',content(
     P('<strong>希尔排序（Shellsort）：</strong>选择逐渐减小、最后为 '+L('1')+' 的增量 '+L('g')+'，对下标相差 '+L('g')+' 的各组分别做插入排序。最终 '+L('g=1')+' 时，对全序列直接插入排序。')
-    +box('示例输入：先让远距离记录调整',arrays([7,4,6,3,5])
-        +P('采用增量序列 '+L(r'2\rightarrow1')+'；当 '+L('g=2')+'，分成下标 '+L(r'\{0,2,4\}')+' 与 '+L(r'\{1,3\}')+' 两组。'))
+    +box('示例输入：先让远距离记录调整',arrays([7,4,6,3,5],groups=['A','B','A','B','A'])
+        +P('采用增量序列 '+L(r'2\rightarrow1')+'。当 '+L('g=2')+'，数组格子中的 A 组是下标 '+L(r'\{0,2,4\}')+'，B 组是 '+L(r'\{1,3\}')+'；分组后仍写回各自的原下标。'))
     +columns(box('先按 '+L('g=2')+' 调整',P(L('[7,6,5]')+' → '+L('[5,6,7]')+'；'+L('[4,3]')+' → '+L('[3,4]')+'。')
                 +P('交错放回原下标：'+L('[5,3,6,4,7]')+'。')),
              box('再按 '+L('g=1')+' 调整',P('此时对整个序列执行直接插入排序。')
@@ -159,7 +164,7 @@ add('bubble-trace','为什么相邻交换一趟能让最大记录就位？',cont
     +P('观察：左侧 '+L('[2,4,1]')+' 还有什么问题？下一趟能继续确定什么？')
 ),'exchange',goal='用相邻交换机制与一趟结果建立冒泡排序认识')
 add('bubble-boundary','冒泡排序的已确定后缀和插入排序一样吗？',content(
-    columns(box('直接插入：局部有序前缀',arrays([2,6,7,5,8],locally_sorted=[0,1,2])
+    columns(box('直接插入：局部有序前缀',arrays([2,6,7,5,1],locally_sorted=[0,1,2])
                 +P('前缀内部有序，但以后插入新记录仍可能使其成员移动。')),
             box('冒泡：最终就位后缀',arrays([2,4,1,5],settled=[3])
                 +P('一趟结束后，末端的 '+L('5')+' 已不小于此前记录，处于全局最终位置。')))
@@ -205,7 +210,7 @@ add('partition-result','一次划分完成后，什么结论已经成立？',con
 add('partition-independent','换一个输入，你能独立完成一次划分吗？',task(
     box('独立输入与方法约定',arrays([5,9,3,8,2,7,4,6,1],id_='partition-input')
         +P('首元素 '+L('5')+' 作枢轴，先从右向左、再从左向右扫描；移动填补逻辑空位；下标从 0 开始。')),
-    '<strong>先独立作答：</strong>写出一次划分后的数组、枢轴下标，并说明两边为什么能够独立递归。<textarea class="d19-answer-input" id="d19-student-answer" placeholder="我的预测、最终下标和依据……"></textarea>',
+    '<strong>先独立作答：</strong>写出一次划分后的数组、枢轴下标，并说明两边为什么能够独立递归。<label for="d19-student-answer" class="d19-answer-label">记录我的划分结果、枢轴位置与判断依据</label><textarea class="d19-answer-input" id="d19-student-answer" placeholder="我的预测、最终下标和依据……"></textarea>',
     arrays([1,4,3,2,5,7,8,6,9],marked=[4])
     +P('枢轴最终下标 '+L('4')+'。左区各关键字 '+L(r'\le5')+'，右区各关键字 '+L(r'\ge5')+'；两侧内部尚未必有序，可以分别递归处理。')
 ),'quick',goal='独立完成第一次划分并解释跨区域性质',role='exercise',activity='先预测、再揭示',withheld=['枢轴下标 4'])
@@ -242,7 +247,7 @@ add('quicksort-edge','重复关键字会给快速排序带来什么问题？',co
 COURSE.start_section('synthesis')
 add('mechanism-map','三类中间性质，究竟有什么区别？',content(
     '<div class="d19-compare">'
-    +box('直接插入',P('<strong>2 6 7 │ 5</strong>')
+    +box('直接插入',P('<strong>2 6 7 │ 5 1</strong>')
         +P('<strong>已处理前缀内部有序</strong>，但成员可能继续移动。'))
     +box('冒泡排序',P('<strong>2 4 1 │ 5</strong>')
         +P('<strong>已确定后缀最终就位</strong>，不再参与比较。'))
@@ -260,7 +265,9 @@ add('cost-diagnosis','这两项排序时间复杂度判断错在哪里？',task(
     +P('判断时间复杂度时，应同时说明实现、计数口径、输入条件，以及最好、最坏或期望情形。')
 ),'synthesis',goal='独立发现比较成本和划分假设的推导漏洞',role='exercise',activity='先诊断，再核对')
 add('code-bridge','怎样让 C11 程序核对我们的预测？',content(
-    box('先预测，再运行，再检查',P('程序以 <code>Record{key,id}</code> 记录关键字和身份，采用 0 基下标。')
+    box('先预测，再运行，再检查',P('程序使用 C11 结构体 <code>Record</code> 保存关键字和身份，采用从 0 开始的下标。')
+        +'<pre class="d19-code d19-record-struct"><code>typedef struct { int key; int id; } Record;</code></pre>'
+        +P('<code>key</code> 用于比较；<code>id</code> 用于核对记录身份和稳定性。')
         +'<pre class="d19-code">gcc -std=c11 -Wall -Wextra -Werror -pedantic \\\n    code/sorting_demo.c -o sorting_demo\n./sorting_demo insert 5 2 4 2 3\n./sorting_demo partition 5 9 3 8 2 7 4 6 1\n./sorting_demo --self-test</pre>')
     +'<p class="d19-footnote">命令示例的当前目录为本讲课件文件夹；学生可将源码复制到自己的本地目录后使用等效编译方式，无需在 Git 仓库中运行。</p>'
     +'<div class="d19-highlight">程序输出只是核对执行轨迹的证据。仍需自行解释有序性、排列保持、稳定性和划分后置条件。</div>'

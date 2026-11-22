@@ -3,6 +3,12 @@ const assert=require('node:assert/strict');
 const {insertionTrace,partitionTrace}=require('./trace.js');
 assert.deepEqual(insertionTrace([2,4,7,3,6],3).map(x=>x.values),[
  [2,4,7,3,6],[2,4,7,null,6],[2,4,null,7,6],[2,null,4,7,6],[2,3,4,7,6]]);
+const revised=insertionTrace([2,6,7,5,1],3);
+assert.deepEqual(revised.map(x=>x.values),[
+ [2,6,7,5,1],[2,6,7,null,1],[2,6,null,7,1],
+ [2,null,6,7,1],[2,5,6,7,1]]);
+assert.deepEqual(revised.at(-1).values.slice(0,4),[2,5,6,7]);
+assert.notDeepEqual(revised.at(-1).values,[...revised.at(-1).values].sort((a,b)=>a-b));
 const given=partitionTrace([5,9,3,8,2,7,4,6,1]);
 assert.deepEqual(given.values,[1,4,3,2,5,7,8,6,9]);assert.equal(given.pivotIndex,4);
 let seed=270019,checks=0;
