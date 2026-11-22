@@ -46,12 +46,12 @@ const viewportSet=[[1280,720],[1440,900],[2048,1107]];
     assert(dims[0]<=dims[1]+2,`expanded horizontal overflow ${pid}`);
     await a.locator('summary').click();
    }
-   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='insertion-trace')));
+   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='insertion-trace'))));
    for(let i=0;i<4;i++)await page.click('#ins-next');
    assert.match(await page.locator('#ins-stage').innerText(),/5\/5/);
    assert.equal((await page.locator('#ins-array strong').allInnerTexts()).join(','),'2,5,6,7,8');
    await page.click('#ins-reset');assert.match(await page.locator('#ins-stage').innerText(),/1\/5/);
-   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='partition-trace')));
+   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='partition-trace'))));
    for(let i=0;i<5;i++)await page.click('#quick-next');
    assert.equal((await page.locator('#quick-array strong').allInnerTexts()).join(','),'1,3,2,4,8,6,7');
    await page.click('#quick-reset');
