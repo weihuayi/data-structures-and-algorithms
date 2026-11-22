@@ -47,9 +47,42 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   };
   let heapButtons;
+  const drawHeapTree=(state)=>{
+    const root=$("heap-tree");root.replaceChildren();
+    const NS="http://www.w3.org/2000/svg";
+    const node=(tag,attrs,txt)=>{
+      const e=document.createElementNS(NS,tag);
+      for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));
+      if(txt!==undefined)e.textContent=String(txt);
+      return e;
+    };
+    const svg=node("svg",{viewBox:"0 0 600 190",role:"img","aria-label":"有效堆前缀的父子关系，末尾已排序元素不属于此树"});
+    const pos=i=>{
+      const d=Math.floor(Math.log2(i+1)),levelStart=Math.pow(2,d)-1;
+      const ordinal=i-levelStart;
+      return {x:(ordinal+.5)*600/Math.pow(2,d),y:24+64*d};
+    };
+    const n=state.active;
+    for(let i=1;i<n;i++){
+      const p=pos(Math.floor((i-1)/2)),c=pos(i);
+      svg.append(node("line",{x1:p.x,y1:p.y,x2:c.x,y2:c.y,
+        stroke:"#90a8b7","stroke-width":2}));
+    }
+    for(let i=0;i<n;i++){
+      const p=pos(i),focused=(state.focus||[]).includes(i);
+      svg.append(node("circle",{cx:p.x,cy:p.y,r:20,fill:focused?"#ffebbd":"#dceafa",
+        stroke:focused?"#c99c37":"#568ebd","stroke-width":2}));
+      svg.append(node("text",{x:p.x,y:p.y+6,"text-anchor":"middle",
+        "font-size":18,"font-weight":650,fill:"#234763"},state.values[i]));
+      svg.append(node("text",{x:p.x,y:p.y+31,"text-anchor":"middle",
+        "font-size":11,fill:"#657b89"},"i="+i));
+    }
+    root.append(svg);
+  };
   const drawHeap=()=>{
     const s=heap.states[pointers.heap];
     drawCells("heap-array",s.values,{active:s.active,focus:s.focus||[]});
+    drawHeapTree(s);
     const titles={input:"输入",swap:"单路径修复",subheap:"当前子树已修复",
       built:"建堆完成",extract:"提取最大值",repaired:"剩余堆恢复"};
     $("heap-state-title").textContent=titles[s.kind]||s.kind;
