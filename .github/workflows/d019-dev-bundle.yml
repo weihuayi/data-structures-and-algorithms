@@ -1,0 +1,24 @@
+name: D019 temporary local workbench bundle
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/d019-dev-bundle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bundle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Package course engineering sources for deterministic local verification
+        run: |
+          tar -czf /tmp/d019-workbench.tar.gz \
+            --exclude='node_modules' --exclude='.git' --exclude='__pycache__' \
+            tools/deck course/decks docs/design course/assignments course/AGENTS.md AGENTS.md
+          ls -lh /tmp/d019-workbench.tar.gz
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d019-workbench
+          path: /tmp/d019-workbench.tar.gz
+          retention-days: 1
