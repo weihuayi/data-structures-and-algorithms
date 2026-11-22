@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D020｜三页隔离教学原型</title>
+<link rel="stylesheet" href="preview.css">
+<script src="trace.js" defer></script>
+<script src="preview.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div>
+      <div class="brand">《数据结构与算法》 · D020 · 教师审阅候选</div>
+      <h1>从有效信息到排序机制</h1>
+      <p>仅三页隔离原型 · 不等于正式课程课件或全讲教学效果</p>
+    </div>
+    <nav aria-label="三类页面原型">
+      <button class="tab is-active" type="button" data-target="heap-panel" aria-pressed="true">01 堆与局部修复</button>
+      <button class="tab" type="button" data-target="merge-panel" aria-pressed="false">02 稳定归并</button>
+      <button class="tab" type="button" data-target="radix-panel" aria-pressed="false">03 链式基数</button>
+    </nav>
+  </header>
+  <main>
+    <section class="lesson" id="heap-panel" aria-labelledby="heap-title">
+      <div class="slide-top">
+        <div><span class="eyebrow">候选页面 10–11 · G1</span><h2 id="heap-title">堆序被破坏后，为什么只需沿一条路径修复？</h2></div>
+        <span class="phase">结构 → 前提 → 操作</span>
+      </div>
+      <div class="two-columns">
+        <article class="panel primary">
+          <p class="object-label">完全二叉树的层序数组 · 有效堆范围与排序后缀</p>
+          <div class="array" id="heap-array" aria-label="堆操作逐步状态"></div>
+          <div class="legend"><span><i class="legend-swatch active"></i>有效堆</span><span><i class="legend-swatch sorted"></i>已排序后缀</span><span><i class="legend-swatch focus"></i>本步关注</span></div>
+          <div class="step-head"><strong id="heap-state-title"></strong><span id="heap-counter"></span></div>
+          <div class="narrative" id="heap-note" aria-live="polite"></div>
+          <div class="controls">
+            <button type="button" class="btn secondary" id="heap-prev">上一步</button>
+            <button type="button" class="btn primary" id="heap-next">下一步</button>
+            <button type="button" class="btn secondary" id="heap-reset">重置</button>
+          </div>
+        </article>
+        <aside class="panel concept">
+          <h3>先判断前提，再执行修复</h3>
+          <p><strong>向下调整的前提：</strong>当前结点的左右孩子子树已经各自是最大堆。</p>
+          <p>比较两个孩子，选择关键字较大的孩子；交换后，可能违反堆序的位置沿路径下移。</p>
+          <details id="heap-counterexample">
+            <summary>错误反例：无序数组能直接从根下沉吗？</summary>
+            <p>输入 <code>[2,5,7,3,4,6,8]</code>。若只对根调用一次向下调整，可能得到 <code>[7,5,8,3,4,6,2]</code>，仍然不是最大堆：根 7 小于右孩子 8。</p>
+            <p>原因：原来的右孩子子树自身不满足堆序，违反了前置条件。</p>
+          </details>
+          <details id="heap-independent">
+            <summary>P1 独立核对（先自行计算）</summary>
+            <p>输入 <code>[4,1,7,3,6,2,5]</code>，按下标 2、1、0 依次向下调整。</p>
+            <p><strong>建堆：</strong><code>[7,6,5,3,1,2,4]</code></p>
+            <p><strong>提取最大值后：</strong><code>[6,4,5,3,1,2 | 7]</code>。竖线右侧已最终就位，左侧仍是最大堆。</p>
+            <p>注意：如果未规定具体建堆顺序与交换规则，“构造一个合法最大堆”可能有不同的正确答案。</p>
+          </details>
+        </aside>
+      </div>
+      <div class="footer-line">独立题输入、数学条件和完整答案保持可见；答案默认折叠。此页不复用 D019 的原型状态源。</div>
+    </section>
+    <section class="lesson" id="merge-panel" aria-labelledby="merge-title" hidden>
+      <div class="slide-top">
+        <div><span class="eyebrow">候选页面 18 · G2</span><h2 id="merge-title">两个输入有序，为什么每次只需比较两个候选？</h2></div>
+        <span class="phase">有序后缀 → 输出前缀</span>
+      </div>
+      <div class="two-columns">
+        <article class="panel primary">
+          <p class="object-label">原记录序列的连续左半段 L 和右半段 R（已经分别稳定排序）</p>
+          <div class="merge-inputs">
+            <div><strong>左半段 L</strong><div class="array records" id="merge-left"></div></div>
+            <div><strong>右半段 R</strong><div class="array records" id="merge-right"></div></div>
+          </div>
+          <p class="object-label">归并输出 B：已经确定的有序前缀</p>
+          <div class="array records" id="merge-output"></div>
+          <div class="task-box">
+            <strong>独立判断：</strong>当左、右当前记录关键字相等时应取哪边？为什么？
+            <textarea id="merge-student" placeholder="先写下你的选择依据、输出结果及稳定性解释……" aria-label="稳定归并独立回答"></textarea>
+          </div>
+          <details id="merge-answer">
+            <summary>展开逐步核对（输入与作答不消失）</summary>
+            <div class="step-head"><strong id="merge-state-title"></strong><span id="merge-counter"></span></div>
+            <div class="narrative" id="merge-note" aria-live="polite"></div>
+            <div class="controls">
+              <button type="button" class="btn secondary" id="merge-prev">上一步</button>
+              <button type="button" class="btn primary" id="merge-next">下一步</button>
+              <button type="button" class="btn secondary" id="merge-reset">重置</button>
+            </div>
+            <p class="note"><strong>完整结果：</strong>2甲，2丙，5乙，6丁，7己，8戊。甲原本早于丙，关键字相等时选择左边才能保持相对顺序。</p>
+          </details>
+        </article>
+        <aside class="panel concept">
+          <h3>为什么正确？</h3>
+          <p>两个输入的未处理后缀分别有序，所以各自当前第一个元素是本侧剩余的最小值；取较小者，得到整个未处理集合的最小值。</p>
+          <p><strong>循环不变量：</strong>输出已经是所有已取出记录构成的有序前缀，记录身份不丢失。</p>
+          <p><strong>稳定性：</strong>这里明确左右两半来自同一个原始记录序列的连续划分；相等时先取左半段。</p>
+        </aside>
+      </div>
+      <div class="footer-line">不同来源且没有共同先后顺序的数据，不能无条件谈论“跨来源保持原有顺序”。</div>
+    </section>
+    <section class="lesson" id="radix-panel" aria-labelledby="radix-title" hidden>
+      <div class="slide-top">
+        <div><span class="eyebrow">候选页面 24–25 · G3</span><h2 id="radix-title">桶里记录的先后次序，为什么必须保存？</h2></div>
+        <span class="phase">分配 → 桶内链接 → 收集</span>
+      </div>
+      <div class="two-columns">
+        <article class="panel primary">
+          <p class="object-label">示范序列（十进制最低有效位优先，记录身份随关键字保留）</p>
+          <div class="array" id="radix-input"></div>
+          <div class="step-head"><strong id="radix-state-title"></strong><span id="radix-counter"></span></div>
+          <div class="bucket-grid" id="radix-buckets" aria-label="十个桶及其当前链接顺序"></div>
+          <p class="object-label">本轮收集结果</p>
+          <div class="array" id="radix-output"></div>
+          <div class="narrative" id="radix-note" aria-live="polite"></div>
+          <div class="controls">
+            <button type="button" class="btn secondary" id="radix-prev">上一步</button>
+            <button type="button" class="btn primary" id="radix-next">下一步</button>
+            <button type="button" class="btn secondary" id="radix-reset">重置</button>
+          </div>
+        </article>
+        <aside class="panel concept">
+          <h3>桶不只是分类容器</h3>
+          <p>每轮按当前数位将记录<strong>追加到桶尾</strong>，同桶形成有序链接；按桶号从小到大、桶内从头到尾收集。</p>
+          <p>如果同一个桶改用后进先出，较低位建立的相对顺序就可能被破坏。</p>
+          <details id="radix-independent">
+            <summary>P3 教材接口（先独立分配一轮）</summary>
+            <p>输入 <code>[321,156,57,46,28,7,331,33,34,63]</code>，高位补零到三位，按个位分配与收集。</p>
+            <p><strong>个位结果：</strong><code>[321,331,33,63,34,156,46,57,7,28]</code></p>
+            <p><strong>十位结果：</strong><code>[7,321,28,331,33,34,46,156,57,63]</code></p>
+            <p><strong>百位结果：</strong><code>[7,28,33,34,46,57,63,156,321,331]</code></p>
+            <p>正式课堂和教材练习必须进一步展示桶头、桶尾、next 链接与完整分配、收集过程。</p>
+          </details>
+        </aside>
+      </div>
+      <div class="footer-line">本原型动态显示桶内相对顺序；不等于已经完成 C11 链式基数实现和完整课程评审。</div>
+    </section>
+  </main>
+  <footer class="site-foot">设计与原型状态：教师审阅候选 · 当前仅隔离验证算法表达语义 · 不宣布课堂学习达成</footer>
+</div>
+</body>
+</html>
