@@ -118,7 +118,7 @@ add('insertion-cost','直接插入排序的工作量为什么与输入有关？'
             box('完全逆序',arrays([5,4,3,2,1])
                 +P('第 '+L('i')+' 轮后移 '+L('i')+' 条；累计后移 '+L(r'1+2+\cdots+(n-1)')+' 次。')
                 +P('最坏时间：'+L(r'T_{\mathrm{worst}}(n)=\Theta(n^2)')+'。')))
-    +'<div class="d19-highlight">严格比较时，<strong>后移次数</strong>恰好是输入逆序对数 '+L('I(A)')+'；总运行时间还包括比较、暂存与写回。'+'</div>'
+    +'<div class="d19-highlight"><strong>逆序对</strong>：原序列中先出现的关键字大于后出现的关键字的一对记录。严格比较的后移次数恰为 '+L('I(A)')+'；总时间还包括比较、暂存与写回。'+'</div>'
     +'<div class="d19-complexity-legend" aria-label="三种渐近复杂度符号">'
     +'<span>'+L('O(f(n))')+'：渐近上界</span><span>'+L(r'\Omega(f(n))')+'：渐近下界</span>'
     +'<span>'+L(r'\Theta(f(n))')+'：渐近紧确界（同阶）</span></div>'
