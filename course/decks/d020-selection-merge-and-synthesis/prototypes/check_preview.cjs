@@ -21,6 +21,8 @@ const screens=[[1280,720],[1440,900],[2048,1107]];
       page.on("pageerror",e=>errors.push(e.message));
       await page.goto(target,{waitUntil:"load"});
       await page.waitForSelector("#heap-array .item");
+      assert.equal(await page.locator("#heap-tree svg circle").count(),7,"tree and array must show same active items");
+      assert.equal(await page.locator("#heap-tree svg line").count(),6,"tree edges must preserve complete binary shape");
       assert.equal(await page.locator(".lesson").count(),3);
       assert.equal(await page.locator("#heap-panel").isVisible(),true);
       assert.equal(await page.locator("#merge-panel").isVisible(),false);
