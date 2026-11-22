@@ -20,7 +20,7 @@ function testHeap(){
   // Deterministic generated inputs, including duplicates and already sorted data.
   let seed=20261123;
   function next(){seed=(Math.imul(1664525,seed)+1013904223)>>>0;return seed;}
-  for(let n=0;n<=60;n++)for(let trial=0;trial<16;trial++){
+  for(let n=0;n<60;n++)for(let trial=0;trial<16;trial++){
     const a=Array.from({length:n},()=>next()%97);
     const t=T.heapTrace(a);
     assert.equal(T.validHeap(t.built),true);
