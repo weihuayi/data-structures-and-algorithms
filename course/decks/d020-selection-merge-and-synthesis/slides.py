@@ -106,7 +106,7 @@ def add(pid, title, body, section=None, *, goal, activity="观察、解释与追
 
 def trace_view(name, initial_html, description):
     """Shared trace data is rendered by lesson.js; initial semantic input remains visible."""
-    return (box("必要输入",initial_html)
+    return ('<div class="d20-necessary"><strong>固定输入（演示过程中持续保留）</strong>'+initial_html+'</div>'
             +'<div class="d20-viewer" id="'+name+'-viewer" data-trace="'+name+'">'
             '<div class="d20-step-label" id="'+name+'-stage">初始状态</div>'
             '<div class="d20-live" id="'+name+'-state" aria-live="polite">'+description+'</div>'
@@ -301,9 +301,8 @@ add("radix-linked-trace", "链式桶怎样保持每一条记录的先后顺序�
     trace_view("radix",box("示范输入：带身份的记录",
                            seq([21,13,12,22],["A","B","C","D"])),
                "十个桶初始为空；分配时追加到桶尾，收集时从桶头顺序连接。")
-    +cols(box("链式桶头／桶尾",P("bucket[2] 中按顺序保存 12(C) → 22(D)；head 指向 12，tail 指向 22。")),
-          box("next 的职责",P("next 仅描述桶内后继关系；更新 tail.next 并移动 tail，不得以栈式插入反转原有次序。")))
-    +note("本页 JS 状态以数组验证 FIFO 顺序；正式 C11 示例需明确 head/tail/next，不能声称隔离 JS 就是 C11 链式实现。"),
+    +note("<strong>head/tail/next：</strong>同桶依进入顺序链接，head 指向首记录、tail 指向末记录，"
+          "新增结点通过 tail.next 追加；按桶号从头到尾收集。正式 C11 实现负责验证真实链接操作。"),
     "radix",goal="认识 head/tail/next 与稳定分配、收集之间的语义关系",activity="动态预测桶内链接顺序")
 add("radix-independent", "新输入的一轮分配和收集，你能独立完成吗？",
     task(
