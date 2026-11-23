@@ -36,6 +36,9 @@ jobs:
             course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo
           /tmp/d020_demo --self-test
           /tmp/d020_demo heap
+          /tmp/d020_demo heap 3 8 1 6 2 7 4 | tee /tmp/d020-custom-heap.txt
+          grep -F "Custom heap built: 8 6 7 3 2 1 4" /tmp/d020-custom-heap.txt
+          grep -F "Custom heap after extract: 7 6 4 3 2 1 | 8" /tmp/d020-custom-heap.txt
           /tmp/d020_demo merge
           /tmp/d020_demo radix
       - name: Check isolated reference algorithm traces
