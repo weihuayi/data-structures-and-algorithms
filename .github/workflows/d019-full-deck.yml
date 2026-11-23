@@ -38,8 +38,22 @@ jobs:
         run: python3 -m unittest discover -s tools/deck/tests -p 'test_d019_deck.py' -v
       - name: Check pure algorithm JS state and identities
         run: node course/decks/d019-insertion-and-exchange/prototypes/test_trace.cjs
-      - name: Verify single official A/B homework entry
-        run: python3 tools/deck/check_homework.py
+      - name: Verify official D019 A/B homework contract (scoped to this deck)
+        run: |
+          python3 - <<'PYCODE'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools/deck')
+          from build import load_deck
+          from check_homework import is_homework_title, check_page
+          deck = Path('course/decks/d019-insertion-and-exchange')
+          pages = [(title, body) for title, body, _ in load_deck(deck).SLIDES
+                   if is_homework_title(title)]
+          assert len(pages) == 1, f'D019 expected one homework page; got {len(pages)}'
+          errors = check_page(deck, *pages[0])
+          assert not errors, errors
+          print('PASS D019 official A/B homework; all-course audit is independent')
+          PYCODE
       - name: Run and audit standard all-page D019 browser validation
         run: |
           set +e
