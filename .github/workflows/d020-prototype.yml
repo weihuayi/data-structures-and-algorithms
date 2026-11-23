@@ -1,0 +1,33 @@
+name: D020 isolated design prototype checks
+
+on:
+  pull_request:
+    paths:
+      - 'course/decks/d020-selection-merge-and-synthesis/**'
+      - '.github/workflows/d020-prototype.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  design-prototype:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install pinned browser and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Check deterministic heap, merge and radix traces
+        run: node course/decks/d020-selection-merge-and-synthesis/prototypes/test_trace.cjs
+      - name: Check 3 review prototypes in Chromium
+        run: node course/decks/d020-selection-merge-and-synthesis/prototypes/check_preview.cjs
