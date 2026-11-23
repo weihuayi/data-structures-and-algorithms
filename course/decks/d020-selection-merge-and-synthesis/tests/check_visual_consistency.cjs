@@ -140,6 +140,50 @@ function choose(pageList,deckId){
               "-"+width+"x"+height+".png")});
           }
         }
+        // Additional D020 teaching states: opening an answer must not destroy
+        // the original problem, and scrolling is allowed but clipping is not.
+        if(d.id==="D020"&&width<=1440){
+          for(const pid of ["heap-independent","stable-merge-independent",
+            "radix-independent","comparison-model","choice-independent"]){
+            const record=items.find(x=>x.id===pid);
+            assert(record,pid+" missing");
+            await page.selectOption("#slide-select",String(record.index));
+            const task=page.locator("main .slide.active .course-workspace");
+            const input=task.locator("[data-task-input]");
+            const original=await input.innerText();
+            const answer=task.locator("details.course-answer");
+            assert.equal(await answer.count(),1,pid+" must have one answer");
+            assert.equal(await answer.getAttribute("open"),null,pid+" answer leaked");
+            await answer.locator("summary").click();
+            assert.equal(await answer.getAttribute("open"),"",pid+" cannot open answer");
+            assert.equal(await input.innerText(),original,pid+" lost input");
+            const state=await metrics(page);
+            if(state.mainScrollWidth>state.mainWidth+2||
+               state.slideScrollWidth>state.slideWidth+2)
+              failures.push("D020 "+pid+" expanded horizontal overflow "+width);
+            await page.screenshot({path:path.join(output,
+              "d020-expanded-"+pid+"-"+width+"x"+height+".png")});
+            const solution=task.locator(".course-solution");
+            await solution.scrollIntoViewIfNeeded();
+            assert(await solution.isVisible(),pid+" solution not reachable");
+            if(width===1280){
+              await page.screenshot({path:path.join(output,
+                "d020-solution-"+pid+"-"+width+"x"+height+".png")});
+            }
+          }
+          for(const [pid,buttonId] of [["merge-trace","#merge-next"],
+                                      ["radix-linked-trace","#radix-next"]]){
+            const record=items.find(x=>x.id===pid);
+            await page.selectOption("#slide-select",String(record.index));
+            for(let n=0;n<3;n++)await page.locator(buttonId).click();
+            const state=await metrics(page);
+            if(state.mainScrollWidth>state.mainWidth+2||
+               state.slideScrollWidth>state.slideWidth+2)
+              failures.push("D020 "+pid+" trace horizontal overflow "+width);
+            await page.screenshot({path:path.join(output,
+              "d020-step-"+pid+"-"+width+"x"+height+".png")});
+          }
+        }
         if(scriptErrors.length)failures.push(d.id+" JavaScript: "+JSON.stringify(scriptErrors));
         await page.close();
       }
