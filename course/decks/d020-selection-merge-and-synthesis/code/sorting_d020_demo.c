@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <errno.h>
 
 typedef struct {
     int key;
@@ -150,6 +152,42 @@ static void radix_example(void) {
 
 /* Deterministic self-tests check the *specified* implementation, not
  * every mathematically valid heap representation or classroom understanding. */
+/* A new input, independent of classroom P1, is supplied through the CLI. */
+static int heap_custom(int argc, char **argv) {
+    const int n = argc - 2;
+    int a[32];
+    if (n < 2 || n > 32) {
+        fputs("heap expects 2..32 integer keys\n", stderr);
+        return 2;
+    }
+    for (int i = 0; i < n; i++) {
+        char *end = NULL;
+        errno = 0;
+        const long key = strtol(argv[i + 2], &end, 10);
+        if (errno != 0 || end == argv[i + 2] || *end != '\0' ||
+            key < INT_MIN || key > INT_MAX) {
+            fputs("heap keys must be valid C int values\n", stderr);
+            return 2;
+        }
+        a[i] = (int)key;
+    }
+    print_ints("Custom heap input", a, n, n);
+    build_heap(a, n);
+    if (!heap_valid(a, n)) {
+        fputs("heap validation failed\n", stderr);
+        return 1;
+    }
+    print_ints("Custom heap built", a, n, n);
+    swap_int(&a[0], &a[n-1]);
+    sift_down(a, 0, n-1);
+    if (!heap_valid(a, n-1)) {
+        fputs("remaining heap validation failed\n", stderr);
+        return 1;
+    }
+    print_ints("Custom heap after extract", a, n, n-1);
+    return 0;
+}
+
 static int self_test(void) {
     int a[] = {4, 1, 7, 3, 6, 2, 5};
     const int built[] = {7, 6, 5, 3, 1, 2, 4};
@@ -209,12 +247,16 @@ static int self_test(void) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s heap|merge|radix|--self-test\n", argv[0]);
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s heap [int ...]|merge|radix|--self-test\n", argv[0]);
         return 2;
     }
     if (strcmp(argv[1], "heap") == 0) {
+        if (argc > 2) return heap_custom(argc, argv);
         heap_example();
+    } else if (argc != 2) {
+        fprintf(stderr, "Usage: %s heap [int ...]|merge|radix|--self-test\n", argv[0]);
+        return 2;
     } else if (strcmp(argv[1], "merge") == 0) {
         merge_example();
     } else if (strcmp(argv[1], "radix") == 0) {
