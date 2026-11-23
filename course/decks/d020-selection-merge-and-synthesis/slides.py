@@ -246,10 +246,11 @@ add("merge-opportunity", "两个输入已有序，为什么不必重新排序？
     +highlight("每侧未处理首元素就是该侧剩余元素的最小值；只比较两个首元素，就能确定全体剩余元素中的最小值。"),
     "merge",goal="识别有序输入的信息价值并建立线性归并的前提")
 add("merge-trace", "两个有序后缀如何逐步得到完整的有序前缀？",
-    trace_view("merge",cols(box("L（来自左半段）",seq([2,5,8],["a","b","c"])),
-                            box("R（来自右半段）",seq([1,6,7],["d","e","f"]))),
-               "动态归并：当前位置、两个候选和输出前缀会同时显示。")
-    +highlight("每次只取两个当前候选中较小者；一侧耗尽后直接追加另一侧剩余后缀。"),
+    trace_view("merge",'<div class="d20-compact-input">'
+               '<div><strong>固定输入 L（原左半段）</strong>'+seq([2,5,8],["a","b","c"])+'</div>'
+               '<div><strong>固定输入 R（原右半段）</strong>'+seq([1,6,7],["d","e","f"])+'</div></div>',
+               "当前候选、指针位置及输出前缀同步呈现。")
+    +note("只比较两侧首候选；某一侧耗尽后追加另一侧剩余部分。"),
     "merge",goal="通过连续状态解释线性归并与输出前缀",activity="逐步预测和核对")
 add("stable-merge-independent", "相等关键字的记录，应当先从哪边取？",
     task(
@@ -298,9 +299,9 @@ add("radix-buckets", "一轮个位分配与收集怎样工作？",
     +highlight("不是把记录直接放到最终全局位置，而是每轮根据一个数位进行一次稳定分配与收集。"),
     "radix",goal="手工追踪 LSD 两轮数位分配和稳定收集")
 add("radix-linked-trace", "链式桶怎样保持每一条记录的先后顺序？",
-    trace_view("radix",box("示范输入：带身份的记录",
-                           seq([21,13,12,22],["A","B","C","D"])),
-               "十个桶初始为空；分配时追加到桶尾，收集时从桶头顺序连接。")
+    trace_view("radix",'<div class="d20-compact-input"><div><strong>固定输入（带记录身份）</strong>'
+               +seq([21,13,12,22],["A","B","C","D"])+'</div></div>',
+               "十个桶初始为空；分配时追加到桶尾，按桶号从桶头顺序收集。")
     +note("<strong>head/tail/next：</strong>同桶依进入顺序链接，head 指向首记录、tail 指向末记录，"
           "新增结点通过 tail.next 追加；按桶号从头到尾收集。正式 C11 实现负责验证真实链接操作。"),
     "radix",goal="认识 head/tail/next 与稳定分配、收集之间的语义关系",activity="动态预测桶内链接顺序")
