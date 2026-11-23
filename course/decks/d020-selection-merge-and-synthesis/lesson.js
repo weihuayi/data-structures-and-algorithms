@@ -31,10 +31,10 @@
   );
   viewer("merge",m.states,s=>({
     title:s.kind==="start"?"两个输入均已排序":"输出有序前缀不断延长",
-    html:'<div class="d20-columns">'
-          +'<div><strong>左侧已取 '+s.i+'/'+m.left.length+'</strong>'+cells(m.left.slice(s.i))+'</div>'
-          +'<div><strong>右侧已取 '+s.j+'/'+m.right.length+'</strong>'+cells(m.right.slice(s.j))+'</div>'
-          +'</div><strong>当前有序输出</strong>'+cells(s.output),
+    html:'<div class="d20-current-candidates">'
+          +'<span>左侧指针 i='+s.i+'；当前候选 '+(s.i<m.left.length?htmlEscape(m.left[s.i].key+'('+m.left[s.i].id+')'):'已耗尽')+'</span>'
+          +'<span>右侧指针 j='+s.j+'；当前候选 '+(s.j<m.right.length?htmlEscape(m.right[s.j].key+'('+m.right[s.j].id+')'):'已耗尽')+'</span>'
+          +'</div><strong>已经确定的输出前缀</strong>'+cells(s.output),
     note:s.note
   }));
   const r=T.radixTrace([T.record(21,"A"),T.record(13,"B"),
