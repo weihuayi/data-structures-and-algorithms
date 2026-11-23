@@ -29,7 +29,7 @@ node course/decks/d020-selection-merge-and-synthesis/prototypes/check_preview.cj
 
 ## 三、没有覆盖的职责
 
-- 尚未制作 34 页正式 `slides.py`、生成 Deck 完整 `index.html` 或正式 C11 示例。
+- 本隔离原型自身不是正式 Deck；上级目录已经建立 34 页 `slides.py` 和 C11 实施源，生成 HTML 与正式回归以实施分支的 CI 实测为准。
 - 尚未让本原型通过 `tools/deck` 的共享播放器、组件、KaTeX、打印与作业全量验收。
 - 尚未获得教师真实投影审阅、真实 90 分钟排练或任何学生达成证据。
 - 不修改 D019、D017/D018、共享 CSS/JS 或课程作业制度；原型只用于下一步判断公共组件是否需要局部适配。
