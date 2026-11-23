@@ -1,0 +1,66 @@
+name: D020 full lesson validation and generated artifact sync
+
+on:
+  push:
+    branches:
+      - d020-full-deck-implementation-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: d020-full-deck-implementation-20261123
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install pinned Chromium and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Run 34-page source and pedagogy checks
+        run: python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
+      - name: Compile and self-test C11 examples
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo
+          /tmp/d020_demo --self-test
+          /tmp/d020_demo heap
+          /tmp/d020_demo merge
+          /tmp/d020_demo radix
+      - name: Check isolated reference algorithm traces
+        run: node course/decks/d020-selection-merge-and-synthesis/prototypes/test_trace.cjs
+      - name: Build controlled D020 HTML from slides.py
+        run: python3 tools/deck/build.py D020
+      - name: Verify all pages and key interactions in Chromium
+        env:
+          D020_SCREENSHOT_DIR: /tmp/d020-screenshots
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
+      - name: Upload review screenshots
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d020-full-deck-screenshots
+          path: /tmp/d020-screenshots
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Commit strictly derived HTML and README page registry
+        run: |
+          git add course/decks/d020-selection-merge-and-synthesis/index.html \
+                  course/decks/d020-selection-merge-and-synthesis/README.md
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "D020: sync generated 34-page index and page plan from slides.py"
+            git push origin HEAD:d020-full-deck-implementation-20261123
+          fi
