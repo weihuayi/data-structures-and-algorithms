@@ -359,8 +359,9 @@ add("homework-bridge", "课后怎样独立预测、运行和解释？",
         P("第 8 章选择题 <strong>(8)(11)(13)</strong>；应用题 <strong>(1)⑧ 二路归并</strong>。"
           "选择题写出一句依据，推演题保留必要中间状态。"))
     +box("B · C11 程序实践（必做）",
-         P("先独立预测给定新数组的一次建堆／堆顶提取，或一个包含重复键的稳定归并，再运行程序核对，解释一个正确性前提和实测结论。")
-         +'<pre class="d20-code"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/sorting_d020_demo.c -o d020_demo\n./d020_demo heap\n./d020_demo merge\n./d020_demo --self-test</code></pre>'
+         P("先独立预测<strong>新输入 [3,8,1,6,2,7,4]</strong> 自底向上建堆及第一次提取最大值后的堆前缀和有序后缀；"
+           "再将同一输入传给 C11 程序核对，说明向下调整的前置条件以及预测和实测是否一致。")
+         +'<pre class="d20-code"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/sorting_d020_demo.c -o d020_demo\n./d020_demo heap 3 8 1 6 2 7 4\n./d020_demo --self-test</code></pre>'
          +P("源文件及命令为学生个人电脑可复制的 C11 示例；不要求进入 Git 仓库或向公共仓库 push。"))
     +note("A/B 均必做；选做不提交：选择题 (10)(12)(14)(15)、应用题 (1)⑥⑦、应用题 (2) 完整链式基数三轮。按课程作业规范提交飞书文档，附 3–5 行真实过程记录；如 D019 同周收取须复核总负担。"),
     goal="发布 A/B 可执行作业、输入与提交边界",role="closing",
