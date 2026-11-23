@@ -112,3 +112,9 @@
  .deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p{margin:7px 0}
  .deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework pre.d20-code{padding:9px 13px;margin:8px 0}
 }
+
+/* Visual consistency R2: D017 and D018 use the dense outline's 25/22px
+   type sizes. D020 has four sections, so shared CSS chooses a larger type
+   scale; retain D020's spacious row layout but match the course type sizes. */
+.deck .slide[data-page-id="outline"] .course-outline-topic strong{font-size:25px}
+.deck .slide[data-page-id="outline"] .course-outline-topic p{font-size:22px}
