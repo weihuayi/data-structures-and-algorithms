@@ -1,6 +1,6 @@
 # D020｜排序：选择、堆、归并与条件化选择
 
-> **状态**：R1–R8 认知共识与 QA-01–QA-08 联动修订后的教学设计卡候选稿（供教师审阅）；本分支仅承载设计、候选 Storyboard 与三页隔离原型，**不是正式 Deck，也不是课堂学习结果**。正式 `slides.py`、作业页、课件登记及 Offering 均未创建或修改。
+> **状态**：QA-01–QA-08 设计修订后，完整 34 页 `slides.py` 与 C11 教学程序已在独立实施分支进入制作和工程验证；正式页面及其 HTML 必须由 `tools/deck/build.py D020` 唯一生成。**课件仍待工程回归、AI 全讲评审和教师审阅，真实课堂学习效果没有证据。** 设计阶段 PR #54 保持独立待审基线，当前实施分支不直接修改 Offering。
 >
 > **范围**：《数据结构（C语言版）（第3版）》第 8.4–8.6 节；8.7 外部排序只作概念导航。参照 [课程方案](../../../docs/design/course-design-plan.md)、[学习进阶矩阵](../../data_structures_algorithms_D001_D020_learning_progression_matrix.md)、[第八章习题提取](../../../docs/design/exercise-candidates/ch8.md)、[课程 Deck Contract v3](../../../docs/design/deck-contract.md)。
 >
@@ -116,3 +116,12 @@ P1–P4 和 E1a/E1b/E2/E3 均须先独立判断后核对；原输入、操作前
 - D019 当前正式主源 [D019 README](../d019-insertion-and-exchange/README.md)；PR #53 的未合并修订仅作为接口注意事项。
 - 本次讨论 R1–R8：堆和归并原理、比较下界的模型边界、基数与稳定性、目标 G1–G4、P1–P4、课程压力测试；保留被新教材证据及实践反馈修正的空间。
 - 待教师判断：90 分钟真实节奏、树形选择深入程度、基数排序课堂分配轮次、教材 A/B 任务总量及是否进一步调整 D019/D020 的衔接位置。
+
+## 九、正式源码与派生页面（实施分支）
+
+本节以下页表由 `slides.py` 中的 `COURSE.page_plan_markdown()` 派生，不手工变更。独立 QA 设计分支不拥有此表。
+
+<!-- page-plan:start -->
+<!-- page-plan:end -->
+
+正式构建：从仓库根目录运行 `python3 tools/deck/build.py D020`，生成同目录 `index.html`。程序核对：`gcc -std=c11 -Wall -Wextra -Werror -pedantic course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo && /tmp/d020_demo --self-test`。具体检验是否通过以相应 CI 的结果为准；不能以本节描述代替实际运行。
