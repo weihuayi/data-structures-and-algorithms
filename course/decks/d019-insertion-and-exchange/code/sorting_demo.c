@@ -58,8 +58,8 @@ static void binary_insertion(Record *a,size_t n,Counters *c,bool verbose) {
     }
 }
 static void shell(Record *a,size_t n,Counters *c,bool verbose) {
-    /* This is an explicit classroom gap sequence, not a universal claim. */
-    const size_t gaps[]={5,3,1};
+    /* Teaching gap sequence 2,1 for both slide examples; no universal time bound. */
+    const size_t gaps[]={2,1};
     for(size_t g=0;g<sizeof gaps/sizeof gaps[0];g++) {
         const size_t gap=gaps[g];
         if(gap>=n)continue;
@@ -92,13 +92,15 @@ static size_t partition_hole(Record *a,size_t left,size_t right,Counters *c,bool
     Record pivot=a[left];size_t lo=left,hi=right;
     /* Conceptual hole at lo: pivot is held in temp. Array slot remains accessible,
        but that slot is logically vacant until filled. */
+    if(verbose)printf("TRACE hold low=%zu high=%zu hole=%zu\n",lo,hi,lo);
     while(lo<hi) {
         while(lo<hi) {c->compares++;if(a[hi].key<pivot.key)break;hi--;}
-        if(lo<hi){a[lo]=a[hi];c->moves++;lo++;}
+        if(lo<hi){a[lo]=a[hi];c->moves++;lo++;if(verbose)printf("TRACE right low=%zu high=%zu hole=%zu\n",lo,hi,hi);}
         while(lo<hi) {c->compares++;if(a[lo].key>pivot.key)break;lo++;}
-        if(lo<hi){a[hi]=a[lo];c->moves++;hi--;}
+        if(lo<hi){a[hi]=a[lo];c->moves++;hi--;if(verbose)printf("TRACE left low=%zu high=%zu hole=%zu\n",lo,hi,lo);}
     }
     a[lo]=pivot;c->moves++;
+    if(verbose)printf("TRACE done low=%zu high=%zu hole=-1\n",lo,hi);
     if(verbose){printf("pivot index = %zu\n",lo);show("after Partition",a,n);}
     return lo;
 }

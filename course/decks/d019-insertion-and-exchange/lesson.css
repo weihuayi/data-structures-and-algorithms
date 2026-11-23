@@ -64,3 +64,43 @@
  .deck .d19-lesson .course-answer .course-solution{display:none}
  .deck .d19-lesson .d19-demo{break-inside:avoid}
 }
+
+/* R1: complexity notation is a small, persistent semantic reminder, not a fourth main panel. */
+.deck .d19-lesson .d19-complexity-legend{display:flex;flex-wrap:wrap;justify-content:space-between;gap:7px 16px;margin:6px 0 1px;padding:8px 12px;border:1px solid #b4cee0;background:#f4f9fd;border-radius:7px;font-size:clamp(16px,1.13vw,20px);line-height:1.35}
+.deck .d19-lesson .d19-complexity-legend span{white-space:nowrap}
+/* Homework follows the D017/D018 reading order: A, B, commands, submission, optional. */
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework{max-width:1330px;margin:0 auto}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p{font-size:clamp(20px,1.49vw,26px);line-height:1.43;margin:8px 0}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p.d19-homework-note{font-size:clamp(17px,1.23vw,22px);line-height:1.4;color:var(--muted);margin:8px 0}
+.deck .slide[data-page-id="homework"] .d19-lesson .d19-homework pre{font-size:clamp(17px,1.23vw,23px);line-height:1.35;margin:8px 0;padding:12px 18px}
+.deck .slide[data-page-id="shell-gaps"] .d19-lesson .d19-box p{font-size:clamp(19px,1.44vw,24px)}
+@media(max-height:760px) and (min-width:901px){
+ .deck .slide[data-page-id="insertion-cost"] .d19-lesson .d19-complexity-legend{padding:5px 10px;margin-top:3px}
+ .deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p{font-size:clamp(18px,1.38vw,23px);margin:5px 0}
+ .deck .slide[data-page-id="homework"] .d19-lesson .d19-homework p.d19-homework-note{font-size:clamp(16px,1.15vw,20px);margin:4px 0}
+ .deck .slide[data-page-id="homework"] .d19-lesson .d19-homework pre{padding:8px 14px;margin:5px 0;font-size:clamp(16px,1.1vw,21px)}
+}
+
+/* D019 R2: label gap classes explicitly; do not rely on color alone. */
+.deck .d19-lesson .d19-cell.d19-gap-a{background:#e4f0fb;border-color:#4d87b5}
+.deck .d19-lesson .d19-cell.d19-gap-b{background:#fff0dc;border-color:#b77e36}
+.deck .d19-lesson .d19-group-tag{display:block;font-size:clamp(13px,0.93vw,17px);font-weight:700;line-height:1.1;color:#17364d}
+.deck .d19-lesson .d19-answer-label{display:block;margin:9px 0 2px;font-size:clamp(17px,1.3vw,22px);font-weight:700}
+.deck .slide[data-page-id="insertion-invariant"] .d19-lesson .d19-columns{gap:12px;align-items:start}
+.deck .slide[data-page-id="insertion-invariant"] .d19-lesson .d19-box{margin:4px 0;padding:10px 13px}
+.deck .slide[data-page-id="insertion-invariant"] .d19-lesson .d19-box p{font-size:clamp(18px,1.39vw,23px);line-height:1.34}
+.deck .slide[data-page-id="insertion-invariant"] .d19-lesson .d19-highlight{margin-top:8px;padding:10px 13px;line-height:1.39}
+.deck .slide[data-page-id="code-bridge"] .d19-lesson .d19-record-struct{margin:4px 0;padding:8px 12px;font-size:clamp(17px,1.3vw,22px)}
+@media(max-width:900px){
+ .deck .slide[data-page-id="insertion-invariant"] .d19-lesson .d19-columns{grid-template-columns:1fr}
+}
+/* Tighten only incidental vertical whitespace on dense slides at short projectors. */
+@media(max-height:800px){
+ .deck .slide[data-page-id="shell-stability"] .d19-lesson .d19-box{margin:5px 0;padding:10px 14px}
+ .deck .slide[data-page-id="shell-stability"] .d19-lesson .d19-columns{margin:6px 0}
+ .deck .slide[data-page-id="shell-stability"] .d19-lesson .d19-highlight{padding:8px 12px;margin:5px 0}
+ .deck .slide[data-page-id="code-bridge"] .d19-lesson .d19-box{padding:10px 14px;margin:4px 0}
+ .deck .slide[data-page-id="code-bridge"] .d19-lesson .d19-box p{margin:4px 0}
+ .deck .slide[data-page-id="code-bridge"] .d19-lesson .d19-footnote{margin:5px 0!important}
+ .deck .slide[data-page-id="code-bridge"] .d19-lesson .d19-highlight{padding:8px 12px;margin:6px 0;line-height:1.35}
+}
