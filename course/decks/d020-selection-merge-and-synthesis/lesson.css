@@ -1,8 +1,8 @@
 /* D020 lesson-specific expression; shared deck.css/components.css remain authoritative. */
 .deck .d20-lesson{--d20-blue:#1e608f;--d20-edge:#b8cbdb;--d20-pale:#edf6fc;--d20-green:#e2f2e8;--d20-amber:#fff0da;max-width:1360px;margin:0 auto;color:#213950}
-.deck .d20-lesson p{font-size:clamp(20px,1.57vw,27px);line-height:1.45;margin:7px 0}
+.deck .d20-lesson p{font-size:clamp(21px,1.7vw,27px);line-height:1.45;margin:7px 0}
 .deck .d20-lesson .d20-lead{font-size:clamp(24px,1.96vw,34px);line-height:1.42;font-weight:700;background:#eef5fb;border-left:6px solid var(--d20-blue);padding:12px 18px;margin:7px 0 16px}
-.deck .d20-lesson .d20-note{font-size:clamp(16px,1.2vw,21px);line-height:1.46;color:#546d80;margin:10px 0}
+.deck .d20-lesson .d20-note{font-size:clamp(17px,1.3vw,21px);line-height:1.46;color:#546d80;margin:10px 0}
 .deck .d20-lesson .d20-highlight{padding:12px 17px;background:#eaf4fb;border-left:5px solid var(--d20-blue);border-radius:4px;margin:13px 0;font-size:clamp(20px,1.61vw,28px);line-height:1.45}
 .deck .d20-lesson .d20-box{border:1.5px solid var(--d20-edge);border-radius:11px;background:#f8fbfe;padding:12px 17px;margin:9px 0;min-width:0}
 .deck .d20-lesson .d20-box h3{margin:0 0 9px;font-size:clamp(22px,1.66vw,29px);color:#225777;line-height:1.34}
@@ -12,8 +12,8 @@
 .deck .d20-lesson .d20-sequence{margin:8px 0 12px;min-width:0;width:100%;overflow:visible}
 .deck .d20-lesson .d20-cells{display:grid;grid-template-columns:repeat(var(--n,7),minmax(0,1fr));gap:7px;align-items:stretch;margin:0}
 .deck .d20-lesson .d20-cell{border-radius:8px;border:1.7px solid #aec7d9;background:#eaf3fb;display:flex;flex-direction:column;min-width:0;align-items:center;justify-content:center;padding:6px 2px;min-height:74px;gap:2px}
-.deck .d20-lesson .d20-cell strong{font-size:clamp(23px,2.06vw,37px);font-weight:760;color:#1b4968;line-height:1.12;font-variant-numeric:tabular-nums}
-.deck .d20-lesson .d20-cell small{font-size:clamp(12px,1.04vw,17px);color:#446c88;line-height:1.19;white-space:nowrap}
+.deck .d20-lesson .d20-cell strong{font-size:clamp(28px,2.25vw,40px);font-weight:760;color:#1b4968;line-height:1.12;font-variant-numeric:tabular-nums}
+.deck .d20-lesson .d20-cell small{font-size:clamp(16px,1.18vw,19px);color:#446c88;line-height:1.19;white-space:nowrap}
 .deck .d20-lesson .d20-cell.d20-focus{border-color:#b08039;background:#ffefd4}
 .deck .d20-lesson .d20-cell.d20-fixed{border-color:#71a98c;background:#e1f3e6}
 .deck .d20-lesson .d20-tree{display:block;max-width:100%;width:100%;max-height:230px;height:auto;margin:0 auto}
@@ -21,13 +21,13 @@
 .deck .d20-lesson .d20-node{fill:#dceefa;stroke:#568abb;stroke-width:2.3}
 .deck .d20-lesson .d20-node.d20-marked{fill:#fff0d5;stroke:#c99840}
 .deck .d20-lesson .d20-node-key{font-size:27px;fill:#214c6d;font-weight:760;text-anchor:middle}
-.deck .d20-lesson .d20-node-index{font-size:17px;fill:#547186;text-anchor:middle}
+.deck .d20-lesson .d20-node-index{font-size:28px;fill:#547186;text-anchor:middle}
 .deck .d20-lesson .d20-task .course-workspace{display:grid;grid-template-columns:1fr;gap:10px;align-items:start}
 .deck .d20-lesson .d20-task .course-input,.deck .d20-lesson .d20-task .course-task{min-width:0}
-.deck .d20-lesson .d20-task .course-prompt{border-left:5px solid var(--d20-blue);background:#eaf3fb;padding:13px 17px;font-size:clamp(21px,1.62vw,27px);line-height:1.45}
+.deck .d20-lesson .d20-task .course-prompt{border-left:5px solid var(--d20-blue);background:#eaf3fb;padding:12px 17px;font-size:clamp(24px,1.85vw,29px);line-height:1.45}
 .deck .d20-lesson .d20-task .course-prompt p{font-size:inherit;margin:4px 0}
 .deck .d20-lesson .d20-task .course-answer{border:1.5px solid #c6d7e4;border-radius:9px;background:white;padding:7px 14px;margin:8px 0}
-.deck .d20-lesson .d20-task .course-answer summary{font-size:clamp(19px,1.43vw,25px);font-weight:710;cursor:pointer}
+.deck .d20-lesson .d20-task .course-answer summary{font-size:clamp(20px,1.5vw,25px);font-weight:710;cursor:pointer}
 .deck .d20-lesson .d20-task .course-solution{padding:9px 10px}
 .deck .d20-lesson .d20-task .course-solution p{font-size:clamp(19px,1.44vw,24px)}
 .deck .d20-lesson .d20-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0}
@@ -82,3 +82,33 @@
 .deck .slide[data-page-id="merge-trace"] .d20-note,
 .deck .slide[data-page-id="radix-linked-trace"] .d20-note{margin:4px 0}
 @media(max-width:900px){.deck .d20-lesson .d20-compact-input{grid-template-columns:1fr}}
+
+/* Visual consistency R1: same hierarchy as D017/D018 without duplicating shared chrome.
+   Lesson-specific diagrams remain distinct; align the entry and homework page roles. */
+.deck .slide[data-page-id="cover"] .d20-lesson .d20-lead{
+  background:transparent;border:0;border-radius:0;padding:0;
+  color:#204e73;font-size:clamp(25px,2.05vw,34px);
+  font-weight:650;line-height:1.4;margin:6px 0 16px;
+}
+.deck .slide[data-page-id="cover"] .d20-lesson .d20-box{
+  background:#f5f9fd;border-color:#b9cede;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework{
+  max-width:1360px;margin-inline:auto;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p{
+  font-size:clamp(23px,1.8vw,29px);
+  line-height:1.44;margin:10px 0;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p.d20-homework-note{
+  color:#536c80;font-size:clamp(17px,1.3vw,21px);line-height:1.46;margin:8px 0;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework pre.d20-code{
+  color:#193f60;background:#f0f6fb;border:1px solid #c5d9e7;
+  font-size:clamp(18px,1.42vw,23px);line-height:1.37;
+  padding:12px 15px;margin:12px 0;
+}
+@media(max-height:780px) and (min-width:901px){
+ .deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p{margin:7px 0}
+ .deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework pre.d20-code{padding:9px 13px;margin:8px 0}
+}
