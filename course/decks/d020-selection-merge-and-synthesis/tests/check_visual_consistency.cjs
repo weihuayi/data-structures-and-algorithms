@@ -70,7 +70,7 @@ async function metrics(page){
 function choose(pageList,deckId){
   const firstRole=role=>pageList.find(x=>x.role===role)?.index;
   const idx=[firstRole("cover"),firstRole("outline"),firstRole("section"),
-    firstRole("exercise"),firstRole("closing")];
+    firstRole("exercise"),pageList.length-1]; // final page may be role=content in legacy D017
   if(deckId==="D020"){
     for(const id of ["heap-contract","heap-array","sift-down","heap-independent",
       "stable-merge-independent","radix-linked-trace","radix-independent",
