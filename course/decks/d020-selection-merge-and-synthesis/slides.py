@@ -125,6 +125,7 @@ add("cover", "排序：怎样组织和利用已有信息？",
     +note("《数据结构与算法》 · D020 · 第 8 章 8.4–8.6 · 90 分钟候选教学预算"),
     goal="提出本讲以可复用信息设计排序算法的主问题", role="cover")
 COURSE.outline(title="这节课通过哪些问题理解和选择排序算法？")
+COURSE.start_section("selection")
 
 add("sort-contract-recall", "排序结果有序，就一定满足要求吗？",
     task(
@@ -134,11 +135,10 @@ add("sort-contract-recall", "排序结果有序，就一定满足要求吗？",
         "两者是否满足基本排序契约？哪一个保持稳定性？"),
       P("两个输出都满足<strong>有序、记录保持</strong>，均可终止；只有 A 保留相同关键字 3 的甲在丙前，因此 A 稳定。")
       +P("稳定性是附加要求，不是排序正确性的全部定义。"),
-    ), goal="区分有序性、记录保持与稳定性的不同职责",
+    ), "selection", goal="区分有序性、记录保持与稳定性的不同职责",
     role="exercise",activity="诊断 D019 先修理解，独立判断后核对")
 
-# 04—16: selection, tournament tree and heap.
-COURSE.start_section("selection")
+# 03—16: selection, tournament tree and heap.
 add("simple-selection", "为什么简单选择排序要反复扫描剩余元素？",
     box("在尚未排序部分反复找最小值",
         seq([4,1,3,2])+P("第一轮最小值 1 放到首位；之后仅在剩余三个元素中再找最小值。")
