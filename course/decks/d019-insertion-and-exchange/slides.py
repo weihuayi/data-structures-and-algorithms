@@ -53,18 +53,19 @@ def task(input_html,prompt,answer, *,stacked=True,heading='核对答案与依据
 
 def content(body):return '<div class="d19-lesson">'+body+'</div>'
 
-def add(pid,title,body,section,*,goal,activity='观察、解释与讨论',role='content',withheld=()):
-    COURSE.add(pid,title,body,section=section,role=role,goal=goal,activity=activity,withheld_results=withheld)
+def add(pid,title,body,section,*,goal,activity='观察、解释与讨论',role='content',withheld=(),label=''):
+    COURSE.add(pid,title,body,section=section,role=role,goal=goal,activity=activity,label=label,withheld_results=withheld)
 
 # 01 / 02 / 03
-add('cover','排序：如何把无序记录变成正确的有序排列？',content(
+add('cover','排序：从局部操作到正确排列',content(
     '<link rel="stylesheet" href="lesson.css">'
     '<script defer src="prototypes/trace.js"></script><script defer src="lesson.js"></script>'
-    '<p class="d19-lead">从局部有序到划分与分治：理解算法怎样保持性质、保证正确性，以及计算代价为何不同。</p>'
-    +columns(box('从已知走向新问题',P('D016–D018 研究在已有数据组织中查找记录；本讲主动建立记录的有序排列。')),
-             box('本讲的两条主线',P('插入排序：扩大有序前缀。快速排序：建立跨区域约束，再递归解决。')))
-    +'<p class="d19-footnote">《数据结构与算法》 · D019 · 第8章 8.1–8.3 · 90分钟（设计预算）</p>'
-),None,goal='提出建立正确有序排列的计算问题',role='cover')
+    '<div class="d19-cover">'
+    '<p class="d19-cover-lead">如何把无序记录变成正确的有序排列，并解释算法的正确性与计算代价？</p>'
+    '<div class="d19-cover-line"><strong class="d19-cover-label">核心主线</strong>'
+    '<div class="d19-cover-sequence">插入扩大有序前缀 → 相邻交换确定后缀 → 划分建立跨区域关系并递归排序</div></div>'
+    '<p class="d19-cover-note">D019 · 数据结构与算法 · 教材第 8 章 8.1–8.3</p></div>'
+),None,goal='从已有查找任务转向建立正确有序排列的计算问题',role='cover',label='课程导入')
 COURSE.outline(title='从哪些问题深入排序的工作机制？')
 COURSE.start_section('contract')
 
@@ -123,7 +124,7 @@ add('insertion-cost','直接插入排序的工作量为什么与输入有关？'
             box('完全逆序',arrays([5,4,3,2,1])
                 +P('第 '+L('i')+' 轮后移 '+L('i')+' 条；累计后移 '+L(r'1+2+\cdots+(n-1)')+' 次。')
                 +P('最坏时间：'+L(r'T_{\mathrm{worst}}(n)=\Theta(n^2)')+'。')))
-    +'<div class="d19-highlight"><strong>逆序对</strong>：原序列中先出现的关键字大于后出现的关键字的一对记录。严格比较的后移次数恰为 '+L('I(A)')+'；总时间还包括比较、暂存与写回。'+'</div>'
+    +'<div class="d19-highlight"><strong>逆序对</strong>：原序列中先出现的关键字大于后出现的关键字的一对记录。当前直接插入实现中，已有记录<strong>因严格大于而右移的次数</strong>恰为 '+L('I(A)')+'；关键字比较次数一般不等于 '+L('I(A)')+'。'+'</div>'
     +'<div class="d19-complexity-legend" aria-label="三种渐近复杂度符号">'
     +'<span>'+L('O(f(n))')+'：渐近上界</span><span>'+L(r'\Omega(f(n))')+'：渐近下界</span>'
     +'<span>'+L(r'\Theta(f(n))')+'：渐近紧确界（同阶）</span></div>'
@@ -189,14 +190,16 @@ add('partition-idea','怎样先建立可以递归处理的左右关系？',conte
 add('pivot-hole','枢轴为什么先暂存？逻辑空位怎样移动？',content(
     box('对同一输入执行首元素枢轴划分',arrays([4,7,2,8,3,6,1],marked=[0])
         +P('先暂存枢轴记录 '+L('x=4')+'；首位置作为待填补的<strong>逻辑空位</strong>。'))
-    +columns(box('先从右向左寻找',P('跳过关键字 '+L(r'\ge x')+' 的记录；找到关键字 '+L('<x')+' 的记录后，将它搬进左侧空位。')),
-             box('再从左向右寻找',P('跳过关键字 '+L(r'\le x')+' 的记录；找到关键字 '+L('>x')+' 的记录后，将它搬进右侧空位。')))
-    +'<p class="d19-footnote">□ 表示算法推演中的逻辑空位，不表示 C 数组的某种特殊值。每次搬移之后，空位转移到原记录位置。</p>'
+    +columns(box('左端有空位：从右端寻找',P('初始空位在 '+L('low')+'；从 '+L('high')+' 向左跳过关键字 '+L(r'\ge x')+' 的记录，找到 '+L('<x')+' 的记录后填入左侧空位。')),
+             box('右端有空位：从左端寻找',P('空位转到 '+L('high')+' 后，从 '+L('low')+' 向右跳过关键字 '+L(r'\le x')+' 的记录，找到 '+L('>x')+' 的记录后填入右侧空位。')))
+    +'<div class="d19-highlight"><strong>循环机制：</strong>空位在哪一端，就从另一端向中间扫描并填空；两端轮流扫描，指针相遇时写回枢轴。</div>'
+    +'<p class="d19-footnote">□ 是教学中的逻辑空位，不是 C 数组的特殊值；扫描可跳过多个记录，搬移后空位才换端。若扫描时指针相遇，就不再搬移而直接写回枢轴。</p>'
 ),'quick',goal='解释首枢轴双端空位填补的实际操作语义')
 add('partition-trace','双端扫描如何交替填补逻辑空位？',content(
-    box('输入与执行约定',arrays([4,7,2,8,3,6,1])+P('首记录 4 为枢轴，先从右向左寻找小于枢轴的关键字，再从左向右寻找大于枢轴的关键字。'))
+    box('输入与执行约定',P('输入 '+L('[4,7,2,8,3,6,1]')+'，暂存首记录 '+L('x=4')+'；初始 '+L('low=0')+'、'+L('high=6')+'，空位在左端。两端<strong>交替扫描、填空</strong>；指针相遇时写回枢轴。'))
     +'<div class="d19-demo"><div class="d19-demo-top"><strong id="quick-stage">暂存枢轴</strong><span id="quick-held">临时枢轴：4</span></div>'
     +'<div id="quick-array" class="d19-cells" style="--n:7" aria-live="polite"></div>'
+    +'<div id="quick-next-scan" class="d19-next-scan" aria-live="polite">从 high 端向左扫描，寻找需要填补左侧空位的记录。</div>'
     +'<div id="quick-note" class="d19-highlight" aria-live="polite">观察扫描与逻辑空位的移动。</div>'
     +'<div class="d19-buttons"><button id="quick-prev" type="button">上一步</button><button id="quick-next" type="button">下一步</button><button id="quick-reset" type="button">重置</button></div></div>'
 ),'quick',goal='准确执行 Partition 的交替扫描和空位搬移过程',activity='教师分步演示、学生预测下一步')
@@ -209,7 +212,7 @@ add('partition-result','一次划分完成后，什么结论已经成立？',con
 ),'quick',goal='由算法实际执行状态判断 Partition 的后置条件')
 add('partition-independent','换一个输入，你能独立完成一次划分吗？',task(
     box('独立输入与方法约定',arrays([5,9,3,8,2,7,4,6,1],id_='partition-input')
-        +P('首元素 '+L('5')+' 作枢轴，先从右向左、再从左向右扫描；移动填补逻辑空位；下标从 0 开始。')),
+        +P('暂存首元素 '+L('x=5')+'，初始 '+L('low=0')+'、'+L('high=8')+'；根据<strong>当前空位</strong>从相反端扫描并交替填空。指针相遇时写回枢轴；下标从 0 开始。')),
     '<strong>先独立作答：</strong>写出一次划分后的数组、枢轴下标，并说明两边为什么能够独立递归。<label for="d19-student-answer" class="d19-answer-label">记录我的划分结果、枢轴位置与判断依据</label><textarea class="d19-answer-input" id="d19-student-answer" placeholder="我的预测、最终下标和依据……"></textarea>',
     arrays([1,4,3,2,5,7,8,6,9],marked=[4])
     +P('枢轴最终下标 '+L('4')+'。左区各关键字 '+L(r'\le5')+'，右区各关键字 '+L(r'\ge5')+'；两侧内部尚未必有序，可以分别递归处理。')
@@ -219,7 +222,7 @@ add('partition-invariant','为什么交替搬移不会丢记录或破坏区域�
         +P('<strong>右已处理区：</strong>关键字 '+L(r'\ge x')+'。')
         +P('<strong>逻辑空位：</strong>枢轴 '+L('x')+' 单独暂存，移动一条记录填空后，其原位置成为新空位。'))
     +'<div class="d19-highlight">真实记录与暂存枢轴合起来的<strong>身份多重集合不变</strong>；双指针不断靠拢，未处理区缩小。</div>'
-    +P('当两指针相遇，把枢轴写回空位，得到“左 '+L(r'\le x')+'、枢轴、右 '+L(r'\ge x')+'”的划分结果。')
+    +P('扫描跳过不需搬移的记录，填空才使空位换端；每次循环未处理区缩小。指针相遇时不再搬移，把枢轴写回该位置，得到“左 '+L(r'\le x')+'、枢轴、右 '+L(r'\ge x')+'”的划分结果。')
 ),'quick',goal='用区域、记录保持与指针收缩解释 Partition 机制')
 add('quicksort-recursion','为什么快速排序可以递归解决两侧问题？',content(
     box('快速排序的递归定义',P('若子数组长度不超过 '+L('1')+'，直接返回；否则先执行 Partition，使枢轴就位，再分别对左右子数组递归排序。')
@@ -279,7 +282,7 @@ add('d020-bridge','还有哪些排序问题需要新的机制？',content(
 ),'synthesis',goal='形成向 D020 选择与归并排序学习的真实认知需求')
 
 # 34: closing, outside sections
-COURSE.add('homework','课后怎样独立预测、运行与核对？',content(
+COURSE.add('homework','课后怎样预测、运行和核对？',content(
     '<div class="d19-homework">'
     +P('<strong>A · 教材作业（必做）</strong>：第 8 章选择题 (1)(3)(6)(7)；应用题 (1) 的①直接插入与⑤快速排序。保留关键步骤；若教材采用不同 Partition 约定，注明差异。')
     +P('<strong>B · C11 程序实践（必做）</strong>：先预测 '+L('[5,2,4,2,3]')+' 逐轮插入后状态、'+L('[5,9,3,8,2,7,4,6,1]')+' 的首次划分和枢轴下标；再运行程序核对，并解释一种保持性质及一项输入相关的代价差异。')
@@ -287,7 +290,7 @@ COURSE.add('homework','课后怎样独立预测、运行与核对？',content(
     +'<p class="d19-homework-note">A/B 均为正式必做；B 附预测、实测和解释。末尾附 3–5 行过程记录，通过<a href="../../assignments/homework-guide.md">课程作业规范</a>规定的飞书渠道提交。学生可在自己的电脑运行，不要求在 Git 仓库执行或 push。</p>'
     +'<p class="d19-homework-note">选做不提交：应用题 (1) ③ 希尔排序、算法设计题 (4)。本讲不额外增加必做任务。</p>'
     +'</div>'
-),role='closing',label='课后学习与提交',goal='独立可执行的正式 A/B 作业、命令与提交要求',activity='明确任务、提交证据和边界')
+),role='closing',goal='独立可执行的正式 A/B 作业、命令与提交要求',activity='明确任务、提交证据和边界')
 
 SLIDES=COURSE.finalize()
 assert len(SLIDES)==34,(len(SLIDES),[x[0] for x in SLIDES])

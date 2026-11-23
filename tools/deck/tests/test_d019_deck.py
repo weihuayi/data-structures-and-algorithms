@@ -126,6 +126,34 @@ class D019ContentTests(unittest.TestCase):
         self.assertIn('\\([1_{\\mathrm b}',self.bodies['stability-task'])
         self.assertIn('\\(n-1\\)',self.bodies['bubble-stop-task'])
 
+    def test_r3_classroom_partition_semantics_and_course_frame(self):
+        # Classroom feedback: avoid mistaking a one-time direction order for the cycle.
+        self.assertEqual(self.m.SLIDES[0][2], '课程导入')
+        self.assertEqual(self.m.SLIDES[-1][2], '')
+        self.assertIn('d19-cover-line', self.bodies['cover'])
+        self.assertIn('d19-cover-note', self.bodies['cover'])
+        self.assertNotIn('从已知走向新问题', self.bodies['cover'])
+        self.assertIn('课后怎样预测、运行和核对？', self.m.SLIDES[-1][0])
+        css=(DECK/'lesson.css').read_text()
+        self.assertIn('d19-cover-line',css)
+        self.assertIn('background:#f0f6fb;color:#193f60',css)
+        self.assertIn('d19-homework',self.bodies['homework'])
+        for pid in ('pivot-hole','partition-trace','partition-independent'):
+            self.assertNotIn('先从右向左、再从左向右扫描',self.bodies[pid])
+            self.assertNotIn('先从右向左寻找小于枢轴的关键字，再从左向右',self.bodies[pid])
+        self.assertIn('空位在哪一端',self.bodies['pivot-hole'])
+        self.assertIn('从另一端',self.bodies['pivot-hole'])
+        self.assertIn('两端',self.bodies['partition-trace'])
+        self.assertIn('id="quick-next-scan"',self.bodies['partition-trace'])
+        self.assertIn('初始',self.bodies['partition-independent'])
+        self.assertIn('当前空位',self.bodies['partition-independent'])
+        self.assertIn('扫描跳过',self.bodies['partition-invariant'])
+        self.assertIn('关键字比较次数一般不等于',self.bodies['insertion-cost'])
+        js=(DECK/'lesson.js').read_text()
+        for marker in ('low = high','空位在 low','空位在 high','i===state.low',"prefix==='quick'"):
+            self.assertIn(marker,js)
+        self.assertIn('已于 2026-11-23 用于真实课堂',(DECK/'README.md').read_text())
+
     def test_generated_html_matches_renderer(self):
         expected,count=render_document(DECK)
         self.assertEqual(count,34)
