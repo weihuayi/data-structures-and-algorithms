@@ -30,7 +30,7 @@ const ids=[
    const jsErrors=[];
    page.on("pageerror",e=>jsErrors.push(e.message));
    await page.goto("file://"+html,{waitUntil:"load"});
-   await page.waitForSelector('[data-page-id="homework-bridge"]');
+   await page.waitForSelector('[data-page-id="homework-bridge"]',{state:"attached"});
    assert.equal(await page.locator("main .slide").count(),34);
    assert.deepEqual(await page.locator("main .slide").evaluateAll(
      all=>all.map(x=>x.dataset.pageId)),ids);
