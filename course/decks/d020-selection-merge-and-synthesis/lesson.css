@@ -118,3 +118,11 @@
    scale; retain D020's spacious row layout but match the course type sizes. */
 .deck .slide[data-page-id="outline"] .course-outline-topic strong{font-size:25px}
 .deck .slide[data-page-id="outline"] .course-outline-topic p{font-size:22px}
+
+/* R2 cognitive additions on heap-array: preserve tree/array label sizes by
+   recovering 720p space from local padding, not reducing semantic typography. */
+@media(max-height:780px) and (min-width:901px){
+ .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-sequence{margin:4px 0 5px}
+ .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-highlight{padding:8px 15px;margin:6px 0}
+ .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-note{margin:4px 0}
+}
