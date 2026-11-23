@@ -9,14 +9,16 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: d020-cognitive-r2-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify-cognitive-and-rendered:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7.0.1
-        with:
-          ref: d020-cognitive-continuity-r2-20261124
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: '24'
