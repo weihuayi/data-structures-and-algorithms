@@ -188,3 +188,23 @@
 .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-empty{
   color:#5c7589;font-size:clamp(18px,1.3vw,22px);
 }
+
+/* Radix collect steps (6/12) are the tallest. Recover 720p height through
+   local padding, keeping all 10 buckets and ID labels readable. */
+@media(max-height:780px) and (min-width:901px){
+ .deck .slide[data-page-id="radix-linked-trace"] h2{margin-bottom:5px}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-necessary{
+   padding:1px 7px;margin:0;
+ }
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer{
+   padding:3px 8px;margin:2px 0;
+ }
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-bucket{
+   min-height:38px;padding:2px 4px;
+ }
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer .d20-step-label{margin-bottom:1px}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-buttons{margin:1px 0 0}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-buttons button{padding:4px 11px}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-view-note{margin:1px 0}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-note{margin:1px 0}
+}
