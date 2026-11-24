@@ -116,13 +116,13 @@ static void radix_lsd(Record a[], int n, int digits) {
         maximum_digits++;
     }
     if (n < 0 || n > 32 || digits < 1 || digits > maximum_digits) {
-        fputs("Radix requires 0..32 records and a valid C-int decimal digit count\\n", stderr);
+        fputs("Radix requires 0..32 records and a valid C-int decimal digit count\n", stderr);
         exit(EXIT_FAILURE);
     }
     int largest = 0;
     for (int i = 0; i < n; i++) {
         if (a[i].key < 0) {
-            fputs("Radix requires nonnegative integer keys\\n", stderr);
+            fputs("Radix requires nonnegative integer keys\n", stderr);
             exit(EXIT_FAILURE);
         }
         if (a[i].key > largest) largest = a[i].key;
@@ -130,7 +130,7 @@ static void radix_lsd(Record a[], int n, int digits) {
     int needed = 1;
     while (largest >= 10) { largest /= 10; needed++; }
     if (digits < needed) {
-        fputs("Radix digits do not cover the entire key\\n", stderr);
+        fputs("Radix digits do not cover the entire key\n", stderr);
         exit(EXIT_FAILURE);
     }
     unsigned long long divisor = 1ULL;
