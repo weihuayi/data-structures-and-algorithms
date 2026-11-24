@@ -1,0 +1,68 @@
+name: D020 cognitive continuity R2 QA
+
+on:
+  push:
+    branches:
+      - d020-cognitive-continuity-r2-20261124
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: d020-cognitive-r2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-cognitive-and-rendered:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install locked Chromium and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Test D020 official and R2 cognitive contracts
+        run: python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
+      - name: Compile and self-test C11 demonstration
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo
+          /tmp/d020_demo --self-test
+          /tmp/d020_demo heap 3 8 1 6 2 7 4
+      - name: Verify pure algorithm trace regression
+        run: node course/decks/d020-selection-merge-and-synthesis/prototypes/test_trace.cjs
+      - name: Build all 34 official HTML pages and page plan
+        run: python3 tools/deck/build.py D020
+      - name: Test 34 pages in three projector viewports
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
+      - name: Compare D017 D018 D020 visual behavior and expanded states
+        env:
+          D020_VISUAL_DIR: /tmp/d020-r2-review
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_visual_consistency.cjs
+      - name: Upload R2 review screenshots and layout metrics
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d020-cognitive-r2-rendered-review
+          path: /tmp/d020-r2-review
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Commit only verified derived D020 HTML and page plan
+        run: |
+          git add course/decks/d020-selection-merge-and-synthesis/index.html \
+                  course/decks/d020-selection-merge-and-synthesis/README.md
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "D020 cognitive R2: sync controlled HTML and page plan"
+            git push origin HEAD:d020-cognitive-continuity-r2-20261124
+          fi
