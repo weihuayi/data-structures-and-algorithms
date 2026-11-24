@@ -2,7 +2,7 @@ name: D020 integrated professional and deck QA
 
 on:
   push:
-    branches: [main, d020-postmerge-integration-20261125]
+    branches: [main]
     paths:
       - ".github/workflows/d020-integrated-qa.yml"
       - "course/decks/d020-selection-merge-and-synthesis/**"
@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -81,26 +81,7 @@ jobs:
           path: /tmp/d020-integrated-visual
           if-no-files-found: ignore
           retention-days: 14
-      - name: Ensure HTML and page plan are synced; commit only on integration branch
-        if: github.event_name != 'pull_request'
-        shell: bash
-        run: |
-          git add course/decks/d020-selection-merge-and-synthesis/index.html \
-                  course/decks/d020-selection-merge-and-synthesis/README.md
-          if ! git diff --cached --quiet; then
-            if [[ "$GITHUB_REF" == 'refs/heads/d020-postmerge-integration-20261125' ]]; then
-              git config user.name "github-actions[bot]"
-              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-              git commit -m "D020: sync verified generated HTML and page plan"
-              git push origin HEAD:d020-postmerge-integration-20261125
-            else
-              echo "Generated D020 artifacts differ from committed main"
-              git diff --cached --stat
-              exit 1
-            fi
-          fi
-      - name: Check HTML and page plan tracked artifact consistency on PR
-        if: github.event_name == 'pull_request'
+      - name: Confirm generated HTML and page plan match tracked sources
         run: |
           git diff --exit-code -- course/decks/d020-selection-merge-and-synthesis/index.html \
             course/decks/d020-selection-merge-and-synthesis/README.md
