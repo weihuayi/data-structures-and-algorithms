@@ -10,6 +10,10 @@
     const id=typeof r==="number"?"i="+i:"id="+(r.id||ids&&ids[i]||"");
     return '<div class="d20-cell"><small>'+htmlEscape(id)+'</small><strong>'+htmlEscape(v)+'</strong></div>';
   }).join("")+'</div>';
+  const compactRecords=arr=>'<div class="d20-collected" aria-label="本轮已收集记录">'+
+    (arr.length ? arr.map(r=>'<span class="d20-collected-item">'+
+      htmlEscape(r.key)+' <small>('+htmlEscape(r.id)+')</small></span>').join('') :
+      '<span class="d20-collected-empty">尚未收集</span>')+'</div>';
   function viewer(name,states,describe){
     const root=$(name+"-viewer");if(!root)return;
     const panels=[...root.querySelectorAll(":scope > .tree-step-panel")];
@@ -46,7 +50,7 @@
     html:'<div class="d20-buckets">'+s.buckets.map((b,i)=>
       '<div class="d20-bucket '+(s.focus===i?'d20-focus':'')+'"><strong>桶 '+i+
       '</strong><div class="d20-bucket-list">'+(b.map(x=>htmlEscape(x.key+"("+x.id+")")).join(" → ")||"—")+'</div></div>'
-    ).join("")+'</div><strong>本轮已收集记录</strong>'+cells(s.collected),
+    ).join("")+'</div><strong>本轮已收集记录</strong>'+compactRecords(s.collected),
     note:s.note
   }));
  }
