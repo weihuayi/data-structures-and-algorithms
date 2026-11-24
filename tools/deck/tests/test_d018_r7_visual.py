@@ -39,7 +39,9 @@ class D018R7VisualStructureTests(unittest.TestCase):
         mapping = self.body["detect-collision"]
         self.assertEqual(len(re.findall(r'data-slot="[0-6]"', mapping)), 7)
         self.assertIn('data-state="OCCUPIED"', mapping)
-        self.assertIn("独立计算 h(17)", mapping)
+        self.assertIn(r"独立计算 \(h(17)\)", mapping)
+        self.assertIn(r"\(h(24)\)", mapping)
+        self.assertIn(r"\(h(13)\)", mapping)
         chain = self.body["chain-lookup"]
         self.assertIn("hash-v2-chainsvg", chain)
         self.assertIn('viewBox="0 0 1080 260"', chain)
