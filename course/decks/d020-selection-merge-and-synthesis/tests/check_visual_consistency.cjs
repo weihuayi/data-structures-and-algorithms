@@ -144,7 +144,7 @@ function choose(pageList,deckId){
         // the original problem, and scrolling is allowed but clipping is not.
         if(d.id==="D020"&&width<=1440){
           for(const pid of ["heap-independent","stable-merge-independent",
-            "radix-independent","comparison-model","choice-independent"]){
+            "radix-independent","radix-stability","comparison-model","choice-independent"]){
             const record=items.find(x=>x.id===pid);
             assert(record,pid+" missing");
             await page.selectOption("#slide-select",String(record.index));
