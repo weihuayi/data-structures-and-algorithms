@@ -237,3 +237,23 @@
  .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-view-note{margin:1px 0}
  .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-note{margin:1px 0}
 }
+
+/* Teacher review: semantic highlights and compact paired tree/array snapshots. */
+.deck .d20-lesson .d20-edge.d20-violation{stroke:#a52e33;stroke-width:5;stroke-dasharray:8 4}
+.deck .d20-lesson .d20-node.d20-completed{fill:#e1f3e6;stroke:#71a98c}
+.deck .d20-lesson .d20-dual{max-width:780px;margin:auto}
+.deck .d20-lesson .d20-dual .d20-tree{max-height:190px}
+.deck .d20-lesson .d20-build-viewer .d20-tree{max-height:190px}
+.deck .d20-lesson .d20-build-viewer p{margin:3px 0}
+.deck .d20-lesson .d20-build-viewer .d20-sequence{margin:2px 0}
+.deck .slide[data-page-id="tournament-bridge"] .d20-lesson .d20-tree{max-height:156px}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-compact-input{grid-template-columns:1fr;max-width:620px}
+@media(max-height:780px) and (min-width:901px){
+ .deck .d20-lesson .d20-dual .d20-tree,.deck .d20-lesson .d20-build-viewer .d20-tree{max-height:155px}
+ .deck .d20-lesson .d20-build-viewer{padding:6px 12px;margin:4px 0}
+ .deck .d20-lesson .d20-build-viewer .d20-buttons{margin:3px 0 0}
+ .deck .d20-lesson .d20-build-viewer .d20-buttons button{padding:4px 12px}
+ .deck .slide[data-page-id="build-heap"] .d20-lesson .d20-note{margin:4px 0}
+ .deck .slide[data-page-id="sift-counterexample"] .d20-lesson .d20-sequence{margin:2px 0 4px}
+ .deck .slide[data-page-id="radix-stability"] .d20-lesson .d20-sequence{margin:2px 0 4px}
+}

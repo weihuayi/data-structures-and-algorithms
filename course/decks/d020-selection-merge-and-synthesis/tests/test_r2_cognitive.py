@@ -61,8 +61,8 @@ class CognitiveContinuityR2(unittest.TestCase):
         self.assertIn("最小值放到左边", self.by_id["heap-opportunity"])
         self.assertIn("最大值放到右边", self.by_id["heap-opportunity"])
         self.assertIn("两个孩子子树原本均为堆", self.by_id["sift-down"])
-        self.assertIn("i=1 后为 [5,7,8,2,3,1,6]", self.by_id["build-heap"])
-        self.assertIn("i=1：[4,6,7,3,1,2,5]", self.by_id["heap-independent"])
+        self.assertIn('data-heap-state="5,7,8,2,3,1,6"', self.by_id["build-heap"])
+        self.assertIn("：[4,6,7,3,1,2,5]", self.by_id["heap-independent"])
         self.assertIn("siftDown", self.by_id["sift-counterexample"])
 
     def test_exercises_answer_withholding(self):
@@ -93,8 +93,8 @@ class CognitiveContinuityR2(unittest.TestCase):
     def test_radix_stability_and_model_conditions(self):
         self.assertIn("21 和 22", self.by_id["radix-stability"])
         self.assertIn("22→21", self.by_id["radix-stability"])
-        self.assertIn("有 d 位", self.by_id["radix-stability"])
-        self.assertIn("基数为 b", self.by_id["radix-stability"])
+        self.assertIn(r"\(d\)", self.by_id["radix-stability"])
+        self.assertIn(r"\(b\)", self.by_id["radix-stability"])
         self.assertNotIn("Omega", self.by_id["radix-opportunity"])
         self.assertIn(r"\Omega(n\log n)", self.by_id["comparison-model"])
 
@@ -103,7 +103,7 @@ class CognitiveContinuityR2(unittest.TestCase):
         self.assertIn("最小堆是最大堆的对偶", p4)
         self.assertIn("稳定 LSD", p4)
         self.assertIn("通用稳定数组归并排序", p4)
-        self.assertIn("k≥2", p4)
+        self.assertIn(r"k\ge 2", p4)
         self.assertNotIn("稳定计数排序", p4)
 
     def test_no_teacher_backstage_in_student_pages(self):
