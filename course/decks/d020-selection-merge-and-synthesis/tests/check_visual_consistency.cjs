@@ -144,7 +144,7 @@ function choose(pageList,deckId){
         // the original problem, and scrolling is allowed but clipping is not.
         if(d.id==="D020"&&width<=1440){
           for(const pid of ["heap-independent","stable-merge-independent",
-            "radix-independent","comparison-model","choice-independent"]){
+            "radix-independent","radix-stability","comparison-model","choice-independent"]){
             const record=items.find(x=>x.id===pid);
             assert(record,pid+" missing");
             await page.selectOption("#slide-select",String(record.index));
@@ -154,7 +154,7 @@ function choose(pageList,deckId){
             const answer=task.locator("details.course-answer");
             assert.equal(await answer.count(),1,pid+" must have one answer");
             assert.equal(await answer.getAttribute("open"),null,pid+" answer leaked");
-            await answer.locator("summary").click();
+            await answer.locator(":scope > summary").click();
             assert.equal(await answer.getAttribute("open"),"",pid+" cannot open answer");
             assert.equal(await input.innerText(),original,pid+" lost input");
             const state=await metrics(page);
@@ -163,6 +163,16 @@ function choose(pageList,deckId){
               failures.push("D020 "+pid+" expanded horizontal overflow "+width);
             await page.screenshot({path:path.join(output,
               "d020-expanded-"+pid+"-"+width+"x"+height+".png")});
+            if(pid==="choice-independent"){
+              const challenge=input.locator("details.d20-extension");
+              assert.equal(await challenge.count(),1,"P4 optional challenge structure");
+              assert.equal(await challenge.getAttribute("open"),null,"P4 challenge must start hidden");
+              await challenge.locator(":scope > summary").click();
+              assert.equal(await challenge.getAttribute("open"),"","P4 challenge should open on request");
+              const challengeAnswer=answer.locator("details.d20-extension");
+              assert.equal(await challengeAnswer.getAttribute("open"),null,
+                "P4 extended answer must remain hidden when A/B answer opens");
+            }
             const solution=task.locator(".course-solution");
             await solution.scrollIntoViewIfNeeded();
             assert(await solution.isVisible(),pid+" solution not reachable");
