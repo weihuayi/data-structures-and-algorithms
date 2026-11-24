@@ -105,14 +105,28 @@ def add(pid, title, body, section=None, *, goal, activity="观察、解释与追
                withheld_results=withheld)
 
 def trace_view(name, initial_html, description):
-    """Shared trace data is rendered by lesson.js; initial semantic input remains visible."""
-    return ('<div class="d20-necessary"><strong>固定输入（演示过程中持续保留）</strong>'+initial_html+'</div>'
-            +'<div class="d20-viewer" id="'+name+'-viewer" data-trace="'+name+'">'
-            '<div class="d20-step-label" id="'+name+'-stage">初始状态</div>'
-            '<div class="d20-live" id="'+name+'-state" aria-live="polite">'+description+'</div>'
-            '<div class="d20-buttons"><button type="button" id="'+name+'-prev">上一步</button>'
-            '<button type="button" id="'+name+'-next">下一步</button>'
-            '<button type="button" id="'+name+'-reset">重置</button></div></div>')
+    """Use CourseDeck's shared, checkable manual-step player for formal traces.
+
+    Panels are present in source; lesson.js fills them with the pure trace
+    snapshots. Shared deck.js owns prev/next/reset navigation; no competing
+    D020-specific button controller is attached.
+    """
+    states = {"merge": 7, "radix": 12}[name]
+    panels = ''.join(
+        '<section class="tree-step-panel"' + (' hidden' if i else '') + '>'
+        '<div class="d20-step-label">状态 ' + str(i+1) + '</div>'
+        '<div class="d20-live">' + description + '</div></section>'
+        for i in range(states)
+    )
+    return ('<div class="d20-necessary"><strong>固定输入（演示过程中持续保留）</strong>'
+            +initial_html+'</div><div class="d20-viewer" id="'+name+'-viewer" data-tree-player>'
+            +panels
+            +'<div class="toolbar d20-buttons">'
+            '<button type="button" data-step="prev" id="'+name+'-prev">上一步</button>'
+            '<span class="tree-step" id="'+name+'-stage">步骤 1 / '+str(states)+'</span>'
+            '<button type="button" data-step="next" id="'+name+'-next">下一步</button>'
+            '<button type="button" data-step="reset" id="'+name+'-reset">重置</button>'
+            '</div></div>')
 
 # 01—03: prerequisite diagnosis; do not presume D019 was taught or mastered.
 add("cover", "排序：怎样组织和利用已有信息？",
