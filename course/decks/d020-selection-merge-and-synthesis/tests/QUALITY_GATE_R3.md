@@ -16,6 +16,8 @@
 
 相关实践参考：Carnegie Mellon Eberly Center 的 [Learning Principles](https://www.cmu.edu/teaching/principles/learning.html) 和 [Learning Objectives](https://www.cmu.edu/teaching/designteach/syllabus/newcourse/learningobjectives.html)，[Waterloo 教学目标—评价—活动对齐指南](https://uwaterloo.ca/centre-for-teaching-excellence/catalogs/tip-sheets/aligning-outcomes-assessments-and-instruction)，AERO [Explicit Instruction Guide](https://www.edresearch.edu.au/guides-resources/practice-guides/explicit-instruction-practice-guide-full-publication)。这些指导原则是方法依据，并非 D020 已获得学习效果证据。
 
+**证据状态原则**：自动测试不等于学生掌握；阶段预算模型不是实际试讲记录，真实教师排练、学生独立作答和课堂反馈均保持待验证状态。
+
 ## 二、检查流程和验收标准
 
 | 检查 | 可执行步骤与独立证据 | 通过门槛 |
