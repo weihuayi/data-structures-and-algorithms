@@ -1,0 +1,57 @@
+name: D020 D017-D018 visual consistency QA
+
+on:
+  push:
+    branches:
+      - d020-visual-consistency-review-20261124
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  review-visual-consistency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: d020-visual-consistency-review-20261124
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install pinned Chromium and CJK fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Verify official D020 source contracts
+        run: python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
+      - name: Rebuild D020 derived HTML
+        run: python3 tools/deck/build.py D020
+      - name: Verify full D020 layout and interactions
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
+      - name: Compare actual D017 D018 and D020 visual styles
+        env:
+          D020_VISUAL_DIR: /tmp/d020-visual-consistency
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_visual_consistency.cjs
+      - name: Upload aligned screenshots and computed CSS metrics
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d020-visual-consistency-report
+          path: /tmp/d020-visual-consistency
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Commit the generated D020 HTML only after tests pass
+        run: |
+          git add course/decks/d020-selection-merge-and-synthesis/index.html
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "D020: sync generated HTML after visual consistency QA"
+            git push origin HEAD:d020-visual-consistency-review-20261124
+          fi

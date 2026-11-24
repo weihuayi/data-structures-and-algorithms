@@ -74,7 +74,7 @@ def tree(values, *, highlight_nodes=()):
         return '<div>空堆</div>'
     h=math.floor(math.log2(n))+1
     width=960
-    height=80*h+10
+    height=80*h+22
     xy={}
     for i in range(n):
         d=math.floor(math.log2(i+1))
@@ -90,7 +90,7 @@ def tree(values, *, highlight_nodes=()):
         klass="d20-node d20-marked" if i in highlight_nodes else "d20-node"
         shapes.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="25" class="{klass}"/>')
         shapes.append(f'<text x="{x:.1f}" y="{y+7:.1f}" class="d20-node-key">{escape(str(v))}</text>')
-        shapes.append(f'<text x="{x:.1f}" y="{y+42:.1f}" class="d20-node-index">i={i}</text>')
+        shapes.append(f'<text x="{x:.1f}" y="{y+52:.1f}" class="d20-node-index">i={i}</text>')
     return ('<svg class="d20-tree" viewBox="0 0 '+str(width)+' '+str(height)+'" role="img" '
             'aria-label="完全二叉树，圆内为关键字，下面为数组下标">'+''.join(shapes)+'</svg>')
 
@@ -119,10 +119,11 @@ add("cover", "排序：怎样组织和利用已有信息？",
     '<link rel="stylesheet" href="lesson.css">'
     '<script defer src="prototypes/trace.js"></script><script defer src="lesson.js"></script>'
     +lead("相同的排序任务，为什么会产生不同的算法机制和计算代价？")
-    +cols(box("选择与结构",P("反复选取最值时，怎样避免每轮重新扫描全部剩余元素？")),
-          box("有序信息与数位",P("若两个输入已经有序，或关键字有特殊结构，哪些工作可以省去？")))
-    +highlight("从操作过程 → 可复用信息 → 正确性依据 → 计算代价 → 有条件的算法选择。")
-    +note("《数据结构与算法》 · D020 · 第 8 章 8.4–8.6 · 90 分钟候选教学预算"),
+    +box("本讲的主问题",
+         P("反复取最值，可以维护什么结构？两个子序列已有序，可以怎样直接利用？"
+           "关键字具有数位结构时，又能利用哪些信息？")
+         +P("在算法正确性、时间、空间和稳定性要求下，如何作出有条件的选择？"))
+    +note("《数据结构与算法》 · D020 · 第 8 章 8.4–8.6 · 90 分钟教学设计预算"),
     goal="提出本讲以可复用信息设计排序算法的主问题", role="cover")
 COURSE.outline(title="这节课通过哪些问题理解和选择排序算法？")
 COURSE.start_section("selection")
@@ -355,15 +356,18 @@ add("mechanism-synthesis", "不同排序算法究竟复用了哪一种信息？"
     +highlight("算法并非只看名字和复杂度表：明确计算对象，维护可利用的信息，证明保持性质，再判断代价与条件。"),
     "choice",goal="综合三类信息组织机制与其正确性、代价边界")
 add("homework-bridge", "课后怎样独立预测、运行和解释？",
-    box("A · 教材作业（必做）",
-        P("第 8 章选择题 <strong>(8)(11)(13)</strong>；应用题 <strong>(1)⑧ 二路归并</strong>。"
-          "选择题写出一句依据，推演题保留必要中间状态。"))
-    +box("B · C11 程序实践（必做）",
-         P("先独立预测<strong>新输入 [3,8,1,6,2,7,4]</strong> 自底向上建堆及第一次提取最大值后的堆前缀和有序后缀；"
-           "再将同一输入传给 C11 程序核对，说明向下调整的前置条件以及预测和实测是否一致。")
-         +'<pre class="d20-code"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/sorting_d020_demo.c -o d020_demo\n./d020_demo heap 3 8 1 6 2 7 4\n./d020_demo --self-test</code></pre>'
-         +P("源文件及命令为学生个人电脑可复制的 C11 示例；不要求进入 Git 仓库或向公共仓库 push。"))
-    +note("A/B 均必做；选做不提交：选择题 (10)(12)(14)(15)、应用题 (1)⑥⑦、应用题 (2) 完整链式基数三轮。按课程作业规范提交飞书文档，附 3–5 行真实过程记录；如 D019 同周收取须复核总负担。"),
+    '<div class="d20-homework">'
+    +P("<strong>A · 教材作业（必做）</strong>：第 8 章选择题 <strong>(8)(11)(13)</strong>；"
+       "应用题 <strong>(1)⑧ 二路归并</strong>。选择题写出一句依据，推演题保留必要中间状态。")
+    +P("<strong>B · C11 程序实践（必做）</strong>：先独立预测<strong>新输入 [3,8,1,6,2,7,4]</strong>"
+       " 自底向上建堆及第一次提取最大值后的堆前缀、有序后缀；"
+       "再用 C11 程序核对，解释向下调整的前置条件及预测与实测是否一致。")
+    +'<pre class="d20-code"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/sorting_d020_demo.c -o d020_demo\n./d020_demo heap 3 8 1 6 2 7 4\n./d020_demo --self-test</code></pre>'
+    +P("程序可复制到个人电脑运行，不要求在 Git 仓库内运行或向公共仓库 push。")
+    +'<p class="d20-homework-note">A/B 均必做；选做不提交：选择题 (10)(12)(14)(15)、'
+     '应用题 (1)⑥⑦、应用题 (2) 链式基数排序完整三轮。按课程作业规范提交飞书文档，'
+     '附 3–5 行真实过程记录；若与 D019 同周收取，须核对累计负担。</p>'
+    +'</div>',
     goal="发布 A/B 可执行作业、输入与提交边界",role="closing",
     activity="说明正式课堂任务与本地运行条件")
 
