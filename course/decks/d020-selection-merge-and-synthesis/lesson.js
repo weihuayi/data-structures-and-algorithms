@@ -12,18 +12,20 @@
   }).join("")+'</div>';
   function viewer(name,states,describe){
     const root=$(name+"-viewer");if(!root)return;
-    let index=0;
-    const stage=$(name+"-stage"),content=$(name+"-state");
-    const prev=$(name+"-prev"),next=$(name+"-next"),reset=$(name+"-reset");
-    function draw(){
-      const s=states[index],o=describe(s);
-      stage.textContent="状态 "+(index+1)+"/"+states.length+" · "+o.title;
-      content.innerHTML=o.html+'<p class="d20-view-note">'+htmlEscape(o.note)+'</p>';
-      prev.disabled=index===0;next.disabled=index===states.length-1;
+    const panels=[...root.querySelectorAll(":scope > .tree-step-panel")];
+    if(panels.length!==states.length){
+      throw new Error("D020 "+name+" trace count mismatch: panels="+panels.length+
+                      " states="+states.length);
     }
-    prev.addEventListener("click",()=>{index=Math.max(0,index-1);draw()});
-    next.addEventListener("click",()=>{index=Math.min(states.length-1,index+1);draw()});
-    reset.addEventListener("click",()=>{index=0;draw()});draw();
+    // Each snapshot belongs to its own accessible panel. The common deck.js
+    // step controller handles buttons, reset, disabled-state and visibility.
+    panels.forEach((panel,index)=>{
+      const state=states[index],o=describe(state);
+      panel.innerHTML='<div class="d20-step-label">状态 '+(index+1)+
+        '/'+states.length+' · '+htmlEscape(o.title)+'</div>'+
+        '<div class="d20-live">'+o.html+
+        '<p class="d20-view-note">'+htmlEscape(o.note)+'</p></div>';
+    });
   }
   const m=T.stableMergeTrace(
     [T.record(2,"a"),T.record(5,"b"),T.record(8,"c")],
