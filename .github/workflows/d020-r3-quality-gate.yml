@@ -1,0 +1,79 @@
+name: D020 R3 professional and teaching quality gate
+
+on:
+  push:
+    branches:
+      - d020-quality-gate-r3-20261124
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: d020-r3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-r3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Install locked Chromium and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Verify all D020 source contracts and third-round teaching scope
+        run: python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
+      - name: Verify independent JS reference oracles and fixed lesson traces
+        run: |
+          node course/decks/d020-selection-merge-and-synthesis/tests/test_professional_oracles.cjs
+          node course/decks/d020-selection-merge-and-synthesis/prototypes/test_trace.cjs
+      - name: Compile C11 teaching example with strict diagnostics
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo
+          /tmp/d020_demo --self-test
+          /tmp/d020_demo heap 3 8 1 6 2 7 4
+          /tmp/d020_demo merge
+          /tmp/d020_demo radix
+      - name: C11 independent oracle and undefined-behavior sanitizer
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            -fsanitize=undefined -fno-sanitize-recover=all \
+            course/decks/d020-selection-merge-and-synthesis/tests/test_professional_oracles.c \
+            -o /tmp/d020_professional_oracles
+          /tmp/d020_professional_oracles
+      - name: Rebuild 34 official pages from slides.py
+        run: python3 tools/deck/build.py D020
+      - name: Verify full lesson in three projection sizes
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
+      - name: Regress real-player visuals and expanded/trace states against D017 and D018
+        env:
+          D020_VISUAL_DIR: /tmp/d020-r3-review
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_visual_consistency.cjs
+      - name: Upload review screenshots and computed metrics
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d020-r3-quality-gate-review
+          path: /tmp/d020-r3-review
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Commit only verified derived HTML and page plan
+        run: |
+          git add course/decks/d020-selection-merge-and-synthesis/index.html \
+                  course/decks/d020-selection-merge-and-synthesis/README.md
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "D020 R3: sync verified HTML and page plan"
+            git push origin HEAD:d020-quality-gate-r3-20261124
+          fi
