@@ -126,3 +126,13 @@
  .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-highlight{padding:8px 15px;margin:6px 0}
  .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-note{margin:4px 0}
 }
+
+/* R3: P4's nonessential Top-k challenge must not compete visually with A/B. */
+.deck .slide[data-page-id="choice-independent"] .d20-lesson details.d20-extension {
+  border:1px solid #c0d7e7;border-radius:8px;
+  padding:7px 12px;margin:8px 0;background:#f5f9fc;
+}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson details.d20-extension > summary {
+  color:#315f7d;font-size:clamp(19px,1.4vw,24px);
+  font-weight:650;line-height:1.35;cursor:pointer;
+}
