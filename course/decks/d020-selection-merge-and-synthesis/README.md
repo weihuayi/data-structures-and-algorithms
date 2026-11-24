@@ -1,6 +1,6 @@
 # D020｜排序：选择、堆、归并与条件化选择
 
-> **状态**：PR #54（教学设计与 Storyboard）、PR #55（正式 34 页 `slides.py`、C11 和派生 HTML）已经合并至 `main`。PR #56 是尚未合并的视觉一致性修订；当前 R2 仅针对表达路径与认知接续进行叠加评审。**正式页面由 `tools/deck/build.py D020` 从源码生成，工程验证不等于教师审阅、课堂实施或学生实际学会。** 本轮不修改 Offering。
+> **状态**：已将 D020 的视觉一致性（PR #56）、认知接续（PR #57）与专业质量检查（PR #59）实际修订内容整合到基于最新 `main` 的候选修复分支。此处正式课件由 `tools/deck/build.py D020` 从 `slides.py` 生成；主分支是否完成集成须以本修复 PR 合并及全课程 CI 为准。**工程验证不等于教师试讲、课堂实施或学生实际掌握。** 本轮未修改 Offering。
 >
 > **范围**：《数据结构（C语言版）（第3版）》第 8.4–8.6 节；8.7 外部排序只作概念导航。参照 [课程方案](../../../docs/design/course-design-plan.md)、[学习进阶矩阵](../../data_structures_algorithms_D001_D020_learning_progression_matrix.md)、[第八章习题提取](../../../docs/design/exercise-candidates/ch8.md)、[课程 Deck Contract v3](../../../docs/design/deck-contract.md)。
 >
