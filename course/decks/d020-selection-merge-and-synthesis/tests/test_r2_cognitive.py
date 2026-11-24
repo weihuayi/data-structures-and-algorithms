@@ -116,7 +116,7 @@ class CognitiveContinuityR2(unittest.TestCase):
     def test_storyboard_and_audit_page_ids(self):
         board = (HERE / "storyboard.md").read_text(encoding="utf-8")
         audit = (HERE / "tests" / "COGNITIVE_CONTINUITY_REVIEW.md").read_text(encoding="utf-8")
-        ids = re.findall(r"^\| S[0-7] \| \d\d \| ([a-z0-9_-]+) \|", board, re.M)
+        ids = re.findall(r"^\| `([a-z0-9_-]+)` ／ S[0-7] \| \d\d \|", board, re.M)
         self.assertEqual(ids, [p["id"] for p in self.mod.COURSE.pages])
         for p in self.mod.COURSE.pages:
             self.assertIn(chr(96) + p["id"] + chr(96), audit)
