@@ -64,6 +64,25 @@ const ids=[
    assert.equal(await task.locator('[data-task-input]').innerText(),inputBefore);
    assert.match(await task.locator(".course-solution").innerText(),/甲/);
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
+     s.classList.toggle("active",s.dataset.pageId==="build-heap")));
+   const player=page.locator("#build-heap-viewer");
+   const expected=["5,3,8,2,7,1,6","5,3,8,2,7,1,6","5,7,8,2,3,1,6","8,7,6,2,3,1,5"];
+   for(let i=0;i<expected.length;i++){
+     const panel=player.locator(".tree-step-panel:not([hidden])");
+     assert.equal(await panel.getAttribute("data-heap-state"),expected[i]);
+     assert.equal(await panel.locator(".d20-node-key").allTextContents().then(a=>a.join(",")),expected[i]);
+     assert.equal(await panel.locator(".d20-cell strong").allTextContents().then(a=>a.join(",")),expected[i]);
+     const geom=await page.evaluate(()=>{const m=document.querySelector("main");return [m.scrollWidth-m.clientWidth,m.scrollHeight-m.clientHeight]});
+     if(geom[0]>2||geom[1]>3)failures.push("build-heap step "+i+" overflow "+geom);
+     if(i+1<expected.length)await page.locator("#build-heap-next").click();
+   }
+   assert.equal(await page.locator("#build-heap-next").isDisabled(),true);
+   await page.locator("#build-heap-prev").click();
+   assert.equal(await player.locator(".tree-step-panel:not([hidden])").getAttribute("data-heap-state"),expected[2]);
+   await page.locator("#build-heap-reset").click();
+   assert.equal(await player.locator(".tree-step-panel:not([hidden])").getAttribute("data-heap-state"),expected[0]);
+   assert.equal(await page.locator("#build-heap-prev").isDisabled(),true);
+   await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="merge-trace")));
    assert.match(await page.locator("#merge-stage").innerText(),/步骤 1/);
    await page.locator("#merge-next").click();

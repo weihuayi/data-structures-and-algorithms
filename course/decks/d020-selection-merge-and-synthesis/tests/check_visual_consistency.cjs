@@ -72,8 +72,8 @@ function choose(pageList,deckId){
   const idx=[firstRole("cover"),firstRole("outline"),firstRole("section"),
     firstRole("exercise"),pageList.length-1]; // final page may be role=content in legacy D017
   if(deckId==="D020"){
-    for(const id of ["heap-contract","heap-array","sift-down","heap-independent",
-      "stable-merge-independent","radix-linked-trace","radix-independent",
+    for(const id of ["tournament-bridge","heap-contract","heap-array","heap-vs-bst","sift-down","sift-counterexample","build-heap","heap-independent",
+      "merge-trace","stable-merge-independent","radix-linked-trace","radix-independent","radix-stability",
       "comparison-model","homework-bridge"]){
       const item=pageList.find(x=>x.id===id);if(item)idx.push(item.index);
     }
@@ -143,7 +143,7 @@ function choose(pageList,deckId){
         // Additional D020 teaching states: opening an answer must not destroy
         // the original problem, and scrolling is allowed but clipping is not.
         if(d.id==="D020"&&width<=1440){
-          for(const pid of ["heap-independent","stable-merge-independent",
+          for(const pid of ["tournament-bridge","sift-counterexample","heap-independent","stable-merge-independent",
             "radix-independent","radix-stability","comparison-model","choice-independent"]){
             const record=items.find(x=>x.id===pid);
             assert(record,pid+" missing");
@@ -180,7 +180,7 @@ function choose(pageList,deckId){
                 "d020-solution-"+pid+"-"+width+"x"+height+".png")});
             }
           }
-          for(const [pid,buttonId] of [["merge-trace","#merge-next"],
+          for(const [pid,buttonId] of [["build-heap","#build-heap-next"],["merge-trace","#merge-next"],
                                       ["radix-linked-trace","#radix-next"]]){
             const record=items.find(x=>x.id===pid);
             await page.selectOption("#slide-select",String(record.index));
