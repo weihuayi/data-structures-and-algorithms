@@ -65,16 +65,18 @@ const ids=[
    assert.match(await task.locator(".course-solution").innerText(),/甲/);
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="merge-trace")));
-   assert.match(await page.locator("#merge-stage").innerText(),/状态 1/);
+   assert.match(await page.locator("#merge-stage").innerText(),/步骤 1/);
    await page.locator("#merge-next").click();
-   assert.match(await page.locator("#merge-stage").innerText(),/状态 2/);
+   assert.match(await page.locator("#merge-stage").innerText(),/步骤 2/);
    await page.locator("#merge-reset").click();
-   assert.match(await page.locator("#merge-stage").innerText(),/状态 1/);
+   assert.match(await page.locator("#merge-stage").innerText(),/步骤 1/);
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="radix-linked-trace")));
-   assert.equal(await page.locator("#radix-viewer .d20-bucket").count(),10);
+   assert.equal(await page.locator("#merge-viewer > .tree-step-panel").count(),7);
+   assert.equal(await page.locator("#radix-viewer > .tree-step-panel").count(),12);
+   assert.equal(await page.locator("#radix-viewer > .tree-step-panel:not([hidden]) .d20-bucket").count(),10);
    await page.locator("#radix-next").click();
-   assert.match(await page.locator("#radix-stage").innerText(),/状态 2/);
+   assert.match(await page.locator("#radix-stage").innerText(),/步骤 2/);
    await page.locator("#radix-reset").click();
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="heap-independent")));
