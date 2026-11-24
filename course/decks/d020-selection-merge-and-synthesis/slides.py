@@ -99,10 +99,10 @@ def task(input_html, prompt_html, answer_html, *, title="展开核对答案与�
         input_html,prompt_html,answer_html,title=title,layout="stacked")+'</div>'
 
 def add(pid, title, body, section=None, *, goal, activity="观察、解释与追问",
-        role="content", withheld=()):
+        role="content", withheld=(), label=""):
     COURSE.add(pid,title,'<div class="d20-lesson">'+body+'</div>',
                section=section,goal=goal,activity=activity,role=role,
-               withheld_results=withheld)
+               withheld_results=withheld,label=label)
 
 def trace_view(name, initial_html, description):
     """Use CourseDeck's shared, checkable manual-step player for formal traces.
@@ -132,13 +132,13 @@ def trace_view(name, initial_html, description):
 add("cover", "排序：怎样组织和利用已有信息？",
     '<link rel="stylesheet" href="lesson.css">'
     '<script defer src="prototypes/trace.js"></script><script defer src="lesson.js"></script>'
-    +lead("相同的排序任务，为什么会产生不同的算法机制和计算代价？")
-    +box("本讲的主问题",
-         P("反复取最值，可以维护什么结构？两个子序列已有序，可以怎样直接利用？"
-           "关键字具有数位结构时，又能利用哪些信息？")
-         +P("在算法正确性、时间、空间和稳定性要求下，如何作出有条件的选择？"))
-    +note("《数据结构与算法》 · D020 · 第 8 章 8.4–8.6 · 90 分钟"),
-    goal="提出本讲以可复用信息设计排序算法的主问题", role="cover")
+    +'<div class="d20-cover">'
+    +'<p class="d20-cover-lead">相同的排序任务，为什么会产生不同的算法机制和计算代价？</p>'
+    +'<div class="d20-cover-line"><strong class="d20-cover-label">核心主线</strong>'
+    +'<div class="d20-cover-sequence">反复选择与维护最值 → 归并利用有序序列 → LSD 利用数位结构 → 按条件选择</div></div>'
+    +'<p class="d20-cover-note">D020 · 数据结构与算法 · 教材第 8 章 8.4–8.6</p>'
+    +'</div>',
+    goal="提出本讲以可复用信息设计排序算法的主问题", role="cover", label="课程导入")
 COURSE.outline(title="这节课通过哪些问题理解和选择排序算法？")
 COURSE.start_section("selection")
 
@@ -420,10 +420,10 @@ add("homework-bridge", "课后作业：怎样独立预测、运行和解释？",
        " 自底向上建堆及第一次提取最大值后的堆前缀、有序后缀；"
        "再用 C11 程序核对，解释向下调整的前置条件及预测与实测是否一致。")
     +'<pre class="d20-code"><code>gcc -std=c11 -Wall -Wextra -Werror -pedantic code/sorting_d020_demo.c -o d020_demo\n./d020_demo heap 3 8 1 6 2 7 4\n./d020_demo --self-test</code></pre>'
-    +P("程序可复制到个人电脑运行，不要求在 Git 仓库内运行或向公共仓库 push。")
-    +'<p class="d20-homework-note">A/B 均必做；选做不提交：选择题 (10)(12)(14)(15)、'
-     '应用题 (1)⑥⑦、应用题 (2) 链式基数排序完整三轮。按课程作业规范提交飞书文档，'
-     '附 3–5 行真实过程记录；若与 D019 同周收取，须核对累计负担。</p>'
+    +'<p class="d20-homework-note">A/B 均为正式必做；先预测、运行核对并解释，附 3–5 行真实过程记录。'
+     '按课程作业规范提交飞书文档；程序可在个人电脑运行，不要求在 Git 仓库内执行或向公共仓库 push。</p>'
+    +'<p class="d20-homework-note">选做不提交：选择题 (10)(12)(14)(15)、'
+     '应用题 (1)⑥⑦、应用题 (2) 链式基数排序完整三轮；若与 D019 同周收取，须核对累计负担。</p>'
     +'</div>',
     goal="发布 A/B 可执行作业、输入与提交边界",role="closing",
     activity="说明正式课堂任务与本地运行条件")
