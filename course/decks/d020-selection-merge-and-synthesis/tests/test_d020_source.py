@@ -108,6 +108,32 @@ class D020DeckChecks(unittest.TestCase):
         for _,a,_ in states:
             self.assertIn('data-heap-state="'+','.join(map(str,a))+'"',body)
 
+    def test_heap_build_tree_array_and_edges_match(self):
+        body=self.pages["build-heap"][1][1]
+        panels=re.findall(r'<section class="tree-step-panel"[^>]*>.*?</section>',body,re.S)
+        expected=[
+            [5,3,8,2,7,1,6],[5,3,8,2,7,1,6],
+            [5,7,8,2,3,1,6],[8,7,6,2,3,1,5],
+        ]
+        self.assertEqual(len(panels),len(expected))
+        edge_pairs=[("480.0,43.0","240.0,123.0"),("480.0,43.0","720.0,123.0"),
+                    ("240.0,123.0","120.0,203.0"),("240.0,123.0","360.0,203.0"),
+                    ("720.0,123.0","600.0,203.0"),("720.0,123.0","840.0,203.0")]
+        for panel,a in zip(panels,expected):
+            self.assertEqual([int(x) for x in re.findall(r'class="d20-node-key">(\d+)</text>',panel)],a)
+            self.assertEqual([int(x) for x in re.findall(r'<strong>(\d+)</strong>',panel)],a)
+            self.assertEqual(re.findall(r'<path d="M([^ ]+) L([^"]+)" class="d20-edge"/>',panel),edge_pairs)
+            self.assertEqual(re.findall(r'class="d20-node-index">i=(\d+)</text>',panel),list(map(str,range(7))))
+
+    def test_no_unrendered_asymptotic_notation_in_prose(self):
+        # Deliberately narrow: code and diagram labels are not prose.
+        for pid,(_,slide) in self.pages.items():
+            body=slide[1]
+            body=re.sub(r'<(svg|pre|code)\b[^>]*>.*?</\1>',"",body,flags=re.S)
+            body=re.sub(r'<span class="d20-math">.*?</span>',"",body,flags=re.S)
+            body=re.sub(r'<[^>]*>',"",body)
+            self.assertNotRegex(body,r'(?:[ΘΩ]\s*\(|(?<![A-Za-z])O\s*\()',pid)
+
     def test_review_graphs_and_trace_titles(self):
         def values(svg):
             return re.findall(r'class="d20-node-key">([^<]+)</text>',svg)
@@ -126,6 +152,8 @@ class D020DeckChecks(unittest.TestCase):
                          [["2","5","7","3","4","6","8"],["7","5","8","3","4","6","2"]])
         for pid in ("merge-trace","radix-linked-trace"):
             self.assertEqual(self.pages[pid][1][1].count("固定输入"),1)
+        self.assertIn("<strong>固定输入</strong>",self.pages["merge-trace"][1][1])
+        self.assertIn("<strong>固定输入（带记录身份）</strong>",self.pages["radix-linked-trace"][1][1])
         self.assertIn("<strong>有序归并（merge）</strong>",self.pages["merge-opportunity"][1][1])
 
     def test_examples_and_notation(self):
