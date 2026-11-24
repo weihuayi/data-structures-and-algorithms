@@ -45,6 +45,12 @@ jobs:
             course/decks/d020-selection-merge-and-synthesis/tests/test_professional_oracles.c \
             -o /tmp/d020_professional_oracles
           /tmp/d020_professional_oracles
+          for invalid in --negative --digits-short --capacity --digits-large; do
+            if /tmp/d020_professional_oracles "$invalid"; then
+              echo "Invalid radix input was unexpectedly accepted: $invalid"
+              exit 1
+            fi
+          done
       - name: Rebuild 34 official pages from slides.py
         run: python3 tools/deck/build.py D020
       - name: Install locked Chromium and Chinese fonts
