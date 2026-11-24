@@ -145,3 +145,46 @@
    max-height:none;overflow:visible;
  }
 }
+
+/* Course-wide player regression: 1280x720 must fit EVERY intermediate state.
+   Reduce redundant frames, not key/identity typography. */
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-viewer,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer{
+  padding:5px 10px;margin:4px 0;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-viewer .d20-step-label,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer .d20-step-label{
+  margin-bottom:3px;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-buttons,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-buttons{
+  margin:4px 0 0;align-items:center;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-view-note,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-view-note{
+  margin:3px 0;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-necessary,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-necessary{
+  padding:3px 8px;margin:2px 0;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-current-candidates{
+  margin:3px 0 5px;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-current-candidates span{
+  padding:4px 9px;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected{
+  display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:3px 0 1px;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-item{
+  display:inline-flex;align-items:baseline;gap:3px;border:1px solid #aac8de;
+  background:#eaf3fb;border-radius:6px;padding:2px 8px;
+  font-size:clamp(20px,1.6vw,25px);font-weight:730;color:#214c6d;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-item small{
+  font-size:clamp(17px,1.25vw,21px);font-weight:600;color:#4b6b84;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-empty{
+  color:#5c7589;font-size:clamp(18px,1.3vw,22px);
+}
