@@ -51,7 +51,7 @@ class D020DeckChecks(unittest.TestCase):
 
     def test_storyboard_page_ids_match(self):
         board = (HERE / "storyboard.md").read_text(encoding="utf-8")
-        rows = re.findall(r"^\| S[0-7] \| \d+ \| ([a-z0-9_-]+) \|", board, re.M)
+        rows = re.findall(r"^\| `([a-z0-9_-]+)` ／ S[0-7] \| \d+ \|", board, re.M)
         self.assertEqual(rows, EXPECTED)
         self.assertEqual(rows.count("part-selection"), 1)
         self.assertEqual(rows.count("part-radix"), 1)
