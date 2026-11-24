@@ -405,7 +405,7 @@ add("mechanism-synthesis", "不同排序算法究竟复用了哪一种信息？"
     +'</div>'
     +highlight("算法并非只看名字和复杂度表：明确计算对象，维护可利用的信息，证明保持性质，再判断代价与条件。"),
     "choice",goal="综合三类信息组织机制与其正确性、代价边界")
-add("homework-bridge", "课后怎样独立预测、运行和解释？",
+add("homework-bridge", "课后作业：怎样独立预测、运行和解释？",
     '<div class="d20-homework">'
     +P("<strong>A · 教材作业（必做）</strong>：第 8 章选择题 <strong>(8)(11)(13)</strong>；"
        "应用题 <strong>(1)⑧ 二路归并</strong>。选择题写出一句依据，推演题保留必要中间状态。")
