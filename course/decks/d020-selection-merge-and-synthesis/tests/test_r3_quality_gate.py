@@ -73,7 +73,7 @@ class ThirdRoundGate(unittest.TestCase):
 
     def test_design_budget_and_timed_fallback_are_consistent(self):
         rows = re.findall(
-            r"^\| S([0-7]) \| \d\d \| [a-z0-9_-]+ \|.*?\| ([0-9]+(?:\.[0-9]+)?) \|$",
+            r"^\| `[a-z0-9_-]+` ／ S([0-7]) \| \d\d \|.*?\| ([0-9]+(?:\.[0-9]+)?) \|$",
             read("storyboard.md"), re.M)
         self.assertEqual(len(rows), 34)
         stages = {f"S{i}":0.0 for i in range(8)}
