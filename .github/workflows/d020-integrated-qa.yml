@@ -35,6 +35,12 @@ jobs:
           cache-dependency-path: tools/deck/package-lock.json
       - name: Build official D020 HTML and page plan
         run: python3 tools/deck/build.py D020
+      - name: Install Chromium and CJK fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
       - name: Check D020 source and cognitive contracts
         run: |
           python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
@@ -61,12 +67,6 @@ jobs:
               exit 1
             fi
           done
-      - name: Install Chromium and CJK fonts
-        run: |
-          npm ci --prefix tools/deck --ignore-scripts
-          cd tools/deck
-          npx playwright install --with-deps chromium
-          sudo apt-get install -y fonts-noto-cjk
       - name: Check 34 slides and interactive behavior at three viewport sizes
         run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
       - name: Check D017 D018 D020 visual consistency including expanded answers
