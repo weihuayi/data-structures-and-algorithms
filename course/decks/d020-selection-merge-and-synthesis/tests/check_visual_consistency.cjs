@@ -144,7 +144,7 @@ function choose(pageList,deckId){
         // the original problem, and scrolling is allowed but clipping is not.
         if(d.id==="D020"&&width<=1440){
           for(const pid of ["heap-independent","stable-merge-independent",
-            "radix-independent","comparison-model","choice-independent"]){
+            "radix-independent","radix-stability","comparison-model","choice-independent"]){
             const record=items.find(x=>x.id===pid);
             assert(record,pid+" missing");
             await page.selectOption("#slide-select",String(record.index));
@@ -154,7 +154,7 @@ function choose(pageList,deckId){
             const answer=task.locator("details.course-answer");
             assert.equal(await answer.count(),1,pid+" must have one answer");
             assert.equal(await answer.getAttribute("open"),null,pid+" answer leaked");
-            await answer.locator("summary").click();
+            await answer.locator(":scope > summary").click();
             assert.equal(await answer.getAttribute("open"),"",pid+" cannot open answer");
             assert.equal(await input.innerText(),original,pid+" lost input");
             const state=await metrics(page);
@@ -163,6 +163,15 @@ function choose(pageList,deckId){
               failures.push("D020 "+pid+" expanded horizontal overflow "+width);
             await page.screenshot({path:path.join(output,
               "d020-expanded-"+pid+"-"+width+"x"+height+".png")});
+            if(pid==="choice-independent"){
+              // The optional C prompt stays readable but is NOT required for
+              // A/B completion; one shared answer disclosure has no nested
+              // hidden state that the generic course checker cannot reach.
+              assert.equal(await task.locator("details").count(),1,
+                "P4 should have exactly one independent answer disclosure");
+              assert.match(await input.innerText(),/C（选做挑战）/);
+              assert.match(await answer.innerText(),/选做 C 参考/);
+            }
             const solution=task.locator(".course-solution");
             await solution.scrollIntoViewIfNeeded();
             assert(await solution.isVisible(),pid+" solution not reachable");

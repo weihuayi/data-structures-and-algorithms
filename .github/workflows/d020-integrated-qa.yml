@@ -1,0 +1,87 @@
+name: D020 integrated professional and deck QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/d020-integrated-qa.yml"
+      - "course/decks/d020-selection-merge-and-synthesis/**"
+      - "tools/deck/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/d020-integrated-qa.yml"
+      - "course/decks/d020-selection-merge-and-synthesis/**"
+      - "tools/deck/**"
+  workflow_dispatch:
+
+concurrency:
+  group: d020-integrated-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/deck/package-lock.json
+      - name: Build official D020 HTML and page plan
+        run: python3 tools/deck/build.py D020
+      - name: Install Chromium and CJK fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Check D020 source and cognitive contracts
+        run: |
+          python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
+          python3 tools/deck/check_homework.py
+          python3 tools/deck/check.py D020
+      - name: Check independent JS oracles and lesson traces
+        run: |
+          node course/decks/d020-selection-merge-and-synthesis/tests/test_professional_oracles.cjs
+          node course/decks/d020-selection-merge-and-synthesis/prototypes/test_trace.cjs
+      - name: Compile, sanitize and exercise C11 reference implementations
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo
+          /tmp/d020_demo --self-test
+          /tmp/d020_demo heap 3 8 1 6 2 7 4
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            -fsanitize=undefined -fno-sanitize-recover=all \
+            course/decks/d020-selection-merge-and-synthesis/tests/test_professional_oracles.c \
+            -o /tmp/d020_oracles
+          /tmp/d020_oracles
+          for invalid in --negative --digits-short --capacity --digits-large; do
+            if /tmp/d020_oracles "$invalid"; then
+              echo "An invalid radix input was accepted: $invalid"
+              exit 1
+            fi
+          done
+      - name: Check 34 slides and interactive behavior at three viewport sizes
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
+      - name: Check D017 D018 D020 visual consistency including expanded answers
+        env:
+          D020_VISUAL_DIR: /tmp/d020-integrated-visual
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_visual_consistency.cjs
+      - name: Save review screenshots and computed CSS evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: d020-integrated-quality-evidence
+          path: /tmp/d020-integrated-visual
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Confirm generated HTML and page plan match tracked sources
+        run: |
+          git diff --exit-code -- course/decks/d020-selection-merge-and-synthesis/index.html \
+            course/decks/d020-selection-merge-and-synthesis/README.md

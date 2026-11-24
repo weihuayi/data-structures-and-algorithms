@@ -118,3 +118,93 @@
    scale; retain D020's spacious row layout but match the course type sizes. */
 .deck .slide[data-page-id="outline"] .course-outline-topic strong{font-size:25px}
 .deck .slide[data-page-id="outline"] .course-outline-topic p{font-size:22px}
+
+/* R2 cognitive additions on heap-array: preserve tree/array label sizes by
+   recovering 720p space from local padding, not reducing semantic typography. */
+@media(max-height:780px) and (min-width:901px){
+ .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-sequence{margin:4px 0 5px}
+ .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-highlight{padding:8px 15px;margin:6px 0}
+ .deck .slide[data-page-id="heap-array"] .d20-lesson .d20-note{margin:4px 0}
+}
+
+/* P4 has one shared answer disclosure; A/B remain the minimum evidence.
+   Keep original typography and use local spacing + an accessible answer scroller
+   rather than nesting opaque optional <details> or shrinking problem text. */
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .course-workspace{gap:5px}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .d20-box{padding:8px 13px;margin:4px 0}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .d20-box h3{margin:0 0 5px}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .d20-box p{margin:3px 0;line-height:1.38}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .course-prompt{padding:8px 12px;line-height:1.35}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .course-answer{margin:3px 0}
+.deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .course-solution{
+  max-height:160px;overflow-y:auto;overscroll-behavior:contain;
+  padding:6px 10px;
+}
+@media print{
+ .deck .slide[data-page-id="choice-independent"] .d20-lesson .d20-task .course-solution{
+   max-height:none;overflow:visible;
+ }
+}
+
+/* Course-wide player regression: 1280x720 must fit EVERY intermediate state.
+   Reduce redundant frames, not key/identity typography. */
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-viewer,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer{
+  padding:5px 10px;margin:4px 0;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-viewer .d20-step-label,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer .d20-step-label{
+  margin-bottom:3px;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-buttons,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-buttons{
+  margin:4px 0 0;align-items:center;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-view-note,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-view-note{
+  margin:3px 0;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-necessary,
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-necessary{
+  padding:3px 8px;margin:2px 0;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-current-candidates{
+  margin:3px 0 5px;
+}
+.deck .slide[data-page-id="merge-trace"] .d20-lesson .d20-current-candidates span{
+  padding:4px 9px;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected{
+  display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:3px 0 1px;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-item{
+  display:inline-flex;align-items:baseline;gap:3px;border:1px solid #aac8de;
+  background:#eaf3fb;border-radius:6px;padding:2px 8px;
+  font-size:clamp(20px,1.6vw,25px);font-weight:730;color:#214c6d;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-item small{
+  font-size:clamp(17px,1.25vw,21px);font-weight:600;color:#4b6b84;
+}
+.deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-collected-empty{
+  color:#5c7589;font-size:clamp(18px,1.3vw,22px);
+}
+
+/* Radix collect steps (6/12) are the tallest. Recover 720p height through
+   local padding, keeping all 10 buckets and ID labels readable. */
+@media(max-height:780px) and (min-width:901px){
+ .deck .slide[data-page-id="radix-linked-trace"] h2{margin-bottom:5px}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-necessary{
+   padding:1px 7px;margin:0;
+ }
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer{
+   padding:3px 8px;margin:2px 0;
+ }
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-bucket{
+   min-height:38px;padding:2px 4px;
+ }
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-viewer .d20-step-label{margin-bottom:1px}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-buttons{margin:1px 0 0}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-buttons button{padding:4px 11px}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-view-note{margin:1px 0}
+ .deck .slide[data-page-id="radix-linked-trace"] .d20-lesson .d20-note{margin:1px 0}
+}
