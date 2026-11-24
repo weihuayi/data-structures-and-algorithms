@@ -80,7 +80,32 @@ static void validate_radix_case(const int *keys, int n, int digits) {
     radix_lsd(actual,n,digits);
     compare_records(actual,expected,n);
 }
-int main(void) {
+int main(int argc, char **argv) {
+    /* The subprocess exit code confirms invalid radix inputs are rejected. */
+    if (argc == 2) {
+        if (strcmp(argv[1], "--negative") == 0) {
+            Record invalid[] = {{-1, 'x'}};
+            radix_lsd(invalid, 1, 1);
+            return 0;
+        }
+        if (strcmp(argv[1], "--digits-short") == 0) {
+            Record invalid[] = {{100, 'x'}};
+            radix_lsd(invalid, 1, 2);
+            return 0;
+        }
+        if (strcmp(argv[1], "--capacity") == 0) {
+            Record invalid[33] = {{0, 'x'}};
+            radix_lsd(invalid, 33, 1);
+            return 0;
+        }
+        if (strcmp(argv[1], "--digits-large") == 0) {
+            Record invalid[] = {{1, 'x'}};
+            radix_lsd(invalid, 1, 100);
+            return 0;
+        }
+        return 2;
+    }
+    if (argc != 1) return 2;
     const int repeated[] = {INT_MIN, 0, INT_MAX, -1, 1, 0, INT_MIN, INT_MAX};
     validate_heap(repeated,8);
     for (int n = 0; n <= 32; n++) {
