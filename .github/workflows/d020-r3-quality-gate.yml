@@ -24,12 +24,6 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: tools/deck/package-lock.json
-      - name: Install locked Chromium and Chinese fonts
-        run: |
-          npm ci --prefix tools/deck --ignore-scripts
-          cd tools/deck
-          npx playwright install --with-deps chromium
-          sudo apt-get install -y fonts-noto-cjk
       - name: Verify all D020 source contracts and third-round teaching scope
         run: python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
       - name: Verify independent JS reference oracles and fixed lesson traces
@@ -53,6 +47,12 @@ jobs:
           /tmp/d020_professional_oracles
       - name: Rebuild 34 official pages from slides.py
         run: python3 tools/deck/build.py D020
+      - name: Install locked Chromium and Chinese fonts
+        run: |
+          npm ci --prefix tools/deck --ignore-scripts
+          cd tools/deck
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
       - name: Verify full lesson in three projection sizes
         run: node course/decks/d020-selection-merge-and-synthesis/tests/check_full.cjs
       - name: Regress real-player visuals and expanded/trace states against D017 and D018
