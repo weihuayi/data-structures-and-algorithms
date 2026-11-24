@@ -38,6 +38,15 @@ const viewportSet=[[1024,768],[1280,720],[1366,768],[1440,900],[2048,1107]];
    await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='shell-gaps'))));
    const gapGroups=await page.locator('.slide.active .d19-cells .d19-cell').evaluateAll(nodes=>nodes.map(n=>({i:n.querySelector('.d19-index').textContent.trim(),g:n.querySelector('.d19-group-tag')?.textContent.trim()})));
    assert.deepEqual(gapGroups,[{i:'0',g:'A组'},{i:'1',g:'B组'},{i:'2',g:'A组'},{i:'3',g:'B组'},{i:'4',g:'A组'}]);
+   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='cover'))));
+   assert.equal(await page.locator('.slide.active .kicker').innerText(),'课程导入');
+   assert.equal(await page.locator('.slide.active .d19-cover-line').count(),1);
+   assert.equal(await page.locator('.slide.active .d19-columns').count(),0);
+   await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='homework'))));
+   assert.equal(await page.locator('.slide.active .kicker').count(),0);
+   assert.equal(await page.locator('.slide.active h2').innerText(),'课后怎样预测、运行和核对？');
+   const homeworkBackground=await page.locator('.slide.active pre.d19-code').evaluate(e=>getComputedStyle(e).backgroundColor);
+   assert.equal(homeworkBackground,'rgb(240, 246, 251)');
    for(const pid of ['stability-task','insertion-independent','bubble-stop-task','partition-independent','cost-diagnosis']){
     await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll((nodes,target)=>nodes.findIndex(n=>n.dataset.pageId===target),pid)));
     const card=page.locator(`[data-page-id="${pid}"]`);
@@ -64,10 +73,17 @@ const viewportSet=[[1024,768],[1280,720],[1366,768],[1440,900],[2048,1107]];
    assert.equal((await page.locator('#ins-array strong').allInnerTexts()).join(','),'2,5,6,7,1');
    await page.click('#ins-reset');assert.match(await page.locator('#ins-stage').innerText(),/1\/5/);
    await page.selectOption('#slide-select',String(await page.locator('.slide').evaluateAll(nodes=>nodes.findIndex(n=>n.dataset.pageId==='partition-trace'))));
-   for(let i=0;i<5;i++)await page.click('#quick-next');
+   const scanStages=['空位在 low','空位在 high','空位在 low','空位在 high','low = high','划分完成'];
+   for(let i=0;i<scanStages.length;i++){
+     assert((await page.locator('#quick-next-scan').innerText()).includes(scanStages[i]),`next scan stage ${i}`);
+     if(i===0)assert.equal(await page.locator('#quick-array .d19-pointer').count(),2);
+     if(i===4)assert.match(await page.locator('#quick-array .d19-pointer').innerText(),/low = high/);
+     if(i<scanStages.length-1)await page.click('#quick-next');
+   }
    assert.equal((await page.locator('#quick-array strong').allInnerTexts()).join(','),'1,3,2,4,8,6,7');
    await page.click('#quick-reset');
    assert.equal(await page.locator('#quick-array strong').first().innerText(),'□');
+   assert.match(await page.locator('#quick-next-scan').innerText(),/空位在 low/);
    assert.deepEqual(errors,[]);
    await page.close();
    console.log(`PASS D019 browser: ${width}x${height}; 34 default pages, 5 tasks, both custom players`);
