@@ -155,9 +155,9 @@ P1–P4 和 E1a/E1b/E2/E3 均须先独立判断后核对；原输入、操作前
 | 29 | radix-stability | 为什么不能随意改变同桶记录的顺序？ | 独立用十位桶倒序反例解释 FIFO 对 LSD 正确性的必要性 | 判断后展开反例答案 |
 | 30 | part-choice | 第四部分：计算代价与条件化选择 | 依据约束比较方案而非只背复杂度表 | 小节转折 |
 | 31 | comparison-model | 排序复杂度结论为什么必须带上计算条件？ | 诊断算法工作空间与比较决策树下界的成立条件 | E3 先判断条件，再核对模型 |
-| 32 | choice-independent | 数据条件变化后，怎样有依据地选择排序机制？ | 基于已学机制与给定提示，在条件变化时独立选择可行算法 | P4 已学机制迁移与对偶推导 |
+| 32 | choice-independent | 数据条件变化后，怎样有依据地选择排序机制？ | 基于已学机制与给定提示，在条件变化时独立选择可行算法 | P4 A/B 必答与可选 Top-k 对偶迁移 |
 | 33 | mechanism-synthesis | 不同排序算法究竟复用了哪一种信息？ | 综合三类信息组织机制与其正确性、代价边界 | 观察、解释与追问 |
-| 34 | homework-bridge | 课后怎样独立预测、运行和解释？ | 发布 A/B 可执行作业、输入与提交边界 | 说明正式课堂任务与本地运行条件 |
+| 34 | homework-bridge | 课后作业：怎样独立预测、运行和解释？ | 发布 A/B 可执行作业、输入与提交边界 | 说明正式课堂任务与本地运行条件 |
 <!-- page-plan:end -->
 
 正式构建：从仓库根目录运行 `python3 tools/deck/build.py D020`，生成同目录 `index.html`。程序核对：`gcc -std=c11 -Wall -Wextra -Werror -pedantic course/decks/d020-selection-merge-and-synthesis/code/sorting_d020_demo.c -o /tmp/d020_demo && /tmp/d020_demo --self-test`。具体检验是否通过以相应 CI 的结果为准；不能以本节描述代替实际运行。
