@@ -33,6 +33,8 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: tools/deck/package-lock.json
+      - name: Build official D020 HTML and page plan
+        run: python3 tools/deck/build.py D020
       - name: Check D020 source and cognitive contracts
         run: |
           python3 -m unittest discover -s course/decks/d020-selection-merge-and-synthesis/tests -p 'test_*.py' -v
@@ -59,8 +61,6 @@ jobs:
               exit 1
             fi
           done
-      - name: Build official D020 HTML and page plan
-        run: python3 tools/deck/build.py D020
       - name: Install Chromium and CJK fonts
         run: |
           npm ci --prefix tools/deck --ignore-scripts
