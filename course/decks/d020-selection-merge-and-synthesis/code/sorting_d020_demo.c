@@ -108,7 +108,32 @@ static void merge_example(void) {
  * No input record is lost: next[i] is a link index or -1 for end of chain.
  */
 static void radix_lsd(Record a[], int n, int digits) {
-    int divisor = 1;
+    /* This teaching implementation uses fixed buffers of 32 records.
+     * Reject unsupported inputs instead of silently truncating higher digits
+     * or indexing buckets with negative values. */
+    int maximum_digits = 1;
+    for (unsigned long long v = (unsigned long long)INT_MAX; v >= 10ULL; v /= 10ULL) {
+        maximum_digits++;
+    }
+    if (n < 0 || n > 32 || digits < 1 || digits > maximum_digits) {
+        fputs("Radix requires 0..32 records and a valid C-int decimal digit count\\n", stderr);
+        exit(EXIT_FAILURE);
+    }
+    int largest = 0;
+    for (int i = 0; i < n; i++) {
+        if (a[i].key < 0) {
+            fputs("Radix requires nonnegative integer keys\\n", stderr);
+            exit(EXIT_FAILURE);
+        }
+        if (a[i].key > largest) largest = a[i].key;
+    }
+    int needed = 1;
+    while (largest >= 10) { largest /= 10; needed++; }
+    if (digits < needed) {
+        fputs("Radix digits do not cover the entire key\\n", stderr);
+        exit(EXIT_FAILURE);
+    }
+    unsigned long long divisor = 1ULL;
     for (int digit = 0; digit < digits; digit++) {
         int head[10];
         int tail[10];
@@ -119,7 +144,7 @@ static void radix_lsd(Record a[], int n, int digits) {
             tail[b] = -1;
         }
         for (int i = 0; i < n; i++) {
-            const int b = (a[i].key / divisor) % 10;
+            const int b = (int)(((unsigned long long)(unsigned int)a[i].key / divisor) % 10ULL);
             next[i] = -1;
             if (head[b] == -1) {
                 head[b] = i;
@@ -139,7 +164,7 @@ static void radix_lsd(Record a[], int n, int digits) {
             exit(EXIT_FAILURE);
         }
         for (int i = 0; i < n; i++) a[i] = out[i];
-        divisor *= 10;
+        if (digit + 1 < digits) divisor *= 10ULL;
         print_records("LSD after stable bucket collection", a, n);
     }
 }
