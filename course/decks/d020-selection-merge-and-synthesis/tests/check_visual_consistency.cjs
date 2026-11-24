@@ -164,14 +164,13 @@ function choose(pageList,deckId){
             await page.screenshot({path:path.join(output,
               "d020-expanded-"+pid+"-"+width+"x"+height+".png")});
             if(pid==="choice-independent"){
-              const challenge=input.locator("details.d20-extension");
-              assert.equal(await challenge.count(),1,"P4 optional challenge structure");
-              assert.equal(await challenge.getAttribute("open"),null,"P4 challenge must start hidden");
-              await challenge.locator(":scope > summary").click();
-              assert.equal(await challenge.getAttribute("open"),"","P4 challenge should open on request");
-              const challengeAnswer=answer.locator("details.d20-extension");
-              assert.equal(await challengeAnswer.getAttribute("open"),null,
-                "P4 extended answer must remain hidden when A/B answer opens");
+              // The optional C prompt stays readable but is NOT required for
+              // A/B completion; one shared answer disclosure has no nested
+              // hidden state that the generic course checker cannot reach.
+              assert.equal(await task.locator("details").count(),1,
+                "P4 should have exactly one independent answer disclosure");
+              assert.match(await input.innerText(),/C（选做挑战）/);
+              assert.match(await answer.innerText(),/选做 C 参考/);
             }
             const solution=task.locator(".course-solution");
             await solution.scrollIntoViewIfNeeded();
