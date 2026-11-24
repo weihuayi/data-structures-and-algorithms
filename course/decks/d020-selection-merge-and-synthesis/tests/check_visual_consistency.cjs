@@ -124,8 +124,8 @@ function choose(pageList,deckId){
             if(m.id==="heap-contract"&&m.treeIndexPixels!==null&&m.treeIndexPixels<12)
               failures.push("D020 SVG tree index < 12 projected pixels");
             if(m.id==="homework-bridge"){
-              if(!m.homeworkText||m.homeworkText.fontPx<22.9)
-                failures.push("D020 homework text smaller than 23px");
+              if(!m.homeworkText||m.homeworkText.fontPx<20.9)
+                failures.push("D020 homework text smaller than D018/D019 A/B 21px floor");
               if(!m.homeworkCode||m.homeworkCode.fontPx<17.9)
                 failures.push("D020 homework code smaller than 18px");
               if(m.homeworkCode?.background==="rgb(24, 56, 80)")
@@ -206,11 +206,10 @@ function choose(pageList,deckId){
         if(vals.length===3&&Math.max(...vals)-Math.min(...vals)>2.0)
           failures.push(vp+" shared "+field+" diverges "+JSON.stringify(vals));
       }
-      const d17=byDeck.D017.find(r=>r.id==="cover")?.contentText?.fontPx;
-      const d20=byDeck.D020.find(r=>r.id==="cover")?.contentText?.fontPx;
-      if(Number.isFinite(d17)&&Number.isFinite(d20)&&abs(d17-d20)>2.1)
-        failures.push(vp+" D020 body typography not aligned with D017: "+
-                      d20+" vs "+d17);
+      // D017 generic cover paragraph and D020 lead are DIFFERENT semantic
+      // roles, so font-size equality would be a false visual contract.
+      // D018/D019/D020 matching cover lead and A/B homework metrics are
+      // asserted by check_cover_homework_consistency.cjs using actual pixels.
     }
     fs.writeFileSync(path.join(output,"visual-metrics.json"),
       JSON.stringify({baseline:["D017","D018"],candidate:"D020",

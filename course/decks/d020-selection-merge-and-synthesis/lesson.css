@@ -83,34 +83,63 @@
 .deck .slide[data-page-id="radix-linked-trace"] .d20-note{margin:4px 0}
 @media(max-width:900px){.deck .d20-lesson .d20-compact-input{grid-template-columns:1fr}}
 
-/* Visual consistency R1: same hierarchy as D017/D018 without duplicating shared chrome.
-   Lesson-specific diagrams remain distinct; align the entry and homework page roles. */
-.deck .slide[data-page-id="cover"] .d20-lesson .d20-lead{
-  background:transparent;border:0;border-radius:0;padding:0;
-  color:#204e73;font-size:clamp(25px,2.05vw,34px);
-  font-weight:650;line-height:1.4;margin:6px 0 16px;
+/* D018/D019 shared visual grammar for two special page roles:
+   cover uses kicker / question / emphasized route / course note;
+   closing uses a full-width A/B workspace, with subordinate code and notes.
+   This is deliberately scoped to D020; algorithm diagrams are unchanged. */
+.deck .slide[data-page-id="cover"]{padding-top:clamp(20px,5vh,70px)}
+.deck .slide[data-page-id="cover"] .d20-lesson{
+  max-width:none;width:100%;margin:0;
 }
-.deck .slide[data-page-id="cover"] .d20-lesson .d20-box{
-  background:#f5f9fd;border-color:#b9cede;
+.deck .slide[data-page-id="cover"] .d20-cover{
+  max-width:1250px;display:grid;gap:16px;
 }
-.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework{
-  max-width:1360px;margin-inline:auto;
+.deck .slide[data-page-id="cover"] .d20-cover-lead{
+  font-size:clamp(28px,2.2vw,36px);line-height:1.38;font-weight:650;
+  color:#204e73;margin:0;
 }
-.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p{
-  font-size:clamp(23px,1.8vw,29px);
-  line-height:1.44;margin:10px 0;
+.deck .slide[data-page-id="cover"] .d20-cover-line{
+  border-left:6px solid #246c9d;background:#eaf3fb;
+  padding:15px 20px;border-radius:4px;display:grid;gap:7px;
 }
-.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p.d20-homework-note{
-  color:#536c80;font-size:clamp(17px,1.3vw,21px);line-height:1.46;margin:8px 0;
+.deck .slide[data-page-id="cover"] .d20-cover-label{
+  color:#225b84;font-weight:750;font-size:clamp(19px,1.5vw,24px);
 }
-.deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework pre.d20-code{
+.deck .slide[data-page-id="cover"] .d20-cover-sequence{
+  font-size:clamp(22px,1.75vw,28px);font-weight:650;
+  line-height:1.5;color:#1a405d;
+}
+.deck .slide[data-page-id="cover"] .d20-cover-note{
+  color:#526e81;font-size:clamp(18px,1.35vw,21px);
+  line-height:1.35;margin:0;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-lesson,
+.deck .slide[data-page-id="homework-bridge"] .d20-homework{
+  max-width:none;width:100%;margin:0;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-homework p{
+  font-size:clamp(21px,1.7vw,27px);line-height:1.37;margin:8px 0;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-homework p.d20-homework-note{
+  font-size:clamp(17px,1.3vw,21px);line-height:1.36;
+  color:#536c80;margin:7px 0;
+}
+.deck .slide[data-page-id="homework-bridge"] .d20-homework pre.d20-code{
   color:#193f60;background:#f0f6fb;border:1px solid #c5d9e7;
-  font-size:clamp(18px,1.42vw,23px);line-height:1.37;
-  padding:12px 15px;margin:12px 0;
+  font-size:clamp(18px,1.4vw,22px);line-height:1.3;
+  border-radius:9px;padding:10px 15px;margin:9px 0;
+  white-space:pre-wrap;overflow-wrap:anywhere;
 }
-@media(max-height:780px) and (min-width:901px){
- .deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework p{margin:7px 0}
- .deck .slide[data-page-id="homework-bridge"] .d20-lesson .d20-homework pre.d20-code{padding:9px 13px;margin:8px 0}
+@media(max-height:780px){
+  .deck .slide[data-page-id="homework-bridge"] .d20-homework p{
+    margin:5px 0;line-height:1.32;
+  }
+  .deck .slide[data-page-id="homework-bridge"] .d20-homework p.d20-homework-note{
+    margin:5px 0;line-height:1.3;
+  }
+  .deck .slide[data-page-id="homework-bridge"] .d20-homework pre.d20-code{
+    padding:8px 12px;line-height:1.24;margin:6px 0;
+  }
 }
 
 /* Visual consistency R2: D017 and D018 use the dense outline's 25/22px

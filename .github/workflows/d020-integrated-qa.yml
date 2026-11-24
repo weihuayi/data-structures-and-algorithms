@@ -73,12 +73,18 @@ jobs:
         env:
           D020_VISUAL_DIR: /tmp/d020-integrated-visual
         run: node course/decks/d020-selection-merge-and-synthesis/tests/check_visual_consistency.cjs
+      - name: Compare D018 D019 D020 covers and A/B homework visual hierarchy
+        env:
+          D020_EDGE_VISUAL_DIR: /tmp/d020-edge-visual
+        run: node course/decks/d020-selection-merge-and-synthesis/tests/check_cover_homework_consistency.cjs
       - name: Save review screenshots and computed CSS evidence
         if: always()
         uses: actions/upload-artifact@v7.0.2
         with:
           name: d020-integrated-quality-evidence
-          path: /tmp/d020-integrated-visual
+          path: |
+            /tmp/d020-integrated-visual
+            /tmp/d020-edge-visual
           if-no-files-found: ignore
           retention-days: 14
       - name: Confirm generated HTML and page plan match tracked sources
