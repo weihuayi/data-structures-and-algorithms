@@ -54,6 +54,12 @@ const ids=[
     if(await page.locator('.slide.active .course-answer[open]').count())
      failures.push(id+" leaked answer by default");
    }
+   // Fixed input positions must correspond to the independent merge pointers.
+   for(const pid of ["merge-opportunity","merge-trace","stable-merge-independent"]){
+     const figures=page.locator('[data-page-id="'+pid+'"] figure.d20-sequence');
+     assert.deepEqual(await figures.nth(0).locator(".d20-index").allTextContents(),["i=0","i=1","i=2"],pid+" left indices");
+     assert.deepEqual(await figures.nth(1).locator(".d20-index").allTextContents(),["j=0","j=1","j=2"],pid+" right indices");
+   }
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="stable-merge-independent")));
    const task=page.locator('[data-page-id="stable-merge-independent"]');
@@ -84,11 +90,30 @@ const ids=[
    assert.equal(await page.locator("#build-heap-prev").isDisabled(),true);
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="merge-trace")));
-   assert.match(await page.locator("#merge-stage").innerText(),/步骤 1/);
-   await page.locator("#merge-next").click();
-   assert.match(await page.locator("#merge-stage").innerText(),/步骤 2/);
+   const mergeStates=[
+     [0,0,"2(a)","1(d)",[]],
+     [0,1,"2(a)","6(e)",[1]],
+     [1,1,"5(b)","6(e)",[1,2]],
+     [2,1,"8(c)","6(e)",[1,2,5]],
+     [2,2,"8(c)","7(f)",[1,2,5,6]],
+     [2,3,"8(c)","已耗尽",[1,2,5,6,7]],
+     [3,3,"已耗尽","已耗尽",[1,2,5,6,7,8]]
+   ];
+   for(let k=0;k<mergeStates.length;k++){
+     const [i,j,l,r,keys]=mergeStates[k];
+     const panel=page.locator("#merge-viewer > .tree-step-panel:not([hidden])");
+     assert.match(await page.locator("#merge-stage").innerText(),new RegExp("步骤 "+(k+1)+" /"));
+     assert.deepEqual(await panel.locator(".d20-current-candidates span").allTextContents(),
+       ["左侧指针 i="+i+"；当前候选 "+l,"右侧指针 j="+j+"；当前候选 "+r]);
+     assert.deepEqual((await panel.locator(".d20-cell strong").allTextContents()).map(Number),keys);
+     if(k+1<mergeStates.length)await page.locator("#merge-next").click();
+   }
+   assert.equal(await page.locator("#merge-next").isDisabled(),true);
+   await page.locator("#merge-prev").click();
+   assert.match(await page.locator("#merge-stage").innerText(),/步骤 6/);
    await page.locator("#merge-reset").click();
    assert.match(await page.locator("#merge-stage").innerText(),/步骤 1/);
+   assert.equal(await page.locator("#merge-prev").isDisabled(),true);
    await page.evaluate(()=>document.querySelectorAll("main .slide").forEach(s=>
      s.classList.toggle("active",s.dataset.pageId==="radix-linked-trace")));
    assert.equal(await page.locator("#merge-viewer > .tree-step-panel").count(),7);
