@@ -102,15 +102,34 @@ def tree(values, *, highlight_nodes=(), show_indices=True, kind="heap",
     return ('<svg class="d20-tree" viewBox="0 0 '+str(width)+' '+str(height)+'" role="img" '
             'aria-label="'+label+'">'+''.join(shapes)+'</svg>')
 
+def selection_max_step(values):
+    """One right-end selection step; ties retain the first maximum."""
+    a=list(values)
+    if len(a)<2:
+        return a
+    j=max(range(len(a)),key=a.__getitem__)
+    a[j],a[-1]=a[-1],a[j]
+    return a
+
 def tournament(leaves, *, changed=False):
-    """Four-candidate winner tree, not a heap; None denotes a removed leaf."""
+    """Four-candidate maximum winner tree; None denotes a removed leaf."""
     if len(leaves)!=4:
         raise ValueError("D020 winner-tree example requires four leaves")
-    a=[math.inf if x is None else x for x in leaves]
-    values=[min(a), min(a[:2]), min(a[2:]), *a]
-    return tree(["∞" if x==math.inf else x for x in values],
+    a=[-math.inf if x is None else x for x in leaves]
+    values=[max(a),max(a[:2]),max(a[2:]),*a]
+    path=[]
+    if changed:
+        if leaves.count(None)!=1:
+            raise ValueError("The update example must remove exactly one leaf")
+        i=3+leaves.index(None)
+        while True:
+            path.append(i)
+            if i==0:
+                break
+            i=(i-1)//2
+    return tree(["−∞" if x==-math.inf else x for x in values],
                 kind="tournament", show_indices=False,
-                highlight_nodes=(0,2,6) if changed else ())
+                highlight_nodes=path)
 
 def dual(values, *, highlight_nodes=(), completed=(), violated=()):
     """Both representations derive from the same snapshot."""
@@ -204,7 +223,7 @@ add("cover", "排序：怎样组织和利用已有信息？",
     +'<p class="d20-cover-note">D020 · 数据结构与算法 · 教材第 8 章 8.4–8.6</p>'
     +'</div>',
     goal="提出本讲以可复用信息设计排序算法的主问题", role="cover", label="课程导入")
-COURSE.outline(title="这节课通过哪些问题理解和选择排序算法？")
+COURSE.outline(title="从哪些问题理解和选择排序算法？")
 COURSE.start_section("selection")
 
 add("sort-contract-recall", "排序结果有序，就一定满足要求吗？",
@@ -220,29 +239,30 @@ add("sort-contract-recall", "排序结果有序，就一定满足要求吗？",
 
 # 03—16: selection, tournament tree and heap.
 add("simple-selection", "为什么简单选择排序要反复扫描剩余元素？",
-    box("在尚未排序部分反复找最小值",
-        seq([4,1,3,2])+P("第一轮最小值 1 放到首位；之后仅在剩余三个元素中再找最小值。")
-        +P("每轮已就位前缀增长，后缀仍可能无序。"))
-    +cols(box("正确性不变量",P("前缀各记录已到最终位置，且不大于尚未处理的所有关键字。")),
+    box("在尚未排序部分反复找最大值",
+        cols(box("初始输入",seq([4,1,3,2],focus=[0])),
+             box("第一轮后",seq(selection_max_step([4,1,3,2]),fixed=[3])))
+        +P("选择最大值 4，与未排序区末尾元素交换；已就位后缀增长，前缀仍可能无序。"))
+    +cols(box("正确性不变量",P("后缀有序且各记录已到最终位置；前缀所有关键字均不大于后缀任何关键字。")),
           box("计算代价",P("对 " + M(r"n") + " 条记录，比较次数 "+M(r"(n-1)+(n-2)+\cdots+1=\frac{n(n-1)}2")
                           +"，故为 "+M(r"\Theta(n^2)")+"。")))
-    +note("简单选择交换最小值时可能颠倒相等关键字记录的先后：2甲、2乙、1丙 → 1丙、2乙、2甲。"),
+    +note("简单选择可能不稳定：从左向右扫描，遇相等最大值保留先遇到的记录。2甲、2乙、1丙 → 1丙、2乙、2甲。"),
     "selection",goal="解释简单选择反复扫描及其不稳定性、平方阶比较成本")
 add("tournament-bridge", "树形选择能保存哪些比较结果？",
     task(
-        cols(box("简单选择",P("每轮都在剩余序列重新寻找最值。")+seq([8,3,6,2])),
+        cols(box("简单选择",P("每轮都在剩余序列重新寻找最大值。")+seq([8,3,6,2])),
              box("树形选择（竞赛树）",tournament([8,3,6,2])
-              +P("叶子是候选，内部结点保存较小的比较胜者。取出 2 后，该叶子视为 "+M(r"+\infty")+"。"))),
-        P("<strong>独立判断：</strong>取出最小值 2 后，哪些比较结果仍然有效？哪些结点需要重新计算？"),
-        tournament([8,3,6,None],changed=True)
-        +P("标出的三个结点是被替换叶子及其受影响的祖先；左支胜者 3 保持不变。只需更新被替换叶子的胜者路径。")
-        +P("树形选择的比较结果存储方式并不等同于二叉堆的父子堆序。"),
+              +P("叶子是候选，内部结点保存较大的比较胜者。取出 8 后，该叶子视为 "+M(r"-\infty")+"。"))),
+        P("<strong>独立判断：</strong>取出最大值 8 后，哪些比较结果仍然有效？哪些结点需要重新计算？"),
+        tournament([None,3,6,2],changed=True)
+        +P("右支胜者 6 保持不变；左支胜者变为 3，根的胜者变为 6。只需更新被替换叶子的胜者路径。")
+        +P("竞赛树内部结点保存比较胜者；堆的结点直接存储待排序记录。"),
     ), "selection", goal="说明树形选择复用胜者路径的机制并区分堆",role="exercise",
     activity="E1a 独立比较结构信息")
 add("heap-opportunity", "反复取最大值，能否维护一个合法结构？",
-    lead("简单选择每轮把最小值放到左边；换一个方向，每轮把最大值放到右边，能否减少重复寻找？")
+    lead("排序目标不变：每轮选出当前最大值放到右端。树形选择保存比较结果；能否直接维护记录本身的结构关系？")
     +cols(box("仍然要完成的操作",P("找到当前最大值 → 放到未排序区最右端 → 继续处理其余记录。")),
-          box("希望复用的信息",P("让最大值位于根，删除它后沿较短路径恢复关系，而不是重新扫描所有剩余记录。")))
+          box("希望复用的信息",P("让最大值位于根；取出它后通过局部调整恢复结构，而不是重新扫描所有剩余记录。")))
     +highlight("最大堆将把这一想法实现为一种可维护的结构；接下来明确它必须满足什么性质。"),
     "selection",goal="由选择排序成本引出可维护的最值结构")
 add("heap-contract", "什么样的完全二叉树才是最大堆？",
@@ -475,7 +495,7 @@ add("choice-independent", "数据条件变化后，怎样有依据地选择排�
     activity="P4 A/B 必答与可选 Top-k 对偶迁移")
 add("mechanism-synthesis", "不同排序算法究竟复用了哪一种信息？",
     '<div class="d20-compare">'
-    +box("简单／树形／堆选择",P("简单选择取最小值放左侧；竞赛树复用胜者路径；最大堆取最大值放右侧。"))
+    +box("简单／树形／堆选择",P("都取最大值放到右端：简单选择重新扫描；竞赛树复用胜者路径；最大堆维护父子堆序。"))
     +box("归并排序",P("两个已排序输入 → 只比较两侧首候选 → 合成更长有序序列。"))
     +box("基数排序",P("关键字有限数位 → 逐轮稳定分配 → 保留先前低位次序。"))
     +'</div>'
