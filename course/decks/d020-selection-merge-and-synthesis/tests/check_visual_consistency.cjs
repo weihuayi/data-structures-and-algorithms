@@ -72,9 +72,9 @@ function choose(pageList,deckId){
   const idx=[firstRole("cover"),firstRole("outline"),firstRole("section"),
     firstRole("exercise"),pageList.length-1]; // final page may be role=content in legacy D017
   if(deckId==="D020"){
-    for(const id of ["tournament-bridge","heap-contract","heap-array","heap-vs-bst","sift-down","sift-counterexample","build-heap","heap-independent",
+    for(const id of ["simple-selection","tournament-bridge","heap-opportunity","heap-contract","heap-array","heap-vs-bst","sift-down","sift-counterexample","build-heap","heap-independent",
       "merge-trace","stable-merge-independent","radix-linked-trace","radix-independent","radix-stability",
-      "comparison-model","homework-bridge"]){
+      "comparison-model","mechanism-synthesis","homework-bridge"]){
       const item=pageList.find(x=>x.id===id);if(item)idx.push(item.index);
     }
   }

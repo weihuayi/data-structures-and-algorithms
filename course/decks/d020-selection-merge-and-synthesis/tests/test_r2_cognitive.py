@@ -57,9 +57,12 @@ class CognitiveContinuityR2(unittest.TestCase):
         self.assertIn("heapSize 是当前有效堆前缀的长度",
                       self.by_id["heap-array"])
 
-    def test_min_to_max_transition_and_heap_preconditions(self):
-        self.assertIn("最小值放到左边", self.by_id["heap-opportunity"])
-        self.assertIn("最大值放到右边", self.by_id["heap-opportunity"])
+    def test_maximum_selection_continuity_and_heap_preconditions(self):
+        for pid in ("simple-selection","tournament-bridge","heap-opportunity","mechanism-synthesis"):
+            self.assertIn("最大值", self.by_id[pid])
+            self.assertNotIn("最小值", self.by_id[pid])
+        self.assertIn(r"\(-\infty\)",self.by_id["tournament-bridge"])
+        self.assertIn("从哪些问题理解和选择排序算法？",self.mod.SLIDES[1][0])
         self.assertIn("两个孩子子树原本均为堆", self.by_id["sift-down"])
         self.assertIn('data-heap-state="5,7,8,2,3,1,6"', self.by_id["build-heap"])
         self.assertIn("：[4,6,7,3,1,2,5]", self.by_id["heap-independent"])
