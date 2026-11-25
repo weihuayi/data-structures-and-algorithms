@@ -192,6 +192,45 @@ class D020DeckChecks(unittest.TestCase):
         self.assertEqual(answer.count("d20-node d20-marked"),3)
         self.assertIn("右支胜者 6 保持不变",answer)
 
+    def test_heap_contract_definition_emphasis(self):
+        html=self.pages["heap-contract"][1][1]
+        self.assertIn("<p><strong>形状：</strong>完全二叉树，末层从左至右连续填充。</p>",html)
+        self.assertIn("<p><strong>顺序：</strong>每个父结点关键字不小于孩子。</p>",html)
+        self.assertIn("<strong>堆序只约束父子，不直接规定同层与左右子树之间的全局顺序。</strong>",html)
+
+    def test_heap_practice_dual_views_and_effective_boundary(self):
+        cases={
+            "heap-independent": [
+                ([4,1,7,3,6,2,5],7),
+                ([7,6,5,3,1,2,4],7),
+                ([4,6,5,3,1,2,7],6),
+                ([6,4,5,3,1,2,7],6)],
+            "heapsort-boundary": [([6,4,5,3,1,2,7],6)],
+            "heap-checkpoint": [([4,9,8,7,5,6,3],7),([9,7,8,4,5,6,3],7)],
+        }
+        for pid,expected in cases.items():
+            html=self.pages[pid][1][1]
+            panels=re.findall(r'<div class="d20-dual">(.*?)</figure>',html,re.S)
+            self.assertEqual(len(panels),len(expected),pid)
+            self.assertEqual(html.split("data-task-answer",1)[0].count('class="d20-dual"'),1,pid)
+            self.assertNotIn("<details open",html)
+            for panel,(a,size) in zip(panels,expected):
+                self.assertEqual([int(x) for x in re.findall(r'class="d20-node-key">(\d+)</text>',panel)],a[:size])
+                self.assertEqual(re.findall(r'class="d20-node-index">i=(\d+)</text>',panel),list(map(str,range(size))))
+                self.assertEqual([int(x) for x in re.findall(r'<strong>(\d+)</strong>',panel)],a)
+                self.assertEqual([int(i) for i in re.findall(r'class="d20-cell d20-fixed"><small class="d20-index">i=(\d+)',panel)],list(range(size,len(a))))
+                self.assertEqual(panel.count("<path "),size-1)
+            self.assertNotIn("d20-marked",html.split("data-task-answer",1)[0],pid)
+        for size in (-1,8):
+            with self.assertRaises(ValueError):
+                self.mod.dual([6,4,5,3,1,2,7],active=size)
+        with self.assertRaises(ValueError):
+            self.mod.dual([6,4,5,3,1,2,7],active=6,highlight_nodes=[6])
+        self.assertNotIn("d20-node-key",self.mod.dual([1],active=0))
+        final=self.pages["heap-checkpoint"][1][1].split("data-task-answer",1)[1]
+        classes=re.findall(r'<circle[^>]*class="([^"]+)"',final)
+        self.assertEqual([i for i,c in enumerate(classes) if "d20-marked" in c],[0,1,3])
+
     def test_examples_and_notation(self):
         self.assertIn("siftDown", self.pages["sift-counterexample"][1][1])
         self.assertIn("head/tail/next", self.pages["radix-linked-trace"][1][1])

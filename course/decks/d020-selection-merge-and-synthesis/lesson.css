@@ -257,3 +257,11 @@
  .deck .slide[data-page-id="sift-counterexample"] .d20-lesson .d20-sequence{margin:2px 0 4px}
  .deck .slide[data-page-id="radix-stability"] .d20-lesson .d20-sequence{margin:2px 0 4px}
 }
+
+/* R19–R24: keep the original question visible beside the added structural context. */
+.deck .slide[data-page-id="heap-independent"] .d20-dual .d20-sequence,
+.deck .slide[data-page-id="heapsort-boundary"] .d20-dual .d20-sequence,
+.deck .slide[data-page-id="heap-checkpoint"] .d20-dual .d20-sequence{margin:2px 0 5px}
+.deck .slide[data-page-id="heap-independent"] .course-input p,
+.deck .slide[data-page-id="heapsort-boundary"] .course-input p,
+.deck .slide[data-page-id="heap-checkpoint"] .course-input p{margin:4px 0}

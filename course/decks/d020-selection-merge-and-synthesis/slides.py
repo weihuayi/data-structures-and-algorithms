@@ -131,11 +131,16 @@ def tournament(leaves, *, changed=False):
                 kind="tournament", show_indices=False,
                 highlight_nodes=path)
 
-def dual(values, *, highlight_nodes=(), completed=(), violated=()):
-    """Both representations derive from the same snapshot."""
-    return ('<div class="d20-dual">'+tree(values, highlight_nodes=highlight_nodes,
+def dual(values, *, highlight_nodes=(), completed=(), violated=(), active=None):
+    """Same snapshot: tree is the active prefix, array retains the full state."""
+    size=len(values) if active is None else active
+    if not isinstance(size,int) or not 0<=size<=len(values):
+        raise ValueError("Invalid effective heap size")
+    if any(not 0<=i<size for i in (*highlight_nodes,*completed,*violated)):
+        raise ValueError("Tree highlight must belong to the effective prefix")
+    return ('<div class="d20-dual">'+tree(values[:size], highlight_nodes=highlight_nodes,
             completed=completed, violated=violated)
-            +seq(values, focus=highlight_nodes, fixed=completed)+'</div>')
+            +seq(values, focus=highlight_nodes, fixed=completed, active=active)+'</div>')
 
 def heap_build_states(values):
     """Initial state and one immutable snapshot per completed siftDown."""
@@ -268,11 +273,12 @@ add("heap-opportunity", "反复取最大值，能否维护一个合法结构？"
 add("heap-contract", "什么样的完全二叉树才是最大堆？",
     cols(box("最大堆（max-heap）＝形状 + 父子堆序",
              tree([9,7,8,4,5,6,3],show_indices=False)
-             +P("形状：完全二叉树，末层从左至右连续填充。顺序：每个父结点关键字不小于孩子。")),
+             +P("<strong>形状：</strong>完全二叉树，末层从左至右连续填充。")
+             +P("<strong>顺序：</strong>每个父结点关键字不小于孩子。")),
          box("只满足形状还不够",
              tree([2,5,7,3,4,6,8],show_indices=False,violated=[1,2,6])
              +P("形状符合要求，但根 2 小于孩子 5 和 7，结点 7 也小于孩子 8（标出违例边）。")
-             +P("堆序只约束父子，不直接规定同层与左右子树之间的全局顺序。")))
+             +P("<strong>堆序只约束父子，不直接规定同层与左右子树之间的全局顺序。</strong>")))
     +highlight("沿根到任意结点逐层比较，能推出最大堆的根是整个结构的最大元素。"),
     "selection",goal="区分完全二叉树形状与局部堆序，并由传递性推出根为最大值")
 add("heap-array", "完全二叉树为什么便于数组顺序存储？",
@@ -320,31 +326,36 @@ add("build-heap", "为什么自底向上建堆从最后一个非叶结点开始�
     "selection",goal="由已成堆的小子树递推构造整个堆，区分单次与总工作量")
 add("heap-independent", "换一个数组，你能独立完成建堆和一次提取吗？",
     task(
-        box("新数组；规定自底向上依次下沉",seq([4,1,7,3,6,2,5])
+        box("待建堆的完全二叉树与数组",dual([4,1,7,3,6,2,5])
             +P("处理顺序："+M(r"i=2,1,0")+"。")
-            +P("按 0 起下标执行自底向上建堆，再交换根与最后元素，缩小有效堆并修复。")),
+            +P("下标从 0 开始；建堆后交换根与末尾、缩小有效堆并修复。")),
         P("<strong>先独立推演：</strong>写出建堆结果、提取最大值后的有效堆前缀与已排序后缀，并解释修复依据。"),
         box("建堆过程",P("" + M(r"i=2") + "：不变；" + M(r"i=1") + "：[4,6,7,3,1,2,5]；" + M(r"i=0") + "：完成建堆。")
-            +seq([7,6,5,3,1,2,4]))
-        +box("提取最大值 7 并修复",P("先交换根与末尾，再令 <code>heapSize=6</code>，下沉修复：")
-            +seq([6,4,5,3,1,2,7],active=6))
+            +dual([7,6,5,3,1,2,4]))
+        +box("提取最大值 7 并修复",P("先交换根与末尾，令 <code>heapSize=6</code>。绿色单元 7 已就位，不再属于堆树。")
+            +P("<strong>交换后，尚未修复：</strong>")
+            +dual([4,6,5,3,1,2,7],active=6,violated=[1,2])
+            +P("<strong>下沉修复后：</strong>")
+            +dual([6,4,5,3,1,2,7],active=6))
         +P("当前有效堆前缀是 [6,4,5,3,1,2]，最终就位后缀为 [7]。如果只要求“任意合法最大堆”，答案未必唯一；此题规定了算法过程。"),
     ), "selection",goal="在不同输入上独立完成建堆与一次堆顶提取",role="exercise",
     activity="P1 独立预测，再展开全部状态")
 add("heapsort-boundary", "取走堆顶之后，哪一部分保持什么性质？",
     task(
-       box("有效堆与最终就位区域",seq([6,4,5,3,1,2,7],active=6)
-           +P("已提取最大值 7；原始数组长度 " + M(r"n=7") + "，当前 <code>heapSize=6</code>。")),
+       box("有效堆与最终就位区域",dual([6,4,5,3,1,2,7],active=6)
+           +P("绿色单元 7 已就位，不属于树图；原始数组长度 " + M(r"n=7") + "，当前 <code>heapSize=6</code>。")),
        P("<strong>独立解释：</strong>左边六个元素必须满足什么？右边一个元素为什么不需要再参与比较？多次提取后哪个部分扩大？"),
        P("左边 " + M(r"[0,\mathtt{heapSize})") + " 仍是最大堆；右侧 " + M(r"[\mathtt{heapSize},n)") + " 为已经按升序确定最终位置的后缀。每轮先选剩余最大值，再恢复有效堆性质。")
        +P("建堆 " + M(r"\Theta(n)") + "，反复 " + M(r"n-1") + " 轮最坏 " + M(r"O(\log n)") + " 调整；迭代数组实现总最坏 " + M(r"\Theta(n\log n)") + "、额外工作空间 " + M(r"O(1)") + "。"),
     ), "selection",goal="独立解释堆前缀和已排序后缀的两个保持性质",role="exercise",activity="E1b 不变量判断")
 add("heap-checkpoint", "为什么这次局部修复能够保证整个堆正确？",
     task(
-        box("堆调整的必要前提",seq([4,9,8,7,5,6,3])
+        box("堆调整前的完全二叉树",dual([4,9,8,7,5,6,3])
             +P("当前根可能违反堆序，但左右孩子子树各自是最大堆。")),
         P("<strong>判断：</strong>为什么先比较两个孩子？如果先交换较小孩子会怎样？最坏需要调整多少层？"),
-        P("必须选较大孩子，使交换后新父结点不小于两个孩子。潜在违反关系只随原根下移；调整最多经过 " + M(r"O(\log n)") + " 层。")
+        P("若先与较小孩子 8 交换，新根 8 仍小于左孩子 9。必须选较大孩子，潜在违反关系才会随原根下移；调整最多经过 " + M(r"O(\log n)") + " 层。")
+        +P("<strong>修复结果：</strong>原根 4 沿下标 0 → 1 → 3 下沉，标出调整路径。")
+        +dual([9,7,8,4,5,6,3],highlight_nodes=[0,1,3])
         +P("关键依据：调整前两侧子树已是堆；每次交换仅把可能的违例沿当前路径下移。"),
     ), "selection",goal="判断堆局部调整的前置条件、交换方向和代价",role="exercise",
     activity="阶段检查，必要时补救")
