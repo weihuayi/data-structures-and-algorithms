@@ -231,6 +231,33 @@ class D020DeckChecks(unittest.TestCase):
         classes=re.findall(r'<circle[^>]*class="([^"]+)"',final)
         self.assertEqual([i for i,c in enumerate(classes) if "d20-marked" in c],[0,1,3])
 
+    def test_merge_input_index_symbols_and_record_identity(self):
+        expected = {
+            "merge-opportunity": ([2,5,8],[1,6,7],[],[]),
+            "merge-trace": ([2,5,8],[1,6,7],["a","b","c"],["d","e","f"]),
+            "stable-merge-independent": ([2,5,8],[2,6,7],["甲","乙","戊"],["丙","丁","己"]),
+        }
+        for pid,(left,right,left_ids,right_ids) in expected.items():
+            html=self.pages[pid][1][1]
+            figures=re.findall(r'<figure class="d20-sequence"[^>]*>.*?</figure>',html,re.S)
+            self.assertEqual(len(figures),3 if pid=="stable-merge-independent" else 2,pid)
+            for figure,symbol,keys,identities in zip(figures,("i","j"),(left,right),(left_ids,right_ids)):
+                self.assertEqual(re.findall(r'class="d20-index">([^<]+)</small>',figure),
+                                 [f"{symbol}={i}" for i in range(len(keys))])
+                self.assertEqual([int(x) for x in re.findall(r'<strong>(\d+)</strong>',figure)],keys)
+                self.assertEqual(re.findall(r'<small>id=([^<]+)</small>',figure),identities)
+            if pid=="stable-merge-independent":
+                self.assertEqual(re.findall(r'class="d20-index">([^<]+)</small>',figures[2]),
+                                 [f"i={k}" for k in range(6)])
+        self.assertIn(r"\(i=j=0\)",self.pages["merge-invariant"][1][1])
+        self.assertEqual(self.mod.seq([4,2]),self.mod.seq([4,2],index_symbol="i"))
+        self.assertIn('class="d20-index">j=0',self.mod.seq([4,2],index_symbol="j"))
+        with self.assertRaises(ValueError):
+            self.mod.seq([4],index_symbol="<script>")
+        for pid,(_,slide) in self.pages.items():
+            if pid not in expected:
+                self.assertNotIn('class="d20-index">j=',slide[1],pid)
+
     def test_examples_and_notation(self):
         self.assertIn("siftDown", self.pages["sift-counterexample"][1][1])
         self.assertIn("head/tail/next", self.pages["radix-linked-trace"][1][1])

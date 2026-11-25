@@ -49,8 +49,10 @@ def note(text):
 def highlight(text):
     return '<div class="d20-highlight">'+text+"</div>"
 
-def seq(values, ids=None, *, focus=(), fixed=(), active=None, label=None):
-    """Record key and ID are separate; a boundary may distinguish heap/suffix."""
+def seq(values, ids=None, *, focus=(), fixed=(), active=None, label=None, index_symbol="i"):
+    """Render key, position symbol and record identity independently."""
+    if index_symbol not in ("i", "j"):
+        raise ValueError("Unsupported array index symbol")
     if ids is not None and len(ids) != len(values):
         raise ValueError("Record identity count differs from key count")
     cells = []
@@ -61,7 +63,7 @@ def seq(values, ids=None, *, focus=(), fixed=(), active=None, label=None):
         elif i in fixed or (active is not None and i >= active):
             klass += " d20-fixed"
         sub = ('<small>id='+escape(str(ids[i]))+'</small>' if ids is not None else "")
-        cells.append('<div class="'+klass+'"><small class="d20-index">i='+str(i)+'</small>'
+        cells.append('<div class="'+klass+'"><small class="d20-index">'+index_symbol+'='+str(i)+'</small>'
                      '<strong>'+escape(str(val))+'</strong>'+sub+'</div>')
     return ('<figure class="d20-sequence" aria-label="'+escape(label or "数组顺序状态", quote=True)+'">'
             '<div class="d20-cells" style="--n:'+str(len(values))+'">'+''.join(cells)+'</div>'
@@ -364,21 +366,21 @@ add("heap-checkpoint", "为什么这次局部修复能够保证整个堆正确�
 COURSE.start_section("merge")
 add("merge-opportunity", "两个输入已有序，为什么不必重新排序？",
     cols(box("左有序输入 L",seq([2,5,8])),
-         box("右有序输入 R",seq([1,6,7])))
+         box("右有序输入 R",seq([1,6,7],index_symbol="j")))
     +highlight("<strong>有序归并（merge）</strong>：每侧未处理首元素都是该侧剩余的最小值；"
                "只比较两个首元素，就能取出全部剩余记录中的一个最小值。"),
     "merge",goal="识别有序输入的信息价值并建立线性归并的前提")
 add("merge-trace", "两个有序序列如何逐步合成完整结果？",
     trace_view("merge",'<div class="d20-compact-input">'
                '<div><strong>左半段 L</strong>'+seq([2,5,8],["a","b","c"])+'</div>'
-               '<div><strong>右半段 R</strong>'+seq([1,6,7],["d","e","f"])+'</div></div>',
+               '<div><strong>右半段 R</strong>'+seq([1,6,7],["d","e","f"],index_symbol="j")+'</div></div>',
                "当前候选、指针位置及输出前缀同步呈现。")
     +note("只比较两侧首候选；某一侧耗尽后追加另一侧剩余部分。"),
     "merge",goal="通过连续状态解释线性归并与输出前缀",activity="逐步预测和核对")
 add("stable-merge-independent", "相等关键字的记录，应当先从哪边取？",
     task(
         cols(box("原记录的左半段 L",seq([2,5,8],["甲","乙","戊"])),
-             box("原记录的右半段 R",seq([2,6,7],["丙","丁","己"]))),
+             box("原记录的右半段 R",seq([2,6,7],["丙","丁","己"],index_symbol="j"))),
         P("<strong>独立任务：</strong>归并两段分别已排序的记录；关键字都为 2 时如何选择？请写出完整身份顺序，并解释为何这样稳定。"),
         box("稳定归并后的完整输出",
             seq([2,2,5,6,7,8],["甲","丙","乙","丁","己","戊"]))
