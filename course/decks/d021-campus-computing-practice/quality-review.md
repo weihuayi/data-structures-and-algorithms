@@ -47,3 +47,9 @@ python3 tools/deck/verify.py --base origin/main --output /tmp/d021-full-review
 ```
 
 最后一项需按实际基线 SHA 调整。完成真实视觉自审后使用现有 review.py 记录，未完成不得填写通过。无受限校园素材及学生记录入库。期末任务发布时间、提交方式和总评权重不擅自修改。
+
+## 第一轮真实工程及视觉证据与第二轮修订
+
+修订版本 `cf6d9dadbea635b50851ab0f9922a61a5b2ef1be` 的专项运行 [46156486343](https://github.com/weihuayi/data-structures-and-algorithms/actions/runs/46156486343) 已实际完成：正式 build.py 及 git diff 无差异；4 项 D021 源与 C11 回归测试通过（含三个参考程序严格编译执行）；21 讲作业检查通过；静态检查通过；实际 Chromium 151.0.7922.34 浏览器全操作检查 426/426 项通过。证据 [artifact 15267139511](https://github.com/weihuayi/data-structures-and-algorithms/actions/runs/46156486343/artifacts/15267139511) 已下载并审阅，两个投影尺寸共 64 张默认态及 8 张展开态/滚动位置截图（含教师注记、两道独立题的展开状态与必要输入保留）。未发现机器所测布局溢出、缺字、遮挡或交互失败。另行进行视觉审阅时，发现第 4/5/12/31 页与其余并列块的边框语法不统一，第 5 页引导句出现孤行，第 27–29 页重要模型边界作为小字号注释不够醒目；第 9 页图应明示非比例示意并去除提前提及期末题目的后台语句，第 26 页题目不是候选状态。已作局部修订，保留两轮证据，第二轮必须重新正式构建、运行检查并审阅实际截图。第一轮通过不能替代修订后证据。
+
+合并基线 run [46156081856](https://github.com/weihuayi/data-structures-and-algorithms/actions/runs/46156081856) 完成且失败：static、homework、semantic、checker-regression 退出码 0；全课程报告有 26 项阻断和 46 项历史发现，数量与合并前 run 46137291629 一致。D017/D020 溢出问题不在本轮定向修改范围，原失败保留。

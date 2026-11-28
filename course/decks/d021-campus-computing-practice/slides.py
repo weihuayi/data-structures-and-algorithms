@@ -13,7 +13,7 @@ COURSE = CourseDeck([
     Section("campus", "观察与理解湘潭大学校园", "我们每天生活的校园，有哪些现象和需求值得研究？", "从学生真实体验出发，讨论教学、空间、交通、服务及资源之间的联系。", "发现问题，区分观察、推断和待验证解释"),
     Section("model", "从现实问题到计算问题", "一个真实问题怎样变成边界明确的计算任务？", "识别对象、信息、关系、假设、输入、输出与目标。", "在具体情境中建立计算抽象意识"),
     Section("knowledge", "重新认识数据结构与算法", "已经学过的知识怎样共同支持一次计算？", "回顾表示、操作、算法、正确性、代价和验证的关系。", "回收课程主线，形成后续复习导航"),
-    Section("practice", "期末综合计算实践", "从校园问题中可以提取哪些适合自己尝试的任务？", "认识三个候选题目及其边界，在授课结束时统一发布。", "理解期末个人实践的目的及共同要求"),
+    Section("practice", "期末综合计算实践", "从校园问题中可以提取哪些适合自己尝试的任务？", "了解三个期末实践题目及其边界，在授课结束时统一发布。", "理解期末个人实践的目的及共同要求"),
 ])
 
 COURSE.add("cover", "从校园生活到计算问题",
@@ -23,11 +23,11 @@ COURSE.add("cover", "从校园生活到计算问题",
 COURSE.outline(title="今天我们将怎样重新认识数据结构与算法？")
 COURSE.start_section("learning")
 COURSE.add("knowledge-vs-ability", "学过一种算法，就意味着会解决问题吗？",
-    "<div class=\"columns\"><div class=\"panel\"><h3>教材中的任务</h3><p>给出一个图，要求完成 BFS。</p><p>问题和输入已经定义好了。</p></div><div class=\"panel\"><h3>现实中的任务</h3><p>某处道路施工后，学生怎样到教室？</p><p>先判断需要什么信息、求什么结果。</p></div></div><div class=\"quote\">会执行算法与会提出并解决计算问题，是不同层次的能力。</div>",
+    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>教材中的任务</h3><p>给出一个图，要求完成 BFS。</p><p>问题和输入已经定义好了。</p></div><div class=\"panel\"><h3>现实中的任务</h3><p>某处道路施工后，学生怎样到教室？</p><p>先判断需要什么信息、求什么结果。</p></div></div><div class=\"quote\">会执行算法与会提出并解决计算问题，是不同层次的能力。</div>",
     section="learning", role="content", goal="区分知识记忆、算法执行和独立问题解决", activity="先独立回忆自己遇到的困难，再听同学回答")
 
 COURSE.add("learning-purpose", "学习怎样帮助我们认识和改善生活？",
-    "<p class=\"lead\">你所学的知识，能不能帮助你理解一个以前不理解的现象？</p><div class=\"columns\"><div class=\"panel\"><h3>适应环境</h3><p>认识已有规则，学会使用已有工具。</p></div><div class=\"panel\"><h3>改善环境</h3><p>观察、提出问题、分析原因、探索改变的可能性。</p></div></div><p>不必现在就有答案。先从自己真正关心的问题开始。</p>",
+    "<p class=\"lead\">所学知识能否帮助我们理解以前不理解的现象？</p><div class=\"columns d21-columns\"><div class=\"panel\"><h3>适应环境</h3><p>认识已有规则，学会使用已有工具。</p></div><div class=\"panel\"><h3>改善环境</h3><p>观察、提出问题、分析原因、探索改变的可能性。</p></div></div><p>不必现在就有答案。先从自己真正关心的问题开始。</p>",
     section="learning", role="content", goal="把学习能力与现实认识建立联系", activity="教师追问学生已有体验，不要求表态")
 
 COURSE.start_section("campus")
@@ -40,7 +40,7 @@ COURSE.add("open-discussion", "你遇到过哪些值得改善的校园问题？"
     section="campus", role="content", goal="自主提出真实问题并区分事实与猜测", activity="教师留白；先听学生，不预先给三个题目")
 
 COURSE.add("timetable-impact", "一份课表会怎样影响学生的学习与生活？",
-    "<figure class=\"d21-figure\"><svg viewBox=\"0 0 930 210\" role=\"img\" aria-label=\"教学构造时间轴：同一学生上午先在甲楼上课，再在乙楼上课，两活动间存在移动时间窗口\"><g fill=\"#eef4f9\" stroke=\"#246c9d\" stroke-width=\"2\"><rect x=\"30\" y=\"45\" width=\"275\" height=\"92\" rx=\"8\"/><rect x=\"625\" y=\"45\" width=\"275\" height=\"92\" rx=\"8\"/></g><g font-size=\"27\" fill=\"#152943\" text-anchor=\"middle\"><text x=\"167.5\" y=\"82\">第一门课 · 甲楼</text><text x=\"167.5\" y=\"115\">08:00—09:40</text><text x=\"762.5\" y=\"82\">第二门课 · 乙楼</text><text x=\"762.5\" y=\"115\">10:00—11:40</text><text x=\"465\" y=\"70\">课间活动</text><text x=\"465\" y=\"105\">移动、休息</text></g><path d=\"M315 150 H615\" stroke=\"#d94d16\" stroke-width=\"4\"/><path d=\"M315 140 V160 M615 140 V160\" stroke=\"#d94d16\" stroke-width=\"4\"/><text x=\"465\" y=\"190\" text-anchor=\"middle\" font-size=\"25\" fill=\"#152943\">可用时间窗口</text></svg><figcaption>构造情境，不代表实际课表；此处不求解期末题目。</figcaption></figure><p>如果下一门课改在同一栋楼，课间体验会怎样变化？要判断是否来得及，还缺少什么信息？</p>",
+    "<figure class=\"d21-figure\"><svg viewBox=\"0 0 930 210\" role=\"img\" aria-label=\"教学构造时间轴：同一学生上午先在甲楼上课，再在乙楼上课，两活动间存在移动时间窗口\"><g fill=\"#eef4f9\" stroke=\"#246c9d\" stroke-width=\"2\"><rect x=\"30\" y=\"45\" width=\"275\" height=\"92\" rx=\"8\"/><rect x=\"625\" y=\"45\" width=\"275\" height=\"92\" rx=\"8\"/></g><g font-size=\"27\" fill=\"#152943\" text-anchor=\"middle\"><text x=\"167.5\" y=\"82\">第一门课 · 甲楼</text><text x=\"167.5\" y=\"115\">08:00—09:40</text><text x=\"762.5\" y=\"82\">第二门课 · 乙楼</text><text x=\"762.5\" y=\"115\">10:00—11:40</text><text x=\"465\" y=\"70\">课间活动</text><text x=\"465\" y=\"105\">移动、休息</text></g><path d=\"M315 150 H615\" stroke=\"#d94d16\" stroke-width=\"4\"/><path d=\"M315 140 V160 M615 140 V160\" stroke=\"#d94d16\" stroke-width=\"4\"/><text x=\"465\" y=\"190\" text-anchor=\"middle\" font-size=\"25\" fill=\"#152943\">可用时间窗口</text></svg><figcaption>教学构造情境，不代表实际课表；图中时间段宽度不按比例。</figcaption></figure><p>如果下一门课改在同一栋楼，课间体验会怎样变化？要判断是否来得及，还缺少什么信息？</p>",
     section="campus", role="content", goal="发现活动次序和空间移动之间的联系", activity="请学生结合自己的经历说明，不展示含身份的课表")
 
 COURSE.add("campus-space", "我们怎样认识校园中的空间与道路？",
@@ -52,7 +52,7 @@ COURSE.add("traffic", "为什么有些道路在特定时段会拥堵？",
     section="campus", role="content", goal="从观察现象走向提出可检验解释", activity="学生提出假设，教师追问如何验证")
 
 COURSE.add("service-wait", "为什么有些校园服务需要长时间等待？",
-    "<div class=\"columns\"><div class=\"panel\"><h3>请求一侧</h3><p>什么时候到达？有多少请求？每个请求需要怎样的服务？</p></div><div class=\"panel\"><h3>服务一侧</h3><p>有几个窗口？每次服务需要多久？按什么规则处理？</p></div></div><div class=\"quote\">等待时间与到达、服务能力及处理规则都可能有关。</div>",
+    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>请求一侧</h3><p>什么时候到达？有多少请求？每个请求需要怎样的服务？</p></div><div class=\"panel\"><h3>服务一侧</h3><p>有几个窗口？每次服务需要多久？按什么规则处理？</p></div></div><div class=\"quote\">等待时间与到达、服务能力及处理规则都可能有关。</div>",
     section="campus", role="content", goal="识别服务过程中的对象、事件与资源限制", activity="从食堂、快递等学生实际体验比较")
 
 COURSE.add("resource-use", "校园中还有哪些资源可以更好地利用？",
@@ -103,15 +103,15 @@ COURSE.add("verify-choice", "为什么结果、正确性和计算代价都需要
 
 COURSE.start_section("practice")
 COURSE.add("practice-a", "题目 A｜校园课表合理性分析",
-    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>现实背景</h3><p>相邻教学活动可能发生在不同地点，课间移动时间可能不足。</p></div><div class=\"panel\"><h3>计算任务</h3><p>给定某位学生或同班学生一天内不重叠的课表与预计移动时间，检查相邻课程间隔是否足够。</p></div></div><p class=\"small\">知识入口：记录、顺序表、排序与扫描。课表检查不等于自动排课。</p>",
+    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>现实背景</h3><p>相邻教学活动可能发生在不同地点，课间移动时间可能不足。</p></div><div class=\"panel\"><h3>计算任务</h3><p>给定某位学生或同班学生一天内不重叠的课表与预计移动时间，检查相邻课程间隔是否足够。</p></div></div><p class=\"d21-task-note\"><strong>知识入口：</strong>记录、顺序表、排序与扫描。</p><p class=\"d21-task-note\"><strong>模型边界：</strong>课表检查不等于自动排课。</p>",
     section="practice", role="content", goal="认识课表检查的目标、对象和边界", activity="理解题意，不展示参考程序或正式答案")
 
 COURSE.add("practice-b", "题目 B｜校园道路网络与路径分析",
-    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>现实背景</h3><p>施工或其他通行条件变化，可能改变校园中的出行路线。</p></div><div class=\"panel\"><h3>计算任务</h3><p>给定无向道路网络，判断地点间可达性，求最少边数路径并比较道路关闭前后的结果。</p></div></div><p class=\"small\">知识入口：图、队列、广度优先搜索（BFS）。最少边数不等于实际最短距离。</p>",
+    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>现实背景</h3><p>施工或其他通行条件变化，可能改变校园中的出行路线。</p></div><div class=\"panel\"><h3>计算任务</h3><p>给定无向道路网络，判断地点间可达性，求最少边数路径并比较道路关闭前后的结果。</p></div></div><p class=\"d21-task-note\"><strong>知识入口：</strong>图、队列、广度优先搜索（BFS）。</p><p class=\"d21-task-note\"><strong>模型边界：</strong>最少边数不等于实际最短距离。</p>",
     section="practice", role="content", goal="认识无权图搜索的任务与边界", activity="学生说明顶点、边可能表示什么")
 
 COURSE.add("practice-c", "题目 C｜校园服务请求与等待时间分析",
-    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>现实背景</h3><p>服务请求陆续到达一个窗口，服务时间和处理规则可能影响等待。</p></div><div class=\"panel\"><h3>计算任务</h3><p>给定到达时间和服务时长，按先到先服务（FIFO）规则模拟处理，计算等待时间。</p></div></div><p class=\"small\">知识入口：记录、排序、队列语义、状态更新。FIFO 是规则，不强制使用显式队列。</p>",
+    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>现实背景</h3><p>服务请求陆续到达一个窗口，服务时间和处理规则可能影响等待。</p></div><div class=\"panel\"><h3>计算任务</h3><p>给定到达时间和服务时长，按先到先服务（FIFO）规则模拟处理，计算等待时间。</p></div></div><p class=\"d21-task-note\"><strong>知识入口：</strong>记录、排序、队列语义、状态更新。</p><p class=\"d21-task-note\"><strong>模型边界：</strong>FIFO 是规则，不强制使用显式队列。</p>",
     section="practice", role="content", goal="认识请求、事件和状态更新的计算任务", activity="讨论模型不考虑哪些现实因素")
 
 COURSE.add("practice-process", "怎样完整地经历一次计算实践？",
@@ -119,7 +119,7 @@ COURSE.add("practice-process", "怎样完整地经历一次计算实践？",
     section="practice", role="content", goal="建立完整实践路径与独立判断责任", activity="教师说明后续学习如何支持自主推进")
 
 COURSE.add("practice-reflection", "三个题目不同，怎样判断自己的学习有了进展？",
-    "<div class=\"columns\"><div class=\"panel\"><h3>不只看最终结果</h3><p>能否说清计算目标、数据结构、算法依据和计算代价？</p></div><div class=\"panel\"><h3>也看理解与验证</h3><p>能否独立预测、运行程序、检查变化和边界，并解释局限？</p></div></div><div class=\"quote\">课件和 AI 都可以提供帮助，但理解、判断与验证需要自己参与。</div>",
+    "<div class=\"columns d21-columns\"><div class=\"panel\"><h3>不只看最终结果</h3><p>能否说清计算目标、数据结构、算法依据和计算代价？</p></div><div class=\"panel\"><h3>也看理解与验证</h3><p>能否独立预测、运行程序、检查变化和边界，并解释局限？</p></div></div><div class=\"quote\">课件和 AI 都可以提供帮助，但理解、判断与验证需要自己参与。</div>",
     section="practice", role="content", goal="建立共同评价认识，避免以报告形式替代理解", activity="提出一个自己还想弄清楚的问题，不要求提交")
 
 COURSE.add("final-practice-release", "课后作业：期末综合计算实践大作业",

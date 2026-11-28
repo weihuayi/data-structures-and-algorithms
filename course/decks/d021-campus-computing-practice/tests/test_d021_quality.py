@@ -46,8 +46,16 @@ class D021Quality(unittest.TestCase):
         for key in ("practice-a", "practice-b", "practice-c"):
             self.assertIn("现实背景", self.pages[key][1])
             self.assertIn("计算任务", self.pages[key][1])
+            self.assertIn("模型边界", self.pages[key][1])
         self.assertIn("固定非负通行时间", self.pages["multiple-tasks"][1])
         self.assertIn("编号唯一", self.pages["define-task"][1])
+
+    def test_visual_consistency_source(self):
+        for key, (_, body, _) in self.pages.items():
+            with self.subTest(page=key):
+                self.assertNotIn('<div class="columns">', body)
+        self.assertNotIn("期末题目", self.pages["timetable-impact"][1])
+        self.assertIn("时间段宽度不按比例", self.pages["timetable-impact"][1])
 
     def test_reference_programs_strict_c11_and_outputs(self):
         cases = {
