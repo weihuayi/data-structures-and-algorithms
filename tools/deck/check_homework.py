@@ -26,9 +26,30 @@ def labels(body):
     return result
 
 
+FINAL_PRACTICE_DECK = "d021-campus-computing-practice"
+FINAL_PRACTICE_LINK = "../../assignments/campus-computing-practice/README.md"
+
+
+def check_final_practice(deck, title, body):
+    """Narrow teacher-approved exception: validate D021's final assignment entry."""
+    errors = []
+    if '期末综合计算实践大作业' not in title:
+        errors.append("D021: missing final practice title")
+    if f'href="{FINAL_PRACTICE_LINK}"' not in body or not (deck / FINAL_PRACTICE_LINK).is_file():
+        errors.append("D021: missing canonical final practice link")
+    for fragment in ("任选其一", "独立完成", "一份个人报告", "不要求立即选题", "阶段成果", "本讲不另设 A/B", "个人电脑", "过程记录", "飞书", "作业共同规范"):
+        if fragment not in body:
+            errors.append(f"D021: missing final practice requirement: {fragment}")
+    if labels(body) or SOURCE.search(body):
+        errors.append("D021: final practice page must not add ordinary A/B tasks")
+    return errors
+
+
 def check_page(deck, title, body):
     """Check reliable surface invariants; cannot assess task validity."""
     errors = []
+    if deck.name == FINAL_PRACTICE_DECK:
+        return check_final_practice(deck, title, body)
     identifier = deck.name.split("-", 1)[0].upper()
     present = labels(body)
     for key in ("A", "B"):
@@ -72,6 +93,8 @@ def check_all(decks=DECKS):
         if len(pages) != 1:
             errors.append(f"{deck.name}: expected one homework page, got {len(pages)}")
             continue
+        if deck.name == FINAL_PRACTICE_DECK and (model.SLIDES[-1][:2] != list(pages[0]) or model.COURSE.pages[-1]['id'] != 'final-practice-release'):
+            errors.append('D021: final practice must be the final registered page')
         errors.extend(check_page(deck, *pages[0]))
     return count, errors
 
