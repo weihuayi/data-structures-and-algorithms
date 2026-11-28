@@ -4,8 +4,8 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 PRACTICE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 REFERENCE_DIR="$PRACTICE_DIR/reference"
-CC=\${CC:-cc}
-TMP_DIR=$(mktemp -d "\${TMPDIR:-/tmp}/campus-practice-tests.XXXXXX")
+CC=${CC:-cc}
+TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/campus-practice-tests.XXXXXX")
 trap 'rm -rf "$TMP_DIR"' EXIT HUP INT TERM
 
 compile_and_run() {
