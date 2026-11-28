@@ -25,6 +25,16 @@ class HomeworkContractTests(unittest.TestCase):
         self.assertGreaterEqual(count, 16)
         self.assertEqual(issues, [])
 
+    def test_d021_narrow_final_practice_exception(self):
+        deck = DECKS / "d021-campus-computing-practice"
+        model = load_deck(deck)
+        title, body, _ = model.SLIDES[-1]
+        self.assertEqual(check_page(deck, title, body), [])
+        self.assertTrue(check_page(deck, title, body.replace("campus-computing-practice/README.md", "unknown.md")))
+        self.assertTrue(check_page(deck, title, body.replace("独立完成", "完成")))
+        self.assertTrue(check_page(deck, title, body + "<strong>A · 书本习题</strong>"))
+        self.assertTrue(check_page(self.deck, title, body))
+
     def test_d016_requires_concrete_A_and_B(self):
         self.assertEqual(check_page(self.deck, self.title, self.body), [])
         faults = [
