@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define COURSE_COUNT 6
@@ -18,11 +17,17 @@ static const int travel[PLACE_COUNT][PLACE_COUNT] = {
     {8, 20, 0}
 };
 
-static int compare_course(const void *lhs, const void *rhs) {
-    const Course *a = (const Course *)lhs;
-    const Course *b = (const Course *)rhs;
-    if (a->start != b->start) return (a->start > b->start) - (a->start < b->start);
-    return strcmp(a->id, b->id);
+/* The task assumes distinct start times and non-overlapping classes. */
+static void insertion_sort(Course a[], size_t n) {
+    for (size_t i = 1; i < n; ++i) {
+        Course key = a[i];
+        size_t j = i;
+        while (j > 0 && a[j - 1].start > key.start) {
+            a[j] = a[j - 1];
+            --j;
+        }
+        a[j] = key;
+    }
 }
 
 static void print_time(int minute) {
@@ -39,7 +44,7 @@ static void analyze(Course courses[], size_t count, int ab_travel) {
         return;
     }
 
-    qsort(courses, count, sizeof courses[0], compare_course);
+    insertion_sort(courses, count);
     puts("排序后的课程：");
     for (size_t i = 0; i < count; ++i) {
         printf("  %s ", courses[i].id);

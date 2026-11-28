@@ -10,21 +10,22 @@ typedef struct {
     int service;
 } Request;
 
-typedef struct {
-    char id[8];
-    int arrival;
-    int service;
-    int start;
-    int finish;
-    int wait;
-} Result;
+/* IDs are R followed by a positive integer; compare numeric IDs on ties. */
+static int later(Request a, Request b) {
+    if (a.arrival != b.arrival) return a.arrival > b.arrival;
+    return strtol(a.id + 1, NULL, 10) > strtol(b.id + 1, NULL, 10);
+}
 
-static int compare_request(const void *lhs, const void *rhs) {
-    const Request *a = (const Request *)lhs;
-    const Request *b = (const Request *)rhs;
-    if (a->arrival != b->arrival)
-        return (a->arrival > b->arrival) - (a->arrival < b->arrival);
-    return strcmp(a->id, b->id);
+static void insertion_sort(Request a[], size_t n) {
+    for (size_t i = 1; i < n; ++i) {
+        Request key = a[i];
+        size_t j = i;
+        while (j > 0 && later(a[j - 1], key)) {
+            a[j] = a[j - 1];
+            --j;
+        }
+        a[j] = key;
+    }
 }
 
 static void simulate(Request requests[], size_t count, const char *title) {
@@ -33,37 +34,27 @@ static void simulate(Request requests[], size_t count, const char *title) {
         return;
     }
 
-    qsort(requests, count, sizeof requests[0], compare_request);
-    Result results[REQUEST_COUNT];
+    insertion_sort(requests, count);
     int available_at = 0;
     long total_wait = 0;
     int max_wait = 0;
 
+    printf("\n%s\n", title);
+    puts("请求 到达 服务 开始 完成 等待");
     for (size_t i = 0; i < count; ++i) {
         int start = requests[i].arrival > available_at
                     ? requests[i].arrival : available_at;
         int finish = start + requests[i].service;
         int wait = start - requests[i].arrival;
 
-        (void)snprintf(results[i].id, sizeof results[i].id, "%s", requests[i].id);
-        results[i].arrival = requests[i].arrival;
-        results[i].service = requests[i].service;
-        results[i].start = start;
-        results[i].finish = finish;
-        results[i].wait = wait;
+        printf("%-4s %4d %4d %4d %4d %4d\n", requests[i].id,
+               requests[i].arrival, requests[i].service, start, finish, wait);
 
         available_at = finish;
         total_wait += wait;
         if (wait > max_wait) max_wait = wait;
     }
 
-    printf("\n%s\n", title);
-    puts("请求 到达 服务 开始 完成 等待");
-    for (size_t i = 0; i < count; ++i) {
-        printf("%-4s %4d %4d %4d %4d %4d\n",
-               results[i].id, results[i].arrival, results[i].service,
-               results[i].start, results[i].finish, results[i].wait);
-    }
     printf("平均等待时间：%.2f 分钟\n", (double)total_wait / (double)count);
     printf("最大等待时间：%d 分钟\n", max_wait);
 }
@@ -87,5 +78,7 @@ int main(void) {
 
     Request single[] = {{"R9", 5, 2}};
     simulate(single, 1, "边界测试：单个延迟到达请求");
+    Request ties[] = {{"R10", 0, 1}, {"R2", 0, 1}};
+    simulate(ties, 2, "边界测试：编号数值排序");
     return 0;
 }
