@@ -26,18 +26,18 @@
 在仓库根目录执行。cc 可以替换为本机可用的 GCC 或 Clang。
 
 ```bash
-cc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \\
-  course/assignments/campus-computing-practice/reference/topic_a_timetable.c \\
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \
+  course/assignments/campus-computing-practice/reference/topic_a_timetable.c \
   -o /tmp/topic_a
 /tmp/topic_a
 
-cc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \\
-  course/assignments/campus-computing-practice/reference/topic_b_bfs.c \\
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \
+  course/assignments/campus-computing-practice/reference/topic_b_bfs.c \
   -o /tmp/topic_b
 /tmp/topic_b
 
-cc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \\
-  course/assignments/campus-computing-practice/reference/topic_c_fifo.c \\
+cc -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \
+  course/assignments/campus-computing-practice/reference/topic_c_fifo.c \
   -o /tmp/topic_c
 /tmp/topic_c
 ```
