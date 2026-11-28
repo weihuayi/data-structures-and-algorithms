@@ -1,0 +1,30 @@
+/* D021 local presentation, following the D018–D020 cover/closing grammar.
+   Keep readable semantic content; no shared stylesheet overrides. */
+.deck .slide[data-page-id="cover"]{padding-top:clamp(20px,5vh,70px)}
+.deck .d21-cover{max-width:1250px;display:grid;gap:16px}
+.deck .d21-cover-lead{font-size:clamp(28px,2.2vw,36px);line-height:1.38;font-weight:650;color:#204e73;margin:0}
+.deck .d21-cover-line{border-left:6px solid #246c9d;background:#eaf3fb;padding:15px 20px;border-radius:4px;display:grid;gap:7px}
+.deck .d21-cover-label{color:#225b84;font-weight:750;font-size:clamp(19px,1.5vw,24px)}
+.deck .d21-cover-sequence{font-size:clamp(22px,1.75vw,28px);font-weight:650;line-height:1.5;color:#1a405d}
+.deck .d21-cover-note{color:#526e81;font-size:clamp(18px,1.35vw,21px);line-height:1.35;margin:0}
+.deck .d21-columns{gap:clamp(18px,2vw,32px);align-items:stretch;grid-template-columns:repeat(2,minmax(0,1fr))}
+.deck .d21-columns>.panel{border:1px solid #c5d9e7;border-top:4px solid #246c9d;background:#f7fafc;border-radius:7px;padding:14px 18px;min-width:0}
+.deck .d21-columns>.panel h3{font-size:clamp(23px,1.9vw,30px);color:#204e73;margin:0 0 8px}
+.deck .d21-columns>.panel p{margin:8px 0;line-height:1.45}
+.deck .d21-figure{margin:0}.deck .d21-figure svg{display:block;width:100%;max-height:220px}
+.deck .d21-figure figcaption{font-size:clamp(18px,1.35vw,22px);color:var(--muted);line-height:1.4;margin:5px 0}
+.deck .d21-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:10px 0}
+.deck .d21-flow-node{display:flex;align-items:center;gap:12px;padding:14px 12px;background:#eef4f9;border:1px solid #c5d9e7;border-radius:6px;font-size:clamp(21px,1.8vw,29px)}
+.deck .d21-flow-node span{font-weight:750;color:#246c9d}
+.deck .d21-release p{font-size:clamp(21px,1.7vw,27px);line-height:1.4;margin:10px 0}
+.deck .d21-release p.small{font-size:clamp(18px,1.35vw,21px);line-height:1.4;color:#536c80}
+.deck .slide[data-page-id="research-connection"] .teacher-note{margin-top:9px}
+.deck .slide[data-page-id="representation-recall"] td,.deck .slide[data-page-id="mechanism-recall"] td,.deck .slide[data-page-id="information"] td,.deck .slide[data-page-id="multiple-tasks"] td{font-size:clamp(22px,1.7vw,28px);line-height:1.42;padding:8px 10px}
+@media(max-height:760px) and (min-width:901px){
+ .deck .d21-columns>.panel{padding:10px 14px}
+ .deck .d21-columns>.panel p{margin:5px 0}
+ .deck .d21-release p{margin:7px 0}
+ .deck .d21-flow-node{padding:10px 12px}
+ .deck .slide[data-page-id="campus-relations"] svg{max-height:250px!important}
+}
+@media(max-width:900px){.deck .d21-columns{grid-template-columns:1fr}.deck .d21-flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
